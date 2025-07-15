@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Stack } from 'expo-router';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { ArrowLeft } from 'lucide-react-native';
 import { SpiritualCalendar } from '@/components/SpiritualCalendar';
 import { useTheme } from '@/components/ThemeProvider';
 
 export default function CalendarScreen() {
   const { colors } = useTheme();
+  const router = useRouter();
   
   return (
     <>
@@ -15,8 +17,12 @@ export default function CalendarScreen() {
           headerStyle: {
             backgroundColor: colors.background,
           },
-          headerTintColor: colors.primary,
-          headerBackTitle: 'Retour',
+          headerTintColor: colors.text,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 16 }}>
+              <ArrowLeft size={24} color={colors.text} />
+            </TouchableOpacity>
+          ),
         }} 
       />
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
