@@ -34,6 +34,7 @@ interface NotificationItemProps {
   enabled: boolean;
   onToggle: () => void;
   time?: string;
+  colors: any;
 }
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
@@ -43,6 +44,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   enabled,
   onToggle,
   time,
+  colors,
 }) => (
   <View style={styles.notificationItem}>
     <View style={styles.notificationLeft}>
@@ -166,6 +168,7 @@ export default function NotificationsScreen() {
               enabled={dailyVerse && notifications.push}
               onToggle={() => setDailyVerse(!dailyVerse)}
               time="8:00"
+              colors={colors}
             />
             
             <NotificationItem
@@ -175,6 +178,7 @@ export default function NotificationsScreen() {
               enabled={prayerReminder && notifications.push}
               onToggle={() => setPrayerReminder(!prayerReminder)}
               time="12:00, 18:00"
+              colors={colors}
             />
             
             <NotificationItem
@@ -183,6 +187,7 @@ export default function NotificationsScreen() {
               subtitle="Progression dans vos lectures"
               enabled={readingPlan && notifications.push}
               onToggle={() => setReadingPlan(!readingPlan)}
+              colors={colors}
             />
             
             <NotificationItem
@@ -192,6 +197,7 @@ export default function NotificationsScreen() {
               enabled={meditation && notifications.push}
               onToggle={() => setMeditation(!meditation)}
               time="20:00"
+              colors={colors}
             />
             
             <NotificationItem
@@ -200,6 +206,7 @@ export default function NotificationsScreen() {
               subtitle="Nouvelles discussions et partages"
               enabled={community && notifications.push}
               onToggle={() => setCommunity(!community)}
+              colors={colors}
             />
             
             <NotificationItem
@@ -208,6 +215,7 @@ export default function NotificationsScreen() {
               subtitle="Célébrez vos accomplissements"
               enabled={achievements && notifications.push}
               onToggle={() => setAchievements(!achievements)}
+              colors={colors}
             />
           </View>
         </View>

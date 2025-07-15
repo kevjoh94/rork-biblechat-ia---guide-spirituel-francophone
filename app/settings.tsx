@@ -34,6 +34,7 @@ interface SettingItemProps {
   onPress?: () => void;
   rightElement?: React.ReactNode;
   showChevron?: boolean;
+  colors: any;
 }
 
 const SettingItem: React.FC<SettingItemProps> = ({
@@ -43,6 +44,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
   onPress,
   rightElement,
   showChevron = true,
+  colors,
 }) => (
   <TouchableOpacity
     style={styles.settingItem}
@@ -64,7 +66,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
     <View style={styles.settingRight}>
       {rightElement}
       {showChevron && onPress && (
-        <ChevronRight size={16} />
+        <ChevronRight size={16} color={colors.text} />
       )}
     </View>
   </TouchableOpacity>
@@ -137,6 +139,7 @@ export default function SettingsScreen() {
                 />
               }
               showChevron={false}
+              colors={colors}
             />
           </View>
         </View>
@@ -158,6 +161,7 @@ export default function SettingsScreen() {
                 />
               }
               showChevron={false}
+              colors={colors}
             />
             <SettingItem
               icon={<Volume2 />}
@@ -172,6 +176,7 @@ export default function SettingsScreen() {
                 />
               }
               showChevron={false}
+              colors={colors}
             />
             <SettingItem
               icon={<Smartphone />}
@@ -186,6 +191,7 @@ export default function SettingsScreen() {
                 />
               }
               showChevron={false}
+              colors={colors}
             />
           </View>
         </View>
@@ -205,6 +211,7 @@ export default function SettingsScreen() {
                   [{ text: 'OK' }]
                 );
               }}
+              colors={colors}
             />
           </View>
         </View>
@@ -218,12 +225,14 @@ export default function SettingsScreen() {
               title="Aide"
               subtitle="Guide d'utilisation"
               onPress={showHelp}
+              colors={colors}
             />
             <SettingItem
               icon={<Info />}
               title="À propos"
               subtitle="Informations sur l'application"
               onPress={showAbout}
+              colors={colors}
             />
           </View>
         </View>
