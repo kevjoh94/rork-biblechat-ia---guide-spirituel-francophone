@@ -13,6 +13,7 @@ import {
   Alert
 } from "react-native";
 import { Audio } from "expo-av";
+import * as Speech from "expo-speech";
 
 import { ChatBubble } from "@/components/ChatBubble";
 import { colors } from "@/constants/colors";
@@ -46,7 +47,6 @@ export default function ChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [currentSound, setCurrentSound] = useState<Audio.Sound | null>(null);
   const flatListRef = useRef<FlatList>(null);
   
   const chatHistory = useSpiritualStore((state) => state.chatHistory);
@@ -276,15 +276,11 @@ Peux-tu réessayer dans quelques instants ?`,
     }
   };
 
-  const speakWithOpenAI = async (text: string) => {
+  const speakWithExpoSpeech = async (text: string) => {
     try {
       if (isSpeaking) {
-        // Stop current audio
-        if (currentSound) {
-          await currentSound.stopAsync();
-          await currentSound.unloadAsync();
-          setCurrentSound(null);
-        }
+        // Stop current speech
+        Speech.stop();
         setIsSpeaking(false);
         return;
       }
@@ -302,73 +298,29 @@ Peux-tu réessayer dans quelques instants ?`,
         .replace(/\n{2,}/g, ". ")
         .replace(/\n/g, ", ");
 
-      // Call OpenAI TTS API
-      const response = await fetch('https://toolkit.rork.com/tts/speak/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Configure speech options for better quality
+      const speechOptions = {
+        language: 'fr-FR',
+        pitch: 1.0,
+        rate: 0.8, // Slightly slower for spiritual content
+        voice: Platform.OS === 'ios' ? 'com.apple.ttsbundle.Amelie-compact' : undefined,
+        onDone: () => {
+          setIsSpeaking(false);
         },
-        body: JSON.stringify({
-          text: cleanText,
-          voice: 'nova', // OpenAI voice (nova is warm and natural)
-          model: 'tts-1-hd', // High quality model
-          speed: 0.9 // Slightly slower for spiritual content
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur TTS');
-      }
-
-      const audioBlob = await response.blob();
-
-      if (Platform.OS === 'web') {
-        // Web: Create audio URL and play
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new window.Audio(audioUrl);
-        
-        audio.onended = () => {
+        onStopped: () => {
           setIsSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        audio.onerror = () => {
+        },
+        onError: (error: any) => {
+          console.error('Erreur TTS:', error);
           setIsSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        await audio.play();
-      } else {
-        // Mobile: Convert blob to base64 and play with expo-av
-        const reader = new FileReader();
-        reader.onload = async () => {
-          try {
-            const base64Audio = reader.result as string;
-            const { sound } = await Audio.Sound.createAsync(
-              { uri: base64Audio },
-              { shouldPlay: true }
-            );
-            
-            setCurrentSound(sound);
-            
-            sound.setOnPlaybackStatusUpdate((status) => {
-              if (status.isLoaded && status.didJustFinish) {
-                setIsSpeaking(false);
-                sound.unloadAsync();
-                setCurrentSound(null);
-              }
-            });
-          } catch (error) {
-            console.error('Erreur lecture audio:', error);
-            setIsSpeaking(false);
-          }
-        };
-        reader.readAsDataURL(audioBlob);
-      }
+        }
+      };
+
+      await Speech.speak(cleanText, speechOptions);
     } catch (error) {
-      console.error('Erreur TTS OpenAI:', error);
+      console.error('Erreur TTS:', error);
       setIsSpeaking(false);
-      Alert.alert('Erreur', "Impossible de lire le texte avec la voix OpenAI.");
+      Alert.alert('Erreur', "Impossible de lire le texte.");
     }
   };
 
@@ -383,7 +335,7 @@ Peux-tu réessayer dans quelques instants ?`,
   const handleSpeakLastMessage = () => {
     const lastAiMessage = [...chatHistory].reverse().find(msg => !msg.isUser);
     if (lastAiMessage) {
-      speakWithOpenAI(lastAiMessage.text);
+      speakWithExpoSpeech(lastAiMessage.text);
     }
   };
 
@@ -392,7 +344,7 @@ Peux-tu réessayer dans quelques instants ?`,
       message={item.text}
       isUser={item.isUser}
       timestamp={item.timestamp}
-      onSpeak={!item.isUser ? () => speakWithOpenAI(item.text) : undefined}
+      onSpeak={!item.isUser ? () => speakWithExpoSpeech(item.text) : undefined}
       isSpeaking={isSpeaking}
     />
   );

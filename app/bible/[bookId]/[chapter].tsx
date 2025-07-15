@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Book, Heart, Share2, Volume2, VolumeX } from "lucide-react-native";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert } from "react-native";
-import { Audio } from "expo-av";
+import * as Speech from "expo-speech";
 
 import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
@@ -16,7 +16,6 @@ export default function ChapterScreen() {
   const router = useRouter();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [favoriteVerses, setFavoriteVerses] = useState<number[]>([]);
-  const [currentSound, setCurrentSound] = useState<Audio.Sound | null>(null);
 
   const book = bibleBooks.find((b) => b.id === bookId);
   const chapterKey = `${bookId}-${chapter}`;
@@ -38,15 +37,11 @@ export default function ChapterScreen() {
     );
   };
 
-  const speakChapterWithOpenAI = async () => {
+  const speakChapterWithExpoSpeech = async () => {
     try {
       if (isSpeaking) {
-        // Stop current audio
-        if (currentSound) {
-          await currentSound.stopAsync();
-          await currentSound.unloadAsync();
-          setCurrentSound(null);
-        }
+        // Stop current speech
+        Speech.stop();
         setIsSpeaking(false);
         return;
       }
@@ -56,73 +51,29 @@ export default function ChapterScreen() {
       const fullText = `${book.name}, chapitre ${chapter}. ` + 
         chapterData.verses.map(verse => `Verset ${verse.number}. ${verse.text}`).join('. ');
       
-      // Call OpenAI TTS API
-      const response = await fetch('https://toolkit.rork.com/tts/speak/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Configure speech options for better quality
+      const speechOptions = {
+        language: 'fr-FR',
+        pitch: 1.0,
+        rate: 0.75, // Slower for biblical reading
+        voice: Platform.OS === 'ios' ? 'com.apple.ttsbundle.Amelie-compact' : undefined,
+        onDone: () => {
+          setIsSpeaking(false);
         },
-        body: JSON.stringify({
-          text: fullText,
-          voice: 'nova', // OpenAI voice (nova is warm and natural)
-          model: 'tts-1-hd', // High quality model
-          speed: 0.8 // Slower for biblical reading
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur TTS');
-      }
-
-      const audioBlob = await response.blob();
-
-      if (Platform.OS === 'web') {
-        // Web: Create audio URL and play
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new window.Audio(audioUrl);
-        
-        audio.onended = () => {
+        onStopped: () => {
           setIsSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        audio.onerror = () => {
+        },
+        onError: (error: any) => {
+          console.error('Erreur TTS:', error);
           setIsSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        await audio.play();
-      } else {
-        // Mobile: Convert blob to base64 and play with expo-av
-        const reader = new FileReader();
-        reader.onload = async () => {
-          try {
-            const base64Audio = reader.result as string;
-            const { sound } = await Audio.Sound.createAsync(
-              { uri: base64Audio },
-              { shouldPlay: true }
-            );
-            
-            setCurrentSound(sound);
-            
-            sound.setOnPlaybackStatusUpdate((status) => {
-              if (status.isLoaded && status.didJustFinish) {
-                setIsSpeaking(false);
-                sound.unloadAsync();
-                setCurrentSound(null);
-              }
-            });
-          } catch (error) {
-            console.error('Erreur lecture audio:', error);
-            setIsSpeaking(false);
-          }
-        };
-        reader.readAsDataURL(audioBlob);
-      }
+        }
+      };
+
+      await Speech.speak(fullText, speechOptions);
     } catch (error) {
-      console.error('Erreur TTS OpenAI:', error);
+      console.error('Erreur TTS:', error);
       setIsSpeaking(false);
-      Alert.alert('Erreur', "Impossible de lire le chapitre avec la voix OpenAI.");
+      Alert.alert('Erreur', "Impossible de lire le chapitre.");
     }
   };
 
@@ -141,7 +92,7 @@ export default function ChapterScreen() {
             <Text style={styles.subtitle}>{chapterData.verses.length} versets</Text>
           </View>
         </View>
-        <TouchableOpacity onPress={speakChapterWithOpenAI} style={styles.speakButton}>
+        <TouchableOpacity onPress={speakChapterWithExpoSpeech} style={styles.speakButton}>
           {isSpeaking ? (
             <VolumeX size={20} color={colors.primary} />
           ) : (
