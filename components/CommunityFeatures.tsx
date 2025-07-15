@@ -1,2 +1,392 @@
 import React, { useState } from 'react';
-import {\n  View,\n  Text,\n  StyleSheet,\n  ScrollView,\n  TouchableOpacity,\n  Share,\n  Alert,\n} from 'react-native';\nimport { LinearGradient } from 'expo-linear-gradient';\nimport { Users, Share2, Heart, MessageCircle, Trophy, Star } from 'lucide-react-native';\nimport { colors } from '@/constants/colors';\nimport { spacing } from '@/constants/spacing';\nimport { typography } from '@/constants/typography';\nimport { useSpiritualStore } from '@/store/spiritual-store';\n\ninterface CommunityPost {\n  id: string;\n  author: string;\n  content: string;\n  verse?: string;\n  reference?: string;\n  likes: number;\n  comments: number;\n  timestamp: Date;\n  category: 'testimony' | 'prayer_request' | 'encouragement' | 'question';\n}\n\nconst mockCommunityPosts: CommunityPost[] = [\n  {\n    id: '1',\n    author: 'Marie L.',\n    content: 'Dieu m\\'a donné la force de surmonter une période difficile. Sa grâce suffit toujours !',\n    verse: 'Ma grâce te suffit, car ma puissance s\\'accomplit dans la faiblesse.',\n    reference: '2 Corinthiens 12:9',\n    likes: 24,\n    comments: 8,\n    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),\n    category: 'testimony',\n  },\n  {\n    id: '2',\n    author: 'Pierre M.',\n    content: 'Priez pour moi, je traverse une période de doute. Merci pour votre soutien.',\n    likes: 18,\n    comments: 12,\n    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),\n    category: 'prayer_request',\n  },\n  {\n    id: '3',\n    author: 'Sarah K.',\n    content: 'Rappel du jour : Dieu a un plan parfait pour chacun de nous. Faisons-lui confiance !',\n    verse: 'Car je connais les projets que j\\'ai formés sur vous, dit l\\'Éternel.',\n    reference: 'Jérémie 29:11',\n    likes: 31,\n    comments: 5,\n    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),\n    category: 'encouragement',\n  },\n];\n\nconst categoryConfig = {\n  testimony: { label: 'Témoignage', color: colors.gratitude, icon: Star },\n  prayer_request: { label: 'Demande de prière', color: colors.love, icon: Heart },\n  encouragement: { label: 'Encouragement', color: colors.peace, icon: Users },\n  question: { label: 'Question', color: colors.strength, icon: MessageCircle },\n};\n\nexport const CommunityFeatures: React.FC = () => {\n  const [posts, setPosts] = useState<CommunityPost[]>(mockCommunityPosts);\n  const [selectedCategory, setSelectedCategory] = useState<keyof typeof categoryConfig | 'all'>('all');\n  \n  const stats = useSpiritualStore((state) => state.stats);\n  const addExperience = useSpiritualStore((state) => state.addExperience);\n\n  const handleLike = (postId: string) => {\n    setPosts(prevPosts =>\n      prevPosts.map(post =>\n        post.id === postId\n          ? { ...post, likes: post.likes + 1 }\n          : post\n      )\n    );\n    addExperience(2); // Small reward for community engagement\n  };\n\n  const handleShare = async (post: CommunityPost) => {\n    try {\n      const message = `${post.content}${post.verse ? `\\n\\n\"${post.verse}\" - ${post.reference}` : ''}\\n\\nPartagé depuis BibleChat IA`;\n      \n      await Share.share({\n        message,\n        title: 'Partage spirituel',\n      });\n      \n      addExperience(5); // Reward for sharing\n    } catch (error) {\n      console.error('Erreur lors du partage:', error);\n    }\n  };\n\n  const handleComment = (postId: string) => {\n    Alert.alert(\n      'Commentaire',\n      'Fonctionnalité de commentaire bientôt disponible !',\n      [{ text: 'OK' }]\n    );\n  };\n\n  const filteredPosts = selectedCategory === 'all'\n    ? posts\n    : posts.filter(post => post.category === selectedCategory);\n\n  const formatTimeAgo = (date: Date) => {\n    const now = new Date();\n    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));\n    \n    if (diffInHours < 1) return 'À l\\'instant';\n    if (diffInHours < 24) return `Il y a ${diffInHours}h`;\n    return `Il y a ${Math.floor(diffInHours / 24)}j`;\n  };\n\n  const PostCard = ({ post }: { post: CommunityPost }) => {\n    const categoryData = categoryConfig[post.category];\n    const Icon = categoryData.icon;\n\n    return (\n      <View style={styles.postCard}>\n        <LinearGradient\n          colors={[colors.white, colors.cardSecondary]}\n          start={{ x: 0, y: 0 }}\n          end={{ x: 1, y: 1 }}\n          style={styles.postGradient}\n        >\n          <View style={styles.postHeader}>\n            <View style={styles.authorInfo}>\n              <View style={[styles.authorAvatar, { backgroundColor: categoryData.color + '20' }]}>\n                <Icon size={16} color={categoryData.color} />\n              </View>\n              <View>\n                <Text style={styles.authorName}>{post.author}</Text>\n                <Text style={styles.postTime}>{formatTimeAgo(post.timestamp)}</Text>\n              </View>\n            </View>\n            <View style={[styles.categoryBadge, { backgroundColor: categoryData.color + '15' }]}>\n              <Text style={[styles.categoryText, { color: categoryData.color }]}>\n                {categoryData.label}\n              </Text>\n            </View>\n          </View>\n\n          <Text style={styles.postContent}>{post.content}</Text>\n\n          {post.verse && (\n            <View style={styles.verseContainer}>\n              <Text style={styles.verseText}>\"{post.verse}\"</Text>\n              <Text style={styles.verseReference}>— {post.reference}</Text>\n            </View>\n          )}\n\n          <View style={styles.postActions}>\n            <TouchableOpacity\n              style={styles.actionButton}\n              onPress={() => handleLike(post.id)}\n            >\n              <Heart size={18} color={colors.love} />\n              <Text style={styles.actionText}>{post.likes}</Text>\n            </TouchableOpacity>\n\n            <TouchableOpacity\n              style={styles.actionButton}\n              onPress={() => handleComment(post.id)}\n            >\n              <MessageCircle size={18} color={colors.textSecondary} />\n              <Text style={styles.actionText}>{post.comments}</Text>\n            </TouchableOpacity>\n\n            <TouchableOpacity\n              style={styles.actionButton}\n              onPress={() => handleShare(post)}\n            >\n              <Share2 size={18} color={colors.textSecondary} />\n              <Text style={styles.actionText}>Partager</Text>\n            </TouchableOpacity>\n          </View>\n        </LinearGradient>\n      </View>\n    );\n  };\n\n  return (\n    <View style={styles.container}>\n      <View style={styles.header}>\n        <View style={styles.titleContainer}>\n          <Users size={24} color={colors.primary} />\n          <Text style={styles.title}>Communauté</Text>\n        </View>\n        <View style={styles.communityStats}>\n          <Trophy size={16} color={colors.warning} />\n          <Text style={styles.statsText}>Niveau {stats.level}</Text>\n        </View>\n      </View>\n\n      <ScrollView\n        horizontal\n        showsHorizontalScrollIndicator={false}\n        style={styles.categoryFilter}\n        contentContainerStyle={styles.categoryFilterContent}\n      >\n        <TouchableOpacity\n          style={[\n            styles.categoryButton,\n            selectedCategory === 'all' && styles.categoryButtonActive\n          ]}\n          onPress={() => setSelectedCategory('all')}\n        >\n          <Text style={[\n            styles.categoryButtonText,\n            selectedCategory === 'all' && styles.categoryButtonTextActive\n          ]}>\n            Tous\n          </Text>\n        </TouchableOpacity>\n\n        {Object.entries(categoryConfig).map(([key, data]) => {\n          const Icon = data.icon;\n          return (\n            <TouchableOpacity\n              key={key}\n              style={[\n                styles.categoryButton,\n                selectedCategory === key && styles.categoryButtonActive\n              ]}\n              onPress={() => setSelectedCategory(key as keyof typeof categoryConfig)}\n            >\n              <Icon size={16} color={selectedCategory === key ? colors.white : data.color} />\n              <Text style={[\n                styles.categoryButtonText,\n                selectedCategory === key && styles.categoryButtonTextActive\n              ]}>\n                {data.label}\n              </Text>\n            </TouchableOpacity>\n          );\n        })}\n      </ScrollView>\n\n      <ScrollView style={styles.postsList} showsVerticalScrollIndicator={false}>\n        {filteredPosts.map((post) => (\n          <PostCard key={post.id} post={post} />\n        ))}\n\n        {filteredPosts.length === 0 && (\n          <View style={styles.emptyState}>\n            <Users size={48} color={colors.textLight} />\n            <Text style={styles.emptyTitle}>Aucun post dans cette catégorie</Text>\n            <Text style={styles.emptySubtitle}>\n              La communauté grandit chaque jour. Revenez bientôt !\n            </Text>\n          </View>\n        )}\n      </ScrollView>\n    </View>\n  );\n};\n\nconst styles = StyleSheet.create({\n  container: {\n    flex: 1,\n    backgroundColor: colors.background,\n  },\n  header: {\n    flexDirection: 'row',\n    justifyContent: 'space-between',\n    alignItems: 'center',\n    paddingHorizontal: spacing.md,\n    paddingVertical: spacing.md,\n    borderBottomWidth: 1,\n    borderBottomColor: colors.borderLight,\n  },\n  titleContainer: {\n    flexDirection: 'row',\n    alignItems: 'center',\n  },\n  title: {\n    fontSize: typography.fontSizes.xl,\n    fontWeight: '700',\n    color: colors.text,\n    marginLeft: spacing.sm,\n  },\n  communityStats: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    backgroundColor: colors.warning + '15',\n    borderRadius: 12,\n    paddingHorizontal: spacing.sm,\n    paddingVertical: spacing.xs,\n  },\n  statsText: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.warning,\n    fontWeight: '600',\n    marginLeft: spacing.xs,\n  },\n  categoryFilter: {\n    maxHeight: 50,\n  },\n  categoryFilterContent: {\n    paddingHorizontal: spacing.md,\n    paddingVertical: spacing.sm,\n    gap: spacing.sm,\n  },\n  categoryButton: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    backgroundColor: colors.cardSecondary,\n    borderRadius: 20,\n    paddingHorizontal: spacing.md,\n    paddingVertical: spacing.sm,\n    gap: spacing.xs,\n  },\n  categoryButtonActive: {\n    backgroundColor: colors.primary,\n  },\n  categoryButtonText: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.textSecondary,\n    fontWeight: '500',\n  },\n  categoryButtonTextActive: {\n    color: colors.white,\n  },\n  postsList: {\n    flex: 1,\n    padding: spacing.md,\n  },\n  postCard: {\n    marginBottom: spacing.md,\n    borderRadius: 16,\n    shadowColor: colors.black,\n    shadowOffset: { width: 0, height: 2 },\n    shadowOpacity: 0.06,\n    shadowRadius: 8,\n    elevation: 3,\n  },\n  postGradient: {\n    borderRadius: 16,\n    padding: spacing.md,\n  },\n  postHeader: {\n    flexDirection: 'row',\n    justifyContent: 'space-between',\n    alignItems: 'center',\n    marginBottom: spacing.md,\n  },\n  authorInfo: {\n    flexDirection: 'row',\n    alignItems: 'center',\n  },\n  authorAvatar: {\n    width: 32,\n    height: 32,\n    borderRadius: 16,\n    justifyContent: 'center',\n    alignItems: 'center',\n    marginRight: spacing.sm,\n  },\n  authorName: {\n    fontSize: typography.fontSizes.md,\n    fontWeight: '600',\n    color: colors.text,\n  },\n  postTime: {\n    fontSize: typography.fontSizes.xs,\n    color: colors.textLight,\n  },\n  categoryBadge: {\n    borderRadius: 12,\n    paddingHorizontal: spacing.sm,\n    paddingVertical: spacing.xs,\n  },\n  categoryText: {\n    fontSize: typography.fontSizes.xs,\n    fontWeight: '600',\n  },\n  postContent: {\n    fontSize: typography.fontSizes.md,\n    color: colors.text,\n    lineHeight: typography.lineHeights.md,\n    marginBottom: spacing.md,\n  },\n  verseContainer: {\n    backgroundColor: colors.primary + '10',\n    borderRadius: 8,\n    padding: spacing.sm,\n    marginBottom: spacing.md,\n    borderLeftWidth: 3,\n    borderLeftColor: colors.primary,\n  },\n  verseText: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.primary,\n    fontStyle: 'italic',\n    marginBottom: spacing.xs,\n  },\n  verseReference: {\n    fontSize: typography.fontSizes.xs,\n    color: colors.primary,\n    fontWeight: '600',\n    textAlign: 'right',\n  },\n  postActions: {\n    flexDirection: 'row',\n    justifyContent: 'space-around',\n    paddingTop: spacing.sm,\n    borderTopWidth: 1,\n    borderTopColor: colors.borderLight,\n  },\n  actionButton: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    gap: spacing.xs,\n    paddingVertical: spacing.sm,\n    paddingHorizontal: spacing.md,\n  },\n  actionText: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.textSecondary,\n    fontWeight: '500',\n  },\n  emptyState: {\n    alignItems: 'center',\n    paddingVertical: spacing.xl,\n    marginTop: spacing.xl,\n  },\n  emptyTitle: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '600',\n    color: colors.text,\n    marginTop: spacing.md,\n    marginBottom: spacing.sm,\n  },\n  emptySubtitle: {\n    fontSize: typography.fontSizes.md,\n    color: colors.textSecondary,\n    textAlign: 'center',\n    paddingHorizontal: spacing.lg,\n  },\n});
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Share,
+  Alert,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Users, Share2, Heart, MessageCircle, Trophy, Star } from 'lucide-react-native';
+import { colors } from '@/constants/colors';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+import { useSpiritualStore } from '@/store/spiritual-store';
+
+interface CommunityPost {
+  id: string;
+  author: string;
+  content: string;
+  verse?: string;
+  reference?: string;
+  likes: number;
+  comments: number;
+  timestamp: Date;
+  category: 'testimony' | 'prayer_request' | 'encouragement' | 'question';
+}
+
+const mockCommunityPosts: CommunityPost[] = [
+  {
+    id: '1',
+    author: 'Marie L.',
+    content: 'Dieu m\'a donné la force de surmonter une période difficile. Sa grâce suffit toujours !',
+    verse: 'Ma grâce te suffit, car ma puissance s\'accomplit dans la faiblesse.',
+    reference: '2 Corinthiens 12:9',
+    likes: 24,
+    comments: 8,
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    category: 'testimony',
+  },
+  {
+    id: '2',
+    author: 'Pierre M.',
+    content: 'Priez pour moi, je traverse une période de doute. Merci pour votre soutien.',
+    likes: 18,
+    comments: 12,
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+    category: 'prayer_request',
+  },
+  {
+    id: '3',
+    author: 'Sarah K.',
+    content: 'Rappel du jour : Dieu a un plan parfait pour chacun de nous. Faisons-lui confiance !',
+    verse: 'Car je connais les projets que j\'ai formés sur vous, dit l\'Éternel.',
+    reference: 'Jérémie 29:11',
+    likes: 31,
+    comments: 5,
+    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
+    category: 'encouragement',
+  },
+];
+
+const categoryConfig = {
+  testimony: { label: 'Témoignage', color: colors.gratitude, icon: Star },
+  prayer_request: { label: 'Demande de prière', color: colors.prayer, icon: Heart },
+  encouragement: { label: 'Encouragement', color: colors.peace, icon: Trophy },
+  question: { label: 'Question', color: colors.wisdom, icon: MessageCircle },
+};
+
+export const CommunityFeatures: React.FC = () => {
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const stats = useSpiritualStore((state) => state.stats);
+
+  const handleLike = (postId: string) => {
+    setLikedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleShare = async (post: CommunityPost) => {
+    try {
+      const message = `${post.content}\n\n${post.verse ? `"${post.verse}"\n${post.reference}` : ''}`;
+      await Share.share({
+        message,
+        title: 'Partage spirituel',
+      });
+    } catch (error) {
+      console.error('Erreur lors du partage:', error);
+    }
+  };
+
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'À l\'instant';
+    if (diffInHours < 24) return `Il y a ${diffInHours}h`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `Il y a ${diffInDays}j`;
+  };
+
+  const renderPost = (post: CommunityPost) => {
+    const config = categoryConfig[post.category];
+    const IconComponent = config.icon;
+    const isLiked = likedPosts.has(post.id);
+
+    return (
+      <View key={post.id} style={styles.postCard}>
+        <View style={styles.postHeader}>
+          <View style={styles.authorInfo}>
+            <View style={[styles.categoryBadge, { backgroundColor: config.color }]}>
+              <IconComponent size={12} color={colors.white} />
+            </View>
+            <View>
+              <Text style={styles.authorName}>{post.author}</Text>
+              <Text style={styles.timestamp}>{formatTimeAgo(post.timestamp)}</Text>
+            </View>
+          </View>
+          <Text style={[styles.categoryLabel, { color: config.color }]}>
+            {config.label}
+          </Text>
+        </View>
+
+        <Text style={styles.postContent}>{post.content}</Text>
+
+        {post.verse && (
+          <View style={styles.verseContainer}>
+            <Text style={styles.verseText}>"{post.verse}"</Text>
+            <Text style={styles.verseReference}>{post.reference}</Text>
+          </View>
+        )}
+
+        <View style={styles.postActions}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handleLike(post.id)}
+          >
+            <Heart 
+              size={18} 
+              color={isLiked ? colors.love : colors.textSecondary}
+              fill={isLiked ? colors.love : 'transparent'}
+            />
+            <Text style={[
+              styles.actionText,
+              { color: isLiked ? colors.love : colors.textSecondary }
+            ]}>
+              {post.likes + (isLiked ? 1 : 0)}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionButton}>
+            <MessageCircle size={18} color={colors.textSecondary} />
+            <Text style={styles.actionText}>{post.comments}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handleShare(post)}
+          >
+            <Share2 size={18} color={colors.textSecondary} />
+            <Text style={styles.actionText}>Partager</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Community Header */}
+      <LinearGradient
+        colors={colors.primaryGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerCard}
+      >
+        <View style={styles.headerContent}>
+          <Users size={32} color={colors.white} />
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>Communauté Spirituelle</Text>
+            <Text style={styles.headerSubtitle}>
+              Partagez votre foi et encouragez-vous mutuellement
+            </Text>
+          </View>
+        </View>
+      </LinearGradient>
+
+      {/* Community Stats */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>1,247</Text>
+          <Text style={styles.statLabel}>Membres</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>89</Text>
+          <Text style={styles.statLabel}>Posts aujourd'hui</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>456</Text>
+          <Text style={styles.statLabel}>Prières partagées</Text>
+        </View>
+      </View>
+
+      {/* Posts */}
+      <View style={styles.postsSection}>
+        <Text style={styles.sectionTitle}>Publications récentes</Text>
+        {mockCommunityPosts.map(renderPost)}
+      </View>
+
+      {/* Join Community CTA */}
+      <TouchableOpacity 
+        style={styles.joinButton}
+        onPress={() => Alert.alert('Rejoindre', 'Fonctionnalité à venir !')}
+      >
+        <LinearGradient
+          colors={colors.secondaryGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.joinButtonGradient}
+        >
+          <Users size={20} color={colors.white} />
+          <Text style={styles.joinButtonText}>Rejoindre la communauté</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  headerCard: {
+    margin: spacing.md,
+    borderRadius: 16,
+    padding: spacing.lg,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerText: {
+    marginLeft: spacing.md,
+    flex: 1,
+  },
+  headerTitle: {
+    ...typography.h2,
+    color: colors.white,
+    marginBottom: spacing.xs,
+  },
+  headerSubtitle: {
+    ...typography.body,
+    color: colors.white,
+    opacity: 0.9,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    ...typography.h3,
+    color: colors.primary,
+    marginBottom: spacing.xs,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  postsSection: {
+    paddingHorizontal: spacing.md,
+  },
+  sectionTitle: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  postCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  postHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  authorInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  authorName: {
+    ...typography.bodyBold,
+    color: colors.text,
+  },
+  timestamp: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  categoryLabel: {
+    ...typography.caption,
+    fontWeight: '600',
+  },
+  postContent: {
+    ...typography.body,
+    color: colors.text,
+    lineHeight: 22,
+    marginBottom: spacing.sm,
+  },
+  verseContainer: {
+    backgroundColor: colors.background,
+    borderRadius: 8,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary,
+  },
+  verseText: {
+    ...typography.body,
+    color: colors.text,
+    fontStyle: 'italic',
+    marginBottom: spacing.xs,
+  },
+  verseReference: {
+    ...typography.caption,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  postActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+  actionText: {
+    ...typography.caption,
+    marginLeft: spacing.xs,
+    color: colors.textSecondary,
+  },
+  joinButton: {
+    margin: spacing.md,
+    marginTop: spacing.lg,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  joinButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.md,
+  },
+  joinButtonText: {
+    ...typography.bodyBold,
+    color: colors.white,
+    marginLeft: spacing.sm,
+  },
+});

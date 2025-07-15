@@ -5,4 +5,211 @@ import { Trophy, Target, Calendar, BookOpen } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
-import { useSpiritualStore } from '@/store/spiritual-store';\n\nexport const ProgressTracker: React.FC = () => {\n  const stats = useSpiritualStore((state) => state.stats);\n  const achievements = useSpiritualStore((state) => state.achievements);\n  \n  const levelProgress = (stats.experience % 100) / 100;\n  const nextLevelExp = 100 - (stats.experience % 100);\n  \n  const getStreakMessage = () => {\n    if (stats.currentStreak === 0) {\n      return \"Commencez votre série aujourd'hui !\";\n    } else if (stats.currentStreak < 3) {\n      return \"Bon début ! Continuez ainsi.\";\n    } else if (stats.currentStreak < 7) {\n      return \"Excellente régularité !\";\n    } else if (stats.currentStreak < 30) {\n      return \"Incroyable persévérance !\";\n    } else {\n      return \"Vous êtes un exemple de fidélité !\";\n    }\n  };\n  \n  const getNextAchievement = () => {\n    if (stats.totalReadings < 1) return \"Première lecture\";\n    if (stats.totalReadings < 5) return \"5 lectures\";\n    if (stats.totalReadings < 10) return \"10 lectures\";\n    if (stats.currentStreak < 3) return \"Série de 3 jours\";\n    if (stats.currentStreak < 7) return \"Série de 7 jours\";\n    if (stats.currentStreak < 30) return \"Série de 30 jours\";\n    return \"Maître spirituel\";\n  };\n  \n  return (\n    <View style={styles.container}>\n      {/* Level Progress */}\n      <LinearGradient\n        colors={colors.primaryGradient}\n        start={{ x: 0, y: 0 }}\n        end={{ x: 1, y: 1 }}\n        style={styles.levelCard}\n      >\n        <View style={styles.levelHeader}>\n          <Trophy size={24} color={colors.white} />\n          <View style={styles.levelInfo}>\n            <Text style={styles.levelTitle}>Niveau {stats.level}</Text>\n            <Text style={styles.levelSubtitle}>{nextLevelExp} XP jusqu'au niveau suivant</Text>\n          </View>\n        </View>\n        \n        <View style={styles.progressContainer}>\n          <View style={styles.progressBar}>\n            <View style={[styles.progressFill, { width: `${levelProgress * 100}%` }]} />\n          </View>\n          <Text style={styles.progressText}>{stats.experience % 100}/100 XP</Text>\n        </View>\n      </LinearGradient>\n      \n      {/* Current Streak */}\n      <View style={styles.streakCard}>\n        <View style={styles.streakHeader}>\n          <View style={[styles.streakIcon, { backgroundColor: colors.success + '15' }]}>\n            <Calendar size={20} color={colors.success} />\n          </View>\n          <View style={styles.streakInfo}>\n            <Text style={styles.streakNumber}>{stats.currentStreak}</Text>\n            <Text style={styles.streakLabel}>jours consécutifs</Text>\n          </View>\n        </View>\n        <Text style={styles.streakMessage}>{getStreakMessage()}</Text>\n      </View>\n      \n      {/* Next Achievement */}\n      <View style={styles.achievementCard}>\n        <View style={styles.achievementHeader}>\n          <Target size={20} color={colors.primary} />\n          <Text style={styles.achievementTitle}>Prochain objectif</Text>\n        </View>\n        <Text style={styles.achievementTarget}>{getNextAchievement()}</Text>\n      </View>\n      \n      {/* Quick Stats */}\n      <View style={styles.quickStats}>\n        <View style={styles.statItem}>\n          <BookOpen size={16} color={colors.primary} />\n          <Text style={styles.statNumber}>{stats.totalReadings}</Text>\n          <Text style={styles.statLabel}>Lectures</Text>\n        </View>\n        <View style={styles.statItem}>\n          <Trophy size={16} color={colors.secondary} />\n          <Text style={styles.statNumber}>{achievements.length}</Text>\n          <Text style={styles.statLabel}>Succès</Text>\n        </View>\n        <View style={styles.statItem}>\n          <Calendar size={16} color={colors.success} />\n          <Text style={styles.statNumber}>{stats.longestStreak}</Text>\n          <Text style={styles.statLabel}>Record</Text>\n        </View>\n      </View>\n    </View>\n  );\n};\n\nconst styles = StyleSheet.create({\n  container: {\n    padding: spacing.md,\n    gap: spacing.md,\n  },\n  levelCard: {\n    borderRadius: 16,\n    padding: spacing.md,\n  },\n  levelHeader: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    marginBottom: spacing.md,\n  },\n  levelInfo: {\n    marginLeft: spacing.md,\n    flex: 1,\n  },\n  levelTitle: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '700',\n    color: colors.white,\n  },\n  levelSubtitle: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.white + 'CC',\n  },\n  progressContainer: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    gap: spacing.sm,\n  },\n  progressBar: {\n    flex: 1,\n    height: 8,\n    backgroundColor: colors.white + '30',\n    borderRadius: 4,\n  },\n  progressFill: {\n    height: '100%',\n    backgroundColor: colors.white,\n    borderRadius: 4,\n  },\n  progressText: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.white,\n    fontWeight: '500',\n  },\n  streakCard: {\n    backgroundColor: colors.white,\n    borderRadius: 16,\n    padding: spacing.md,\n    shadowColor: colors.black,\n    shadowOffset: { width: 0, height: 2 },\n    shadowOpacity: 0.06,\n    shadowRadius: 8,\n    elevation: 3,\n  },\n  streakHeader: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    marginBottom: spacing.sm,\n  },\n  streakIcon: {\n    width: 40,\n    height: 40,\n    borderRadius: 20,\n    justifyContent: 'center',\n    alignItems: 'center',\n    marginRight: spacing.md,\n  },\n  streakInfo: {\n    flex: 1,\n  },\n  streakNumber: {\n    fontSize: typography.fontSizes.xl,\n    fontWeight: '700',\n    color: colors.text,\n  },\n  streakLabel: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.textSecondary,\n  },\n  streakMessage: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.textSecondary,\n    fontStyle: 'italic',\n  },\n  achievementCard: {\n    backgroundColor: colors.cardSecondary,\n    borderRadius: 12,\n    padding: spacing.md,\n  },\n  achievementHeader: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    marginBottom: spacing.sm,\n  },\n  achievementTitle: {\n    fontSize: typography.fontSizes.md,\n    fontWeight: '600',\n    color: colors.text,\n    marginLeft: spacing.sm,\n  },\n  achievementTarget: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.textSecondary,\n  },\n  quickStats: {\n    flexDirection: 'row',\n    justifyContent: 'space-around',\n    backgroundColor: colors.white,\n    borderRadius: 12,\n    padding: spacing.md,\n    shadowColor: colors.black,\n    shadowOffset: { width: 0, height: 1 },\n    shadowOpacity: 0.04,\n    shadowRadius: 4,\n    elevation: 2,\n  },\n  statItem: {\n    alignItems: 'center',\n    gap: spacing.xs,\n  },\n  statNumber: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '700',\n    color: colors.text,\n  },\n  statLabel: {\n    fontSize: typography.fontSizes.xs,\n    color: colors.textSecondary,\n    textAlign: 'center',\n  },\n});
+import { useSpiritualStore } from '@/store/spiritual-store';
+
+export const ProgressTracker: React.FC = () => {
+  const stats = useSpiritualStore((state) => state.stats);
+  const achievements = useSpiritualStore((state) => state.achievements);
+  
+  const levelProgress = (stats.experience % 100) / 100;
+  const nextLevelExp = 100 - (stats.experience % 100);
+  
+  const getStreakMessage = () => {
+    if (stats.currentStreak === 0) {
+      return "Commencez votre série aujourd'hui !";
+    } else if (stats.currentStreak < 3) {
+      return "Bon début ! Continuez ainsi.";
+    } else if (stats.currentStreak < 7) {
+      return "Excellente régularité !";
+    } else if (stats.currentStreak < 30) {
+      return "Incroyable persévérance !";
+    } else {
+      return "Vous êtes un exemple de fidélité !";
+    }
+  };
+  
+  const getNextAchievement = () => {
+    if (stats.totalReadings < 1) return "Première lecture";
+    if (stats.totalReadings < 5) return "5 lectures";
+    if (stats.totalReadings < 10) return "10 lectures";
+    if (stats.currentStreak < 3) return "Série de 3 jours";
+    if (stats.currentStreak < 7) return "Série de 7 jours";
+    if (stats.currentStreak < 30) return "Série de 30 jours";
+    return "Maître spirituel";
+  };
+  
+  return (
+    <View style={styles.container}>
+      {/* Level Progress */}
+      <LinearGradient
+        colors={colors.primaryGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.levelCard}
+      >
+        <View style={styles.levelHeader}>
+          <Trophy size={24} color={colors.white} />
+          <View style={styles.levelInfo}>
+            <Text style={styles.levelTitle}>Niveau {stats.level}</Text>
+            <Text style={styles.levelSubtitle}>{nextLevelExp} XP jusqu'au niveau suivant</Text>
+          </View>
+        </View>
+        
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${levelProgress * 100}%` }]} />
+          </View>
+          <Text style={styles.progressText}>{Math.floor(levelProgress * 100)}%</Text>
+        </View>
+      </LinearGradient>
+
+      {/* Stats Grid */}
+      <View style={styles.statsGrid}>
+        <View style={styles.statCard}>
+          <BookOpen size={24} color={colors.wisdom} />
+          <Text style={styles.statNumber}>{stats.totalReadings}</Text>
+          <Text style={styles.statLabel}>Lectures</Text>
+        </View>
+        
+        <View style={styles.statCard}>
+          <Target size={24} color={colors.peace} />
+          <Text style={styles.statNumber}>{stats.currentStreak}</Text>
+          <Text style={styles.statLabel}>Série actuelle</Text>
+        </View>
+        
+        <View style={styles.statCard}>
+          <Calendar size={24} color={colors.gratitude} />
+          <Text style={styles.statNumber}>{stats.longestStreak}</Text>
+          <Text style={styles.statLabel}>Meilleure série</Text>
+        </View>
+        
+        <View style={styles.statCard}>
+          <Trophy size={24} color={colors.love} />
+          <Text style={styles.statNumber}>{achievements.length}</Text>
+          <Text style={styles.statLabel}>Réalisations</Text>
+        </View>
+      </View>
+
+      {/* Streak Message */}
+      <View style={styles.messageCard}>
+        <Text style={styles.messageTitle}>Motivation du jour</Text>
+        <Text style={styles.messageText}>{getStreakMessage()}</Text>
+      </View>
+
+      {/* Next Achievement */}
+      <View style={styles.nextAchievementCard}>
+        <Text style={styles.nextAchievementTitle}>Prochaine réalisation</Text>
+        <Text style={styles.nextAchievementText}>{getNextAchievement()}</Text>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: spacing.md,
+  },
+  levelCard: {
+    borderRadius: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  levelHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  levelInfo: {
+    marginLeft: spacing.md,
+    flex: 1,
+  },
+  levelTitle: {
+    ...typography.h3,
+    color: colors.white,
+    marginBottom: spacing.xs,
+  },
+  levelSubtitle: {
+    ...typography.body,
+    color: colors.white,
+    opacity: 0.9,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 4,
+    marginRight: spacing.sm,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.white,
+    borderRadius: 4,
+  },
+  progressText: {
+    ...typography.bodyBold,
+    color: colors.white,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: spacing.md,
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+    marginHorizontal: '1%',
+  },
+  statNumber: {
+    ...typography.h2,
+    color: colors.text,
+    marginVertical: spacing.xs,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  messageCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary,
+  },
+  messageTitle: {
+    ...typography.bodyBold,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  messageText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  nextAchievementCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderStyle: 'dashed',
+  },
+  nextAchievementTitle: {
+    ...typography.bodyBold,
+    color: colors.primary,
+    marginBottom: spacing.xs,
+  },
+  nextAchievementText: {
+    ...typography.body,
+    color: colors.text,
+  },
+});

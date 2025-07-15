@@ -1,1 +1,552 @@
-import React, { useState } from 'react';\nimport {\n  View,\n  Text,\n  StyleSheet,\n  ScrollView,\n  TouchableOpacity,\n  Switch,\n  Modal,\n  TextInput,\n  Alert,\n} from 'react-native';\nimport { LinearGradient } from 'expo-linear-gradient';\nimport { \n  Settings, \n  User, \n  Heart, \n  BookOpen, \n  MessageCircle, \n  Trophy, \n  Star, \n  Calendar,\n  Moon,\n  Sun,\n  Bell,\n  Edit3,\n  Crown,\n  Target,\n  Zap\n} from 'lucide-react-native';\nimport { colors } from '@/constants/colors';\nimport { spacing } from '@/constants/spacing';\nimport { typography } from '@/constants/typography';\nimport { useSpiritualStore } from '@/store/spiritual-store';\nimport { AchievementBadge } from '@/components/AchievementBadge';\n\nexport const EnhancedProfile: React.FC = () => {\n  const [showSettings, setShowSettings] = useState(false);\n  const [showEditProfile, setShowEditProfile] = useState(false);\n  const [userName, setUserName] = useState('Utilisateur Spirituel');\n  const [userBio, setUserBio] = useState('Chercheur de vérité');\n  \n  const stats = useSpiritualStore((state) => state.stats);\n  const favorites = useSpiritualStore((state) => state.getFavorites());\n  const chatHistory = useSpiritualStore((state) => state.chatHistory);\n  const achievements = useSpiritualStore((state) => state.achievements);\n  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);\n  const notifications = useSpiritualStore((state) => state.notifications);\n  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);\n  const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);\n  const journalEntries = useSpiritualStore((state) => state.journalEntries);\n  const meditationSessions = useSpiritualStore((state) => state.meditationSessions);\n  const readingPlans = useSpiritualStore((state) => state.readingPlans);\n  const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);\n  \n  // Calculate level progress\n  const currentLevelExp = stats.experience % 100;\n  const levelProgress = (currentLevelExp / 100) * 100;\n  const nextLevelExp = 100 - currentLevelExp;\n  \n  // Get recent achievements\n  const allAchievements = ['first-reading', 'week-streak', 'month-streak', 'first-journal', 'meditation-master', 'level-up'];\n  const unlockedAchievements = achievements;\n  \n  const handleNotificationToggle = (setting: keyof typeof notifications, value: boolean) => {\n    updateNotificationSettings({ [setting]: value });\n  };\n  \n  const handleSaveProfile = () => {\n    // Here you would save the profile data\n    setShowEditProfile(false);\n    Alert.alert('Profil mis à jour', 'Vos informations ont été sauvegardées.');\n  };\n  \n  const getMotivationalMessage = () => {\n    if (stats.currentStreak >= 30) {\n      return \"Votre fidélité est exemplaire ! 🌟\";\n    } else if (stats.currentStreak >= 7) {\n      return \"Excellente régularité ! Continuez ! 🔥\";\n    } else if (stats.totalReadings >= 10) {\n      return \"Votre soif spirituelle grandit ! 📖\";\n    } else {\n      return \"Chaque pas compte dans votre parcours ! 🙏\";\n    }\n  };\n\n  return (\n    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>\n      {/* Profile Header */}\n      <LinearGradient\n        colors={colors.primaryGradient}\n        start={{ x: 0, y: 0 }}\n        end={{ x: 1, y: 1 }}\n        style={styles.headerGradient}\n      >\n        <View style={styles.header}>\n          <View style={styles.avatarContainer}>\n            <View style={styles.avatar}>\n              <User size={32} color={colors.white} />\n            </View>\n            <View style={styles.levelBadge}>\n              <Crown size={12} color={colors.white} />\n              <Text style={styles.levelText}>Niv. {stats.level}</Text>\n            </View>\n          </View>\n          <View style={styles.profileInfo}>\n            <View style={styles.nameContainer}>\n              <Text style={styles.profileName}>{userName}</Text>\n              <TouchableOpacity\n                style={styles.editButton}\n                onPress={() => setShowEditProfile(true)}\n              >\n                <Edit3 size={16} color={colors.white} />\n              </TouchableOpacity>\n            </View>\n            <Text style={styles.profileSubtitle}>{userBio}</Text>\n            <Text style={styles.motivationalMessage}>{getMotivationalMessage()}</Text>\n            \n            <View style={styles.experienceBar}>\n              <View style={[styles.experienceProgress, { width: `${levelProgress}%` }]} />\n            </View>\n            <Text style={styles.experienceText}>{currentLevelExp} / 100 XP ({nextLevelExp} pour le niveau suivant)</Text>\n          </View>\n          <TouchableOpacity \n            style={styles.settingsButton}\n            onPress={() => setShowSettings(!showSettings)}\n          >\n            <Settings size={20} color={colors.white} />\n          </TouchableOpacity>\n        </View>\n      </LinearGradient>\n\n      <View style={styles.content}>\n        {/* Enhanced Stats Grid */}\n        <View style={styles.statsSection}>\n          <Text style={styles.sectionTitle}>Statistiques</Text>\n          <View style={styles.statsGrid}>\n            <View style={styles.statCard}>\n              <LinearGradient colors={[colors.primary, colors.primary + 'CC']} style={styles.statGradient}>\n                <BookOpen size={20} color={colors.white} />\n                <Text style={styles.statValue}>{stats.totalReadings}</Text>\n                <Text style={styles.statLabel}>Lectures</Text>\n              </LinearGradient>\n            </View>\n            \n            <View style={styles.statCard}>\n              <LinearGradient colors={[colors.success, colors.success + 'CC']} style={styles.statGradient}>\n                <Calendar size={20} color={colors.white} />\n                <Text style={styles.statValue}>{stats.currentStreak}</Text>\n                <Text style={styles.statLabel}>Série actuelle</Text>\n              </LinearGradient>\n            </View>\n            \n            <View style={styles.statCard}>\n              <LinearGradient colors={[colors.love, colors.love + 'CC']} style={styles.statGradient}>\n                <Heart size={20} color={colors.white} />\n                <Text style={styles.statValue}>{stats.totalMeditations}</Text>\n                <Text style={styles.statLabel}>Méditations</Text>\n              </LinearGradient>\n            </View>\n            \n            <View style={styles.statCard}>\n              <LinearGradient colors={[colors.peace, colors.peace + 'CC']} style={styles.statGradient}>\n                <MessageCircle size={20} color={colors.white} />\n                <Text style={styles.statValue}>{stats.totalJournalEntries}</Text>\n                <Text style={styles.statLabel}>Journal</Text>\n              </LinearGradient>\n            </View>\n          </View>\n        </View>\n\n        {/* Achievements Section */}\n        <View style={styles.section}>\n          <View style={styles.sectionHeader}>\n            <Trophy size={20} color={colors.warning} />\n            <Text style={styles.sectionTitle}>Réalisations</Text>\n            <Text style={styles.achievementCount}>({unlockedAchievements.length}/{allAchievements.length})</Text>\n          </View>\n          <View style={styles.achievementsContainer}>\n            {allAchievements.map((achievementId) => (\n              <AchievementBadge\n                key={achievementId}\n                achievementId={achievementId}\n                isUnlocked={unlockedAchievements.includes(achievementId)}\n                size=\"medium\"\n              />\n            ))}\n          </View>\n        </View>\n\n        {/* Quick Actions */}\n        <View style={styles.section}>\n          <View style={styles.sectionHeader}>\n            <Zap size={20} color={colors.primary} />\n            <Text style={styles.sectionTitle}>Actions rapides</Text>\n          </View>\n          <View style={styles.quickActions}>\n            <TouchableOpacity\n              style={styles.quickActionButton}\n              onPress={() => Alert.alert('Export', 'Fonctionnalité bientôt disponible')}\n            >\n              <Text style={styles.quickActionText}>Exporter mes données</Text>\n            </TouchableOpacity>\n            <TouchableOpacity\n              style={[styles.quickActionButton, styles.dangerButton]}\n              onPress={() => {\n                Alert.alert(\n                  'Effacer l\\'historique',\n                  'Êtes-vous sûr de vouloir effacer tout l\\'historique du chat ?',\n                  [\n                    { text: 'Annuler', style: 'cancel' },\n                    { text: 'Effacer', style: 'destructive', onPress: clearChatHistory }\n                  ]\n                );\n              }}\n            >\n              <Text style={[styles.quickActionText, styles.dangerText]}>Effacer l\\'historique</Text>\n            </TouchableOpacity>\n          </View>\n        </View>\n\n        {/* Settings Panel */}\n        {showSettings && (\n          <View style={styles.section}>\n            <View style={styles.sectionHeader}>\n              <Settings size={20} color={colors.textSecondary} />\n              <Text style={styles.sectionTitle}>Paramètres</Text>\n            </View>\n            <View style={styles.settingsContainer}>\n              <View style={styles.settingItem}>\n                <View style={styles.settingLeft}>\n                  {isDarkMode ? <Moon size={20} color={colors.textSecondary} /> : <Sun size={20} color={colors.textSecondary} />}\n                  <Text style={styles.settingText}>Mode sombre</Text>\n                </View>\n                <Switch\n                  value={isDarkMode}\n                  onValueChange={toggleDarkMode}\n                  trackColor={{ false: colors.border, true: colors.primary + '50' }}\n                  thumbColor={isDarkMode ? colors.primary : colors.white}\n                />\n              </View>\n              \n              <View style={styles.settingItem}>\n                <View style={styles.settingLeft}>\n                  <Bell size={20} color={colors.textSecondary} />\n                  <Text style={styles.settingText}>Verset quotidien</Text>\n                </View>\n                <Switch\n                  value={notifications.dailyVerse}\n                  onValueChange={(value) => handleNotificationToggle('dailyVerse', value)}\n                  trackColor={{ false: colors.border, true: colors.primary + '50' }}\n                  thumbColor={notifications.dailyVerse ? colors.primary : colors.white}\n                />\n              </View>\n              \n              <View style={styles.settingItem}>\n                <View style={styles.settingLeft}>\n                  <BookOpen size={20} color={colors.textSecondary} />\n                  <Text style={styles.settingText}>Rappel de lecture</Text>\n                </View>\n                <Switch\n                  value={notifications.readingReminder}\n                  onValueChange={(value) => handleNotificationToggle('readingReminder', value)}\n                  trackColor={{ false: colors.border, true: colors.primary + '50' }}\n                  thumbColor={notifications.readingReminder ? colors.primary : colors.white}\n                />\n              </View>\n              \n              <View style={styles.settingItem}>\n                <View style={styles.settingLeft}>\n                  <Heart size={20} color={colors.textSecondary} />\n                  <Text style={styles.settingText}>Rappel méditation</Text>\n                </View>\n                <Switch\n                  value={notifications.meditationReminder}\n                  onValueChange={(value) => handleNotificationToggle('meditationReminder', value)}\n                  trackColor={{ false: colors.border, true: colors.primary + '50' }}\n                  thumbColor={notifications.meditationReminder ? colors.primary : colors.white}\n                />\n              </View>\n            </View>\n          </View>\n        )}\n      </View>\n\n      {/* Edit Profile Modal */}\n      <Modal\n        visible={showEditProfile}\n        animationType=\"slide\"\n        presentationStyle=\"pageSheet\"\n      >\n        <View style={styles.modalContainer}>\n          <View style={styles.modalHeader}>\n            <TouchableOpacity onPress={() => setShowEditProfile(false)}>\n              <Text style={styles.cancelButton}>Annuler</Text>\n            </TouchableOpacity>\n            <Text style={styles.modalTitle}>Modifier le profil</Text>\n            <TouchableOpacity onPress={handleSaveProfile}>\n              <Text style={styles.saveButton}>Sauvegarder</Text>\n            </TouchableOpacity>\n          </View>\n\n          <View style={styles.modalContent}>\n            <View style={styles.inputGroup}>\n              <Text style={styles.inputLabel}>Nom</Text>\n              <TextInput\n                style={styles.textInput}\n                value={userName}\n                onChangeText={setUserName}\n                placeholder=\"Votre nom\"\n                placeholderTextColor={colors.textLight}\n              />\n            </View>\n\n            <View style={styles.inputGroup}>\n              <Text style={styles.inputLabel}>Bio</Text>\n              <TextInput\n                style={styles.textInput}\n                value={userBio}\n                onChangeText={setUserBio}\n                placeholder=\"Décrivez votre parcours spirituel\"\n                placeholderTextColor={colors.textLight}\n                multiline\n              />\n            </View>\n          </View>\n        </View>\n      </Modal>\n    </ScrollView>\n  );\n};\n\nconst styles = StyleSheet.create({\n  container: {\n    flex: 1,\n    backgroundColor: colors.background,\n  },\n  headerGradient: {\n    paddingTop: spacing.lg,\n    paddingBottom: spacing.md,\n  },\n  header: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    paddingHorizontal: spacing.md,\n  },\n  avatarContainer: {\n    position: 'relative',\n    marginRight: spacing.md,\n  },\n  avatar: {\n    width: 60,\n    height: 60,\n    borderRadius: 30,\n    backgroundColor: 'rgba(255, 255, 255, 0.2)',\n    justifyContent: 'center',\n    alignItems: 'center',\n  },\n  levelBadge: {\n    position: 'absolute',\n    bottom: -5,\n    right: -5,\n    backgroundColor: colors.warning,\n    borderRadius: 12,\n    paddingHorizontal: spacing.xs,\n    paddingVertical: 2,\n    flexDirection: 'row',\n    alignItems: 'center',\n    gap: 2,\n  },\n  levelText: {\n    fontSize: typography.fontSizes.xs,\n    color: colors.white,\n    fontWeight: '600',\n  },\n  profileInfo: {\n    flex: 1,\n  },\n  nameContainer: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    marginBottom: spacing.xs,\n  },\n  profileName: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '700',\n    color: colors.white,\n    marginRight: spacing.sm,\n  },\n  editButton: {\n    padding: spacing.xs,\n  },\n  profileSubtitle: {\n    fontSize: typography.fontSizes.md,\n    color: colors.white + 'CC',\n    marginBottom: spacing.xs,\n  },\n  motivationalMessage: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.white + 'DD',\n    fontStyle: 'italic',\n    marginBottom: spacing.md,\n  },\n  experienceBar: {\n    height: 6,\n    backgroundColor: 'rgba(255, 255, 255, 0.3)',\n    borderRadius: 3,\n    marginBottom: spacing.xs,\n  },\n  experienceProgress: {\n    height: '100%',\n    backgroundColor: colors.white,\n    borderRadius: 3,\n  },\n  experienceText: {\n    fontSize: typography.fontSizes.xs,\n    color: colors.white + 'CC',\n  },\n  settingsButton: {\n    width: 40,\n    height: 40,\n    borderRadius: 20,\n    backgroundColor: 'rgba(255, 255, 255, 0.2)',\n    justifyContent: 'center',\n    alignItems: 'center',\n  },\n  content: {\n    padding: spacing.md,\n  },\n  statsSection: {\n    marginBottom: spacing.lg,\n  },\n  statsGrid: {\n    flexDirection: 'row',\n    flexWrap: 'wrap',\n    gap: spacing.sm,\n  },\n  statCard: {\n    width: '48%',\n    borderRadius: 12,\n    shadowColor: colors.black,\n    shadowOffset: { width: 0, height: 2 },\n    shadowOpacity: 0.06,\n    shadowRadius: 8,\n    elevation: 3,\n  },\n  statGradient: {\n    borderRadius: 12,\n    padding: spacing.md,\n    alignItems: 'center',\n    gap: spacing.xs,\n  },\n  statValue: {\n    fontSize: typography.fontSizes.xl,\n    fontWeight: '700',\n    color: colors.white,\n  },\n  statLabel: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.white + 'CC',\n    textAlign: 'center',\n  },\n  section: {\n    marginBottom: spacing.lg,\n  },\n  sectionHeader: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    marginBottom: spacing.md,\n  },\n  sectionTitle: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '600',\n    color: colors.text,\n    marginLeft: spacing.sm,\n  },\n  achievementCount: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.textSecondary,\n    marginLeft: spacing.xs,\n  },\n  achievementsContainer: {\n    flexDirection: 'row',\n    flexWrap: 'wrap',\n    justifyContent: 'space-around',\n    gap: spacing.sm,\n  },\n  quickActions: {\n    gap: spacing.sm,\n  },\n  quickActionButton: {\n    backgroundColor: colors.cardSecondary,\n    borderRadius: 12,\n    padding: spacing.md,\n    alignItems: 'center',\n  },\n  dangerButton: {\n    backgroundColor: colors.error + '15',\n  },\n  quickActionText: {\n    fontSize: typography.fontSizes.md,\n    color: colors.text,\n    fontWeight: '500',\n  },\n  dangerText: {\n    color: colors.error,\n  },\n  settingsContainer: {\n    backgroundColor: colors.white,\n    borderRadius: 12,\n    overflow: 'hidden',\n  },\n  settingItem: {\n    flexDirection: 'row',\n    justifyContent: 'space-between',\n    alignItems: 'center',\n    paddingVertical: spacing.md,\n    paddingHorizontal: spacing.md,\n    borderBottomWidth: 1,\n    borderBottomColor: colors.borderLight,\n  },\n  settingLeft: {\n    flexDirection: 'row',\n    alignItems: 'center',\n  },\n  settingText: {\n    fontSize: typography.fontSizes.md,\n    color: colors.text,\n    marginLeft: spacing.sm,\n  },\n  modalContainer: {\n    flex: 1,\n    backgroundColor: colors.background,\n  },\n  modalHeader: {\n    flexDirection: 'row',\n    justifyContent: 'space-between',\n    alignItems: 'center',\n    paddingHorizontal: spacing.md,\n    paddingVertical: spacing.md,\n    borderBottomWidth: 1,\n    borderBottomColor: colors.borderLight,\n  },\n  cancelButton: {\n    fontSize: typography.fontSizes.md,\n    color: colors.textSecondary,\n  },\n  modalTitle: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '600',\n    color: colors.text,\n  },\n  saveButton: {\n    fontSize: typography.fontSizes.md,\n    color: colors.primary,\n    fontWeight: '600',\n  },\n  modalContent: {\n    flex: 1,\n    padding: spacing.md,\n  },\n  inputGroup: {\n    marginBottom: spacing.lg,\n  },\n  inputLabel: {\n    fontSize: typography.fontSizes.md,\n    fontWeight: '600',\n    color: colors.text,\n    marginBottom: spacing.sm,\n  },\n  textInput: {\n    backgroundColor: colors.white,\n    borderRadius: 12,\n    padding: spacing.md,\n    fontSize: typography.fontSizes.md,\n    color: colors.text,\n    borderWidth: 1,\n    borderColor: colors.border,\n    minHeight: 50,\n  },\n});
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Modal,
+  TextInput,
+  Alert,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { 
+  Settings, 
+  User, 
+  Heart, 
+  BookOpen, 
+  MessageCircle, 
+  Trophy, 
+  Star, 
+  Calendar,
+  Moon,
+  Sun,
+  Bell,
+  Edit3,
+  Crown,
+  Target,
+  Zap
+} from 'lucide-react-native';
+import { colors } from '@/constants/colors';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+import { useSpiritualStore } from '@/store/spiritual-store';
+import { AchievementBadge } from '@/components/AchievementBadge';
+
+export const EnhancedProfile: React.FC = () => {
+  const [showSettings, setShowSettings] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [userName, setUserName] = useState('Utilisateur Spirituel');
+  const [userBio, setUserBio] = useState('Chercheur de vérité');
+  
+  const stats = useSpiritualStore((state) => state.stats);
+  const favorites = useSpiritualStore((state) => state.getFavorites());
+  const chatHistory = useSpiritualStore((state) => state.chatHistory);
+  const achievements = useSpiritualStore((state) => state.achievements);
+  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
+  const notifications = useSpiritualStore((state) => state.notifications);
+  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
+  const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);
+  const journalEntries = useSpiritualStore((state) => state.journalEntries);
+  const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
+  const readingPlans = useSpiritualStore((state) => state.readingPlans);
+  const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);
+  
+  // Calculate level based on experience
+  const level = Math.floor(stats.experience / 100) + 1;
+  const levelProgress = (stats.experience % 100) / 100;
+  
+  // Calculate total activity
+  const totalActivity = stats.totalReadings + chatHistory.length + journalEntries.length + meditationSessions.length;
+  
+  const handleClearData = () => {
+    Alert.alert(
+      'Effacer les données',
+      'Êtes-vous sûr de vouloir effacer toutes vos données ? Cette action est irréversible.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { 
+          text: 'Effacer', 
+          style: 'destructive',
+          onPress: () => {
+            clearChatHistory();
+            Alert.alert('Succès', 'Données effacées avec succès');
+          }
+        }
+      ]
+    );
+  };
+
+  const renderStatCard = (title: string, value: number, icon: React.ComponentType<any>, color: string) => (
+    <View style={styles.statCard}>
+      <View style={[styles.statIcon, { backgroundColor: color }]}>
+        {React.createElement(icon, { size: 20, color: colors.white })}
+      </View>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statTitle}>{title}</Text>
+    </View>
+  );
+
+  const renderAchievement = (achievement: any) => (
+    <View key={achievement.id} style={styles.achievementItem}>
+      <AchievementBadge achievement={achievement} size="small" />
+      <View style={styles.achievementInfo}>
+        <Text style={styles.achievementTitle}>{achievement.title}</Text>
+        <Text style={styles.achievementDescription}>{achievement.description}</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Profile Header */}
+      <LinearGradient
+        colors={colors.primaryGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerCard}
+      >
+        <View style={styles.profileHeader}>
+          <View style={styles.avatarContainer}>
+            <User size={40} color={colors.white} />
+          </View>
+          <View style={styles.profileInfo}>
+            <Text style={styles.userName}>{userName}</Text>
+            <Text style={styles.userBio}>{userBio}</Text>
+            <View style={styles.levelContainer}>
+              <Crown size={16} color={colors.white} />
+              <Text style={styles.levelText}>Niveau {level}</Text>
+            </View>
+          </View>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={() => setShowEditProfile(true)}
+          >
+            <Edit3 size={20} color={colors.white} />
+          </TouchableOpacity>
+        </View>
+        
+        {/* Level Progress */}
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${levelProgress * 100}%` }]} />
+          </View>
+          <Text style={styles.progressText}>
+            {Math.floor(levelProgress * 100)}% vers le niveau {level + 1}
+          </Text>
+        </View>
+      </LinearGradient>
+
+      {/* Quick Stats */}
+      <View style={styles.statsGrid}>
+        {renderStatCard('Lectures', stats.totalReadings, BookOpen, colors.wisdom)}
+        {renderStatCard('Méditations', meditationSessions.length, Target, colors.peace)}
+        {renderStatCard('Journal', journalEntries.length, Edit3, colors.gratitude)}
+        {renderStatCard('Série', stats.currentStreak, Zap, colors.love)}
+      </View>
+
+      {/* Recent Achievements */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Réalisations récentes</Text>
+        <View style={styles.achievementsContainer}>
+          {achievements.slice(0, 3).map(renderAchievement)}
+          {achievements.length === 0 && (
+            <Text style={styles.emptyText}>
+              Continuez à utiliser l'app pour débloquer des réalisations !
+            </Text>
+          )}
+        </View>
+      </View>
+
+      {/* Activity Summary */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Résumé d'activité</Text>
+        <View style={styles.activityCard}>
+          <View style={styles.activityRow}>
+            <Heart size={16} color={colors.love} />
+            <Text style={styles.activityText}>
+              {favorites.length} contenus favoris
+            </Text>
+          </View>
+          <View style={styles.activityRow}>
+            <MessageCircle size={16} color={colors.primary} />
+            <Text style={styles.activityText}>
+              {chatHistory.length} conversations spirituelles
+            </Text>
+          </View>
+          <View style={styles.activityRow}>
+            <Calendar size={16} color={colors.wisdom} />
+            <Text style={styles.activityText}>
+              {readingPlans.length} plans de lecture actifs
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Settings Button */}
+      <TouchableOpacity 
+        style={styles.settingsButton}
+        onPress={() => setShowSettings(true)}
+      >
+        <Settings size={20} color={colors.primary} />
+        <Text style={styles.settingsButtonText}>Paramètres</Text>
+      </TouchableOpacity>
+
+      {/* Settings Modal */}
+      <Modal
+        visible={showSettings}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Paramètres</Text>
+            <TouchableOpacity onPress={() => setShowSettings(false)}>
+              <Text style={styles.closeButton}>Fermer</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView style={styles.modalContent}>
+            <View style={styles.settingItem}>
+              <View style={styles.settingInfo}>
+                {isDarkMode ? <Moon size={20} color={colors.text} /> : <Sun size={20} color={colors.text} />}
+                <Text style={styles.settingLabel}>Mode sombre</Text>
+              </View>
+              <Switch
+                value={isDarkMode}
+                onValueChange={toggleDarkMode}
+                trackColor={{ false: colors.border, true: colors.primary }}
+              />
+            </View>
+            
+            <View style={styles.settingItem}>
+              <View style={styles.settingInfo}>
+                <Bell size={20} color={colors.text} />
+                <Text style={styles.settingLabel}>Notifications quotidiennes</Text>
+              </View>
+              <Switch
+                value={notifications.daily}
+                onValueChange={(value) => updateNotificationSettings({ daily: value })}
+                trackColor={{ false: colors.border, true: colors.primary }}
+              />
+            </View>
+            
+            <TouchableOpacity style={styles.dangerButton} onPress={handleClearData}>
+              <Text style={styles.dangerButtonText}>Effacer toutes les données</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </Modal>
+
+      {/* Edit Profile Modal */}
+      <Modal
+        visible={showEditProfile}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Modifier le profil</Text>
+            <TouchableOpacity onPress={() => setShowEditProfile(false)}>
+              <Text style={styles.closeButton}>Fermer</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.modalContent}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Nom</Text>
+              <TextInput
+                style={styles.textInput}
+                value={userName}
+                onChangeText={setUserName}
+                placeholder="Votre nom"
+                placeholderTextColor={colors.textSecondary}
+              />
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Bio</Text>
+              <TextInput
+                style={[styles.textInput, styles.textArea]}
+                value={userBio}
+                onChangeText={setUserBio}
+                placeholder="Décrivez-vous en quelques mots"
+                placeholderTextColor={colors.textSecondary}
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+            
+            <TouchableOpacity 
+              style={styles.saveButton}
+              onPress={() => {
+                setShowEditProfile(false);
+                Alert.alert('Succès', 'Profil mis à jour !');
+              }}
+            >
+              <Text style={styles.saveButtonText}>Sauvegarder</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  headerCard: {
+    margin: spacing.md,
+    borderRadius: 16,
+    padding: spacing.lg,
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  avatarContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileInfo: {
+    flex: 1,
+    marginLeft: spacing.md,
+  },
+  userName: {
+    ...typography.h3,
+    color: colors.white,
+    marginBottom: spacing.xs,
+  },
+  userBio: {
+    ...typography.body,
+    color: colors.white,
+    opacity: 0.9,
+    marginBottom: spacing.xs,
+  },
+  levelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  levelText: {
+    ...typography.caption,
+    color: colors.white,
+    marginLeft: spacing.xs,
+    fontWeight: '600',
+  },
+  editButton: {
+    padding: spacing.sm,
+  },
+  progressContainer: {
+    marginTop: spacing.sm,
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 3,
+    marginBottom: spacing.xs,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.white,
+    borderRadius: 3,
+  },
+  progressText: {
+    ...typography.caption,
+    color: colors.white,
+    textAlign: 'center',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+    marginHorizontal: '1%',
+  },
+  statIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
+  statValue: {
+    ...typography.h2,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  statTitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  section: {
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  sectionTitle: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  achievementsContainer: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+  },
+  achievementItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  achievementInfo: {
+    marginLeft: spacing.sm,
+    flex: 1,
+  },
+  achievementTitle: {
+    ...typography.bodyBold,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  achievementDescription: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  emptyText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  activityCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+  },
+  activityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  activityText: {
+    ...typography.body,
+    color: colors.text,
+    marginLeft: spacing.sm,
+  },
+  settingsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.xl,
+    padding: spacing.md,
+    borderRadius: 12,
+  },
+  settingsButtonText: {
+    ...typography.bodyBold,
+    color: colors.primary,
+    marginLeft: spacing.sm,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalTitle: {
+    ...typography.h3,
+    color: colors.text,
+  },
+  closeButton: {
+    ...typography.bodyBold,
+    color: colors.primary,
+  },
+  modalContent: {
+    flex: 1,
+    padding: spacing.md,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  settingInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingLabel: {
+    ...typography.body,
+    color: colors.text,
+    marginLeft: spacing.sm,
+  },
+  dangerButton: {
+    backgroundColor: colors.error,
+    padding: spacing.md,
+    borderRadius: 8,
+    marginTop: spacing.xl,
+  },
+  dangerButtonText: {
+    ...typography.bodyBold,
+    color: colors.white,
+    textAlign: 'center',
+  },
+  inputGroup: {
+    marginBottom: spacing.lg,
+  },
+  inputLabel: {
+    ...typography.bodyBold,
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  textInput: {
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+    padding: spacing.md,
+    ...typography.body,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
+    padding: spacing.md,
+    borderRadius: 8,
+    marginTop: spacing.md,
+  },
+  saveButtonText: {
+    ...typography.bodyBold,
+    color: colors.white,
+    textAlign: 'center',
+  },
+});

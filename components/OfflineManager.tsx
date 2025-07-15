@@ -1,1 +1,130 @@
-import React, { useEffect, useState } from 'react';\nimport { View, Text, StyleSheet, Alert } from 'react-native';\nimport NetInfo from '@react-native-community/netinfo';\nimport AsyncStorage from '@react-native-async-storage/async-storage';\nimport { colors } from '@/constants/colors';\nimport { spacing } from '@/constants/spacing';\nimport { typography } from '@/constants/typography';\nimport { useSpiritualStore } from '@/store/spiritual-store';\n\ninterface OfflineData {\n  dailyVerses: any[];\n  biblicalContent: any[];\n  bibleChapters: any[];\n  lastSync: string;\n}\n\nexport const OfflineManager: React.FC = () => {\n  const [isOnline, setIsOnline] = useState(true);\n  const [offlineData, setOfflineData] = useState<OfflineData | null>(null);\n  \n  const content = useSpiritualStore((state) => state.content);\n  const dailyVerse = useSpiritualStore((state) => state.getDailyVerse());\n\n  useEffect(() => {\n    const unsubscribe = NetInfo.addEventListener(state => {\n      const wasOffline = !isOnline;\n      const isNowOnline = state.isConnected ?? false;\n      \n      setIsOnline(isNowOnline);\n      \n      if (wasOffline && isNowOnline) {\n        // Back online - sync data\n        syncOfflineData();\n      } else if (!isNowOnline) {\n        // Gone offline - prepare offline data\n        prepareOfflineData();\n      }\n    });\n\n    return () => unsubscribe();\n  }, [isOnline]);\n\n  const prepareOfflineData = async () => {\n    try {\n      const offlineData: OfflineData = {\n        dailyVerses: [dailyVerse],\n        biblicalContent: content.slice(0, 20), // Cache first 20 items\n        bibleChapters: [], // Would cache essential chapters\n        lastSync: new Date().toISOString(),\n      };\n      \n      await AsyncStorage.setItem('offlineData', JSON.stringify(offlineData));\n      setOfflineData(offlineData);\n      \n      console.log('Offline data prepared');\n    } catch (error) {\n      console.error('Error preparing offline data:', error);\n    }\n  };\n\n  const syncOfflineData = async () => {\n    try {\n      const storedData = await AsyncStorage.getItem('offlineData');\n      if (storedData) {\n        const data: OfflineData = JSON.parse(storedData);\n        setOfflineData(data);\n        \n        // Here you would sync any offline changes back to the server\n        console.log('Syncing offline data...');\n        \n        Alert.alert(\n          'Connexion rétablie',\n          'Vos données ont été synchronisées avec succès.',\n          [{ text: 'OK' }]\n        );\n      }\n    } catch (error) {\n      console.error('Error syncing offline data:', error);\n    }\n  };\n\n  const loadOfflineData = async () => {\n    try {\n      const storedData = await AsyncStorage.getItem('offlineData');\n      if (storedData) {\n        const data: OfflineData = JSON.parse(storedData);\n        setOfflineData(data);\n        return data;\n      }\n    } catch (error) {\n      console.error('Error loading offline data:', error);\n    }\n    return null;\n  };\n\n  if (!isOnline) {\n    return (\n      <View style={styles.offlineBar}>\n        <Text style={styles.offlineText}>\n          📱 Mode hors ligne - Contenu limité disponible\n        </Text>\n      </View>\n    );\n  }\n\n  return null;\n};\n\nconst styles = StyleSheet.create({\n  offlineBar: {\n    backgroundColor: colors.warning,\n    paddingVertical: spacing.sm,\n    paddingHorizontal: spacing.md,\n    alignItems: 'center',\n  },\n  offlineText: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.white,\n    fontWeight: '500',\n  },\n});\n\nexport default OfflineManager;
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Alert } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { colors } from '@/constants/colors';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+import { useSpiritualStore } from '@/store/spiritual-store';
+
+interface OfflineData {
+  dailyVerses: any[];
+  biblicalContent: any[];
+  bibleChapters: any[];
+  lastSync: string;
+}
+
+export const OfflineManager: React.FC = () => {
+  const [isOnline, setIsOnline] = useState(true);
+  const [offlineData, setOfflineData] = useState<OfflineData | null>(null);
+  
+  const content = useSpiritualStore((state) => state.content);
+  const dailyVerse = useSpiritualStore((state) => state.getDailyVerse());
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      const wasOffline = !isOnline;
+      const isNowOnline = state.isConnected ?? false;
+      
+      setIsOnline(isNowOnline);
+      
+      if (wasOffline && isNowOnline) {
+        // Back online - sync data
+        syncOfflineData();
+      } else if (!isNowOnline) {
+        // Gone offline - prepare offline data
+        prepareOfflineData();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [isOnline]);
+
+  const prepareOfflineData = async () => {
+    try {
+      const offlineData: OfflineData = {
+        dailyVerses: [dailyVerse],
+        biblicalContent: content.slice(0, 20), // Cache first 20 items
+        bibleChapters: [], // Would cache essential chapters
+        lastSync: new Date().toISOString(),
+      };
+      
+      await AsyncStorage.setItem('offlineData', JSON.stringify(offlineData));
+      setOfflineData(offlineData);
+      
+      console.log('Offline data prepared');
+    } catch (error) {
+      console.error('Error preparing offline data:', error);
+    }
+  };
+
+  const syncOfflineData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('offlineData');
+      if (storedData) {
+        const parsedData: OfflineData = JSON.parse(storedData);
+        setOfflineData(parsedData);
+        
+        // Here you would sync any offline changes back to the server
+        console.log('Data synced from offline storage');
+      }
+    } catch (error) {
+      console.error('Error syncing offline data:', error);
+    }
+  };
+
+  const loadOfflineData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('offlineData');
+      if (storedData) {
+        const parsedData: OfflineData = JSON.parse(storedData);
+        setOfflineData(parsedData);
+      }
+    } catch (error) {
+      console.error('Error loading offline data:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadOfflineData();
+  }, []);
+
+  if (isOnline) {
+    return null; // Don't show anything when online
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.offlineIndicator}>
+        <Text style={styles.offlineText}>Mode hors ligne</Text>
+        <Text style={styles.offlineSubtext}>
+          Contenu limité disponible
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+  },
+  offlineIndicator: {
+    backgroundColor: colors.warning,
+    padding: spacing.sm,
+    alignItems: 'center',
+  },
+  offlineText: {
+    ...typography.bodyBold,
+    color: colors.white,
+  },
+  offlineSubtext: {
+    ...typography.caption,
+    color: colors.white,
+    opacity: 0.9,
+  },
+});

@@ -1,1 +1,31 @@
-import React from 'react';\nimport { View, StyleSheet } from 'react-native';\nimport { Stack } from 'expo-router';\nimport { CommunityFeatures } from '@/components/CommunityFeatures';\nimport { colors } from '@/constants/colors';\n\nexport default function CommunityScreen() {\n  return (\n    <>\n      <Stack.Screen \n        options={{ \n          title: 'Communauté',\n          headerStyle: {\n            backgroundColor: colors.background,\n          },\n          headerTintColor: colors.text,\n        }} \n      />\n      <View style={styles.container}>\n        <CommunityFeatures />\n      </View>\n    </>\n  );\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    flex: 1,\n    backgroundColor: colors.background,\n  },\n});
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Stack } from 'expo-router';
+import { CommunityFeatures } from '@/components/CommunityFeatures';
+import { colors } from '@/constants/colors';
+
+export default function CommunityScreen() {
+  return (
+    <>
+      <Stack.Screen 
+        options={{ 
+          title: 'Communauté',
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
+          headerTintColor: colors.text,
+        }} 
+      />
+      <View style={styles.container}>
+        <CommunityFeatures />
+      </View>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+});
