@@ -320,9 +320,7 @@ export default function NotificationsScreen() {
           headerTintColor: colors.primary,
           headerBackTitle: '',
 
-          headerLeftContainerStyle: {
-            paddingLeft: Platform.OS === 'ios' ? 8 : 16,
-          },
+
         }}
       />
 
