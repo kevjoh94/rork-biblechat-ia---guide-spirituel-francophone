@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Sparkles, RefreshCw, Heart, Star } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
@@ -23,14 +23,15 @@ interface Insight {
   category: 'encouragement' | 'reflection' | 'prayer' | 'wisdom';
 }
 
-const insightCategories = {
-  encouragement: { icon: Heart, color: colors.love, label: 'Encouragement' },
-  reflection: { icon: Sparkles, color: colors.peace, label: 'Réflexion' },
-  prayer: { icon: Star, color: colors.spiritual, label: 'Prière' },
-  wisdom: { icon: RefreshCw, color: colors.strength, label: 'Sagesse' },
-};
-
 export const SpiritualInsights: React.FC = () => {
+  const { colors } = useTheme();
+  
+  const insightCategories = useMemo(() => ({
+    encouragement: { icon: Heart, color: colors.love, label: 'Encouragement' },
+    reflection: { icon: Sparkles, color: colors.peace, label: 'Réflexion' },
+    prayer: { icon: Star, color: colors.spiritual, label: 'Prière' },
+    wisdom: { icon: RefreshCw, color: colors.strength, label: 'Sagesse' },
+  }), [colors]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof insightCategories | 'all'>('all');
@@ -178,6 +179,152 @@ export const SpiritualInsights: React.FC = () => {
     ? insights 
     : insights.filter(insight => insight.category === selectedCategory);
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.borderLight,
+    },
+    titleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    title: {
+      fontSize: typography.fontSizes.xl,
+      fontWeight: '700',
+      color: colors.text,
+      marginLeft: spacing.sm,
+    },
+    refreshButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary + '15',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    categoryFilter: {
+      maxHeight: 50,
+    },
+    categoryFilterContent: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      gap: spacing.sm,
+    },
+    categoryButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.cardSecondary,
+      borderRadius: 20,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      gap: spacing.xs,
+    },
+    categoryButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    categoryButtonText: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    categoryButtonTextActive: {
+      color: colors.white,
+    },
+    insightsList: {
+      flex: 1,
+      padding: spacing.md,
+    },
+    insightCard: {
+      marginBottom: spacing.md,
+      borderRadius: 16,
+      shadowColor: colors.black,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    insightGradient: {
+      borderRadius: 16,
+      padding: spacing.md,
+    },
+    insightHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    categoryIcon: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: spacing.sm,
+    },
+    categoryLabel: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    insightTitle: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    insightContent: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+      lineHeight: typography.lineHeights.sm,
+      marginBottom: spacing.md,
+    },
+    verseContainer: {
+      backgroundColor: colors.primary + '10',
+      borderRadius: 8,
+      padding: spacing.sm,
+      borderLeftWidth: 3,
+      borderLeftColor: colors.primary,
+    },
+    verseText: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.primary,
+      fontStyle: 'italic',
+      marginBottom: spacing.xs,
+    },
+    verseReference: {
+      fontSize: typography.fontSizes.xs,
+      color: colors.primary,
+      fontWeight: '600',
+      textAlign: 'right',
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+      marginTop: spacing.xl,
+    },
+    emptyTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: '600',
+      color: colors.text,
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    emptySubtitle: {
+      fontSize: typography.fontSizes.md,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      paddingHorizontal: spacing.lg,
+    },
+  }), [colors]);
+
   const InsightCard = ({ insight }: { insight: Insight }) => {
     const categoryData = insightCategories[insight.category];
     const Icon = categoryData.icon;
@@ -211,7 +358,6 @@ export const SpiritualInsights: React.FC = () => {
     );
   };
 
-  return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
@@ -290,149 +436,3 @@ export const SpiritualInsights: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: typography.fontSizes.xl,
-    fontWeight: '700',
-    color: colors.text,
-    marginLeft: spacing.sm,
-  },
-  refreshButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary + '15',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryFilter: {
-    maxHeight: 50,
-  },
-  categoryFilterContent: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-  },
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.cardSecondary,
-    borderRadius: 20,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: spacing.xs,
-  },
-  categoryButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  categoryButtonText: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  categoryButtonTextActive: {
-    color: colors.white,
-  },
-  insightsList: {
-    flex: 1,
-    padding: spacing.md,
-  },
-  insightCard: {
-    marginBottom: spacing.md,
-    borderRadius: 16,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  insightGradient: {
-    borderRadius: 16,
-    padding: spacing.md,
-  },
-  insightHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  categoryIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.sm,
-  },
-  categoryLabel: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  insightTitle: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  insightContent: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-    lineHeight: typography.lineHeights.sm,
-    marginBottom: spacing.md,
-  },
-  verseContainer: {
-    backgroundColor: colors.primary + '10',
-    borderRadius: 8,
-    padding: spacing.sm,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-  },
-  verseText: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.primary,
-    fontStyle: 'italic',
-    marginBottom: spacing.xs,
-  },
-  verseReference: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.primary,
-    fontWeight: '600',
-    textAlign: 'right',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-    marginTop: spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  emptySubtitle: {
-    fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-});

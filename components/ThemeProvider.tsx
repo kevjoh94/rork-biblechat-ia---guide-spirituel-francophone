@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { useSpiritualStore } from '@/store/spiritual-store';
 import { lightColors, darkColors } from '@/constants/colors';
@@ -16,20 +16,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
   const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
 
-  // Auto-detect system theme on first load
-  useEffect(() => {
-    if (systemColorScheme === 'dark' && !isDarkMode) {
-      toggleDarkMode();
-    }
-  }, [systemColorScheme]);
+  const colors = useMemo(() => {
+    return isDarkMode ? darkColors : lightColors;
+  }, [isDarkMode]);
 
-  const colors = isDarkMode ? darkColors : lightColors;
-
-  const value: ThemeContextType = {
+  const value: ThemeContextType = useMemo(() => ({
     colors,
     isDarkMode,
     toggleTheme: toggleDarkMode,
-  };
+  }), [colors, isDarkMode, toggleDarkMode]);
 
   return (
     <ThemeContext.Provider value={value}>

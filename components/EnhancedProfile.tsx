@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -50,11 +50,14 @@ export const EnhancedProfile: React.FC = () => {
   const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
   const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);
   
+  // Get favorites data separately to prevent infinite loops
+  const content = useSpiritualStore((state) => state.content);
+  const favoriteIds = useSpiritualStore((state) => state.favorites);
+  
   // Memoize favorites to prevent recalculation
-  const favorites = useSpiritualStore((state) => {
-    const { content, favorites: favoriteIds } = state;
+  const favorites = useMemo(() => {
     return content.filter((c) => favoriteIds.includes(c.id));
-  });
+  }, [content, favoriteIds]);
   const journalEntries = useSpiritualStore((state) => state.journalEntries);
   const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
   const readingPlans = useSpiritualStore((state) => state.readingPlans);
@@ -66,6 +69,274 @@ export const EnhancedProfile: React.FC = () => {
   
   // Calculate total activity
   const totalActivity = stats.totalReadings + chatHistory.length + journalEntries.length + meditationSessions.length;
+  
+  // Create dynamic styles based on theme
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    headerCard: {
+      margin: spacing.md,
+      borderRadius: 16,
+      padding: spacing.lg,
+    },
+    profileHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    avatarContainer: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    profileInfo: {
+      flex: 1,
+      marginLeft: spacing.md,
+    },
+    userName: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.xs,
+      color: colors.white,
+    },
+    userBio: {
+      fontSize: typography.fontSizes.md,
+      opacity: 0.9,
+      marginBottom: spacing.xs,
+      color: colors.white,
+    },
+    levelContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    levelText: {
+      fontSize: typography.fontSizes.sm,
+      marginLeft: spacing.xs,
+      fontWeight: '600',
+      color: colors.white,
+    },
+    editButton: {
+      padding: spacing.sm,
+    },
+    progressContainer: {
+      marginTop: spacing.sm,
+    },
+    progressBar: {
+      height: 6,
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      borderRadius: 3,
+      marginBottom: spacing.xs,
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.white,
+      borderRadius: 3,
+    },
+    progressText: {
+      fontSize: typography.fontSizes.sm,
+      textAlign: 'center',
+      color: colors.white,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: spacing.md,
+      marginBottom: spacing.lg,
+    },
+    statCard: {
+      width: '48%',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: spacing.md,
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+      marginHorizontal: '1%',
+    },
+    statIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.sm,
+    },
+    statValue: {
+      fontSize: typography.fontSizes.xl,
+      fontWeight: typography.fontWeights.bold,
+      marginBottom: spacing.xs,
+      color: colors.text,
+    },
+    statTitle: {
+      fontSize: typography.fontSizes.sm,
+      textAlign: 'center',
+      color: colors.textSecondary,
+    },
+    section: {
+      paddingHorizontal: spacing.md,
+      marginBottom: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.md,
+      color: colors.text,
+    },
+    achievementsContainer: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: spacing.md,
+    },
+    achievementItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    achievementInfo: {
+      marginLeft: spacing.sm,
+      flex: 1,
+    },
+    achievementTitle: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.xs,
+      color: colors.text,
+    },
+    achievementDescription: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+    },
+    emptyText: {
+      fontSize: typography.fontSizes.md,
+      textAlign: 'center',
+      fontStyle: 'italic',
+      color: colors.textSecondary,
+    },
+    activityCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: spacing.md,
+    },
+    activityRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    activityText: {
+      fontSize: typography.fontSizes.md,
+      marginLeft: spacing.sm,
+      color: colors.text,
+    },
+    settingsButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: spacing.md,
+      marginBottom: spacing.xl,
+      padding: spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+    },
+    settingsButtonText: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      marginLeft: spacing.sm,
+      color: colors.primary,
+    },
+    modalContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    modalTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      color: colors.text,
+    },
+    closeButton: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      color: colors.primary,
+    },
+    modalContent: {
+      flex: 1,
+      padding: spacing.md,
+    },
+    settingItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    settingInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    settingLabel: {
+      fontSize: typography.fontSizes.md,
+      marginLeft: spacing.sm,
+      color: colors.text,
+    },
+    dangerButton: {
+      backgroundColor: colors.error,
+      padding: spacing.md,
+      borderRadius: 8,
+      marginTop: spacing.xl,
+    },
+    dangerButtonText: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      textAlign: 'center',
+      color: colors.white,
+    },
+    inputGroup: {
+      marginBottom: spacing.lg,
+    },
+    inputLabel: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.sm,
+      color: colors.text,
+    },
+    textInput: {
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      color: colors.text,
+      borderRadius: 8,
+      padding: spacing.md,
+      fontSize: typography.fontSizes.md,
+      borderWidth: 1,
+    },
+    textArea: {
+      height: 80,
+      textAlignVertical: 'top',
+    },
+    saveButton: {
+      backgroundColor: colors.primary,
+      padding: spacing.md,
+      borderRadius: 8,
+      marginTop: spacing.md,
+    },
+    saveButtonText: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      textAlign: 'center',
+      color: colors.white,
+    },
+  }), [colors]);
   
   const handleClearData = () => {
     Alert.alert(
@@ -301,237 +572,3 @@ export const EnhancedProfile: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  headerCard: {
-    margin: spacing.md,
-    borderRadius: 16,
-    padding: spacing.lg,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  avatarContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  profileInfo: {
-    flex: 1,
-    marginLeft: spacing.md,
-  },
-  userName: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.xs,
-  },
-  userBio: {
-    fontSize: typography.fontSizes.md,
-    opacity: 0.9,
-    marginBottom: spacing.xs,
-  },
-  levelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  levelText: {
-    fontSize: typography.fontSizes.sm,
-    marginLeft: spacing.xs,
-    fontWeight: '600',
-  },
-  editButton: {
-    padding: spacing.sm,
-  },
-  progressContainer: {
-    marginTop: spacing.sm,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 3,
-    marginBottom: spacing.xs,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  statCard: {
-    width: '48%',
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-    marginHorizontal: '1%',
-  },
-  statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
-  },
-  statValue: {
-    fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.bold,
-    marginBottom: spacing.xs,
-  },
-  statTitle: {
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
-  },
-  section: {
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.md,
-  },
-  achievementsContainer: {
-    borderRadius: 12,
-    padding: spacing.md,
-  },
-  achievementItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  achievementInfo: {
-    marginLeft: spacing.sm,
-    flex: 1,
-  },
-  achievementTitle: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.xs,
-  },
-  achievementDescription: {
-    fontSize: typography.fontSizes.sm,
-  },
-  emptyText: {
-    fontSize: typography.fontSizes.md,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  activityCard: {
-    borderRadius: 12,
-    padding: spacing.md,
-  },
-  activityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  activityText: {
-    fontSize: typography.fontSizes.md,
-    marginLeft: spacing.sm,
-  },
-  settingsButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.xl,
-    padding: spacing.md,
-    borderRadius: 12,
-  },
-  settingsButtonText: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    marginLeft: spacing.sm,
-  },
-  modalContainer: {
-    flex: 1,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    borderBottomWidth: 1,
-  },
-  modalTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  closeButton: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  modalContent: {
-    flex: 1,
-    padding: spacing.md,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-  },
-  settingInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingLabel: {
-    fontSize: typography.fontSizes.md,
-    marginLeft: spacing.sm,
-  },
-  dangerButton: {
-    padding: spacing.md,
-    borderRadius: 8,
-    marginTop: spacing.xl,
-  },
-  dangerButtonText: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    textAlign: 'center',
-  },
-  inputGroup: {
-    marginBottom: spacing.lg,
-  },
-  inputLabel: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.sm,
-  },
-  textInput: {
-    borderRadius: 8,
-    padding: spacing.md,
-    fontSize: typography.fontSizes.md,
-    borderWidth: 1,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  saveButton: {
-    padding: spacing.md,
-    borderRadius: 8,
-    marginTop: spacing.md,
-  },
-  saveButtonText: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    textAlign: 'center',
-  },
-});
