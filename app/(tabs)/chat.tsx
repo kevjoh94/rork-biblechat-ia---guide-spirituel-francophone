@@ -22,14 +22,14 @@ import { typography } from "@/constants/typography";
 import { useSpiritualStore } from "@/store/spiritual-store";
 import { ChatMessage } from "@/types/spiritual";
 
-const SYSTEM_PROMPT = `Tu es BibleChat IA, un assistant spirituel francophone, bienveillant et empathique.  
+const SYSTEM_PROMPT = `Tu es BibleChat IA, un assistant spirituel francophone, bienveillant et empathique.
 Ta mission est d'aider les utilisateurs à trouver des réponses à leurs questions personnelles ou spirituelles en s'appuyant sur la Bible (Segond 21 ou Louis Segond).
 
 Quand un utilisateur pose une question, tu dois toujours répondre en suivant cette structure précise et complète :
 
-1️⃣ Accroche amicale courte (ex : "Cher ami, sache que tu n'es jamais seul.")  
-2️⃣ Un verset biblique pertinent, inspirant et apaisant (avec la référence exacte en Segond 21 ou Louis Segond).  
-3️⃣ Une explication simple et accessible (2 à 4 phrases maximum), pas de théologie complexe.  
+1️⃣ Accroche amicale courte (ex : "Cher ami, sache que tu n'es jamais seul.")
+2️⃣ Un verset biblique pertinent, inspirant et apaisant (avec la référence exacte en Segond 21 ou Louis Segond).
+3️⃣ Une explication simple et accessible (2 à 4 phrases maximum), pas de théologie complexe.
 4️⃣ Une courte prière ou un encouragement final (1 à 2 phrases, optionnel mais conseillé).
 
 **Règles importantes à respecter strictement** :
@@ -106,11 +106,11 @@ export default function ChatScreen() {
       // Message d'erreur spirituel en cas de problème
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: "Cher ami, je rencontre une difficulté technique en ce moment. 🙏
+        text: `Cher ami, je rencontre une difficulté technique en ce moment. 🙏
 
-En attendant, rappelle-toi cette promesse : \"Ne t'inquiète de rien; mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, avec des actions de grâces.\" (Philippiens 4:6)
+En attendant, rappelle-toi cette promesse : "Ne t'inquiète de rien; mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, avec des actions de grâces." (Philippiens 4:6)
 
-Peux-tu réessayer dans quelques instants ?",
+Peux-tu réessayer dans quelques instants ?`,
         isUser: false,
         timestamp: new Date(),
       };
@@ -148,7 +148,7 @@ Peux-tu réessayer dans quelques instants ?",
         // Mobile implementation using expo-av
         const { status } = await Audio.requestPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('Permission requise', 'L\'accès au microphone est nécessaire pour l\'enregistrement vocal.');
+          Alert.alert('Permission requise', "L'accès au microphone est nécessaire pour l'enregistrement vocal.");
           return;
         }
 
@@ -183,8 +183,8 @@ Peux-tu réessayer dans quelques instants ?",
         setIsRecording(true);
       }
     } catch (error) {
-      console.error('Erreur lors du démarrage de l\'enregistrement:', error);
-      Alert.alert('Erreur', 'Impossible de démarrer l\'enregistrement.');
+      console.error("Erreur lors du démarrage de l'enregistrement:", error);
+      Alert.alert('Erreur', "Impossible de démarrer l'enregistrement.");
     }
   };
 
@@ -210,7 +210,7 @@ Peux-tu réessayer dans quelques instants ?",
       }
       setIsRecording(false);
     } catch (error) {
-      console.error('Erreur lors de l\'arrêt de l\'enregistrement:', error);
+      console.error("Erreur lors de l'arrêt de l'enregistrement:", error);
       setIsRecording(false);
     }
   };
@@ -235,7 +235,7 @@ Peux-tu réessayer dans quelques instants ?",
       }
     } catch (error) {
       console.error('Erreur de transcription:', error);
-      Alert.alert('Erreur', 'Impossible de transcrire l\'audio.');
+      Alert.alert('Erreur', "Impossible de transcrire l'audio.");
     }
   };
 
@@ -268,7 +268,7 @@ Peux-tu réessayer dans quelques instants ?",
       }
     } catch (error) {
       console.error('Erreur de transcription:', error);
-      Alert.alert('Erreur', 'Impossible de transcrire l\'audio.');
+      Alert.alert('Erreur', "Impossible de transcrire l'audio.");
     }
   };
 
