@@ -28,13 +28,14 @@ import {
   Target,
   Zap
 } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
 import { AchievementBadge } from '@/components/AchievementBadge';
 
 export const EnhancedProfile: React.FC = () => {
+  const { colors } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [userName, setUserName] = useState('Utilisateur Spirituel');
@@ -58,8 +59,6 @@ export const EnhancedProfile: React.FC = () => {
   const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
   const readingPlans = useSpiritualStore((state) => state.readingPlans);
   const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);
-  
-  const favorites = getFavorites();
   
   // Calculate level based on experience
   const level = Math.floor(stats.experience / 100) + 1;

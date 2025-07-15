@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Users, Share2, Heart, MessageCircle, Trophy, Star } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
@@ -61,14 +61,15 @@ const mockCommunityPosts: CommunityPost[] = [
   },
 ];
 
-const categoryConfig = {
+const getCategoryConfig = (colors: any) => ({
   testimony: { label: 'Témoignage', color: colors.gratitude, icon: Star },
-  prayer_request: { label: 'Demande de prière', color: colors.prayer, icon: Heart },
+  prayer_request: { label: 'Demande de prière', color: colors.primary, icon: Heart },
   encouragement: { label: 'Encouragement', color: colors.peace, icon: Trophy },
-  question: { label: 'Question', color: colors.wisdom, icon: MessageCircle },
-};
+  question: { label: 'Question', color: colors.secondary, icon: MessageCircle },
+});
 
 export const CommunityFeatures: React.FC = () => {
+  const { colors } = useTheme();
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const stats = useSpiritualStore((state) => state.stats);
 
@@ -252,12 +253,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    ...typography.h2,
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.white,
     marginBottom: spacing.xs,
   },
   headerSubtitle: {
-    ...typography.body,
+    fontSize: typography.fontSizes.md,
     color: colors.white,
     opacity: 0.9,
   },
@@ -265,7 +267,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: spacing.md,
     marginBottom: spacing.lg,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: spacing.md,
   },
@@ -274,12 +276,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statNumber: {
-    ...typography.h3,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.primary,
     marginBottom: spacing.xs,
   },
   statLabel: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
     textAlign: 'center',
   },
@@ -287,12 +290,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   sectionTitle: {
-    ...typography.h3,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text,
     marginBottom: spacing.md,
   },
   postCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: spacing.md,
     marginBottom: spacing.md,
@@ -318,19 +322,20 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   authorName: {
-    ...typography.bodyBold,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text,
   },
   timestamp: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
   },
   categoryLabel: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.sm,
     fontWeight: '600',
   },
   postContent: {
-    ...typography.body,
+    fontSize: typography.fontSizes.md,
     color: colors.text,
     lineHeight: 22,
     marginBottom: spacing.sm,
@@ -344,13 +349,13 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.primary,
   },
   verseText: {
-    ...typography.body,
+    fontSize: typography.fontSizes.md,
     color: colors.text,
     fontStyle: 'italic',
     marginBottom: spacing.xs,
   },
   verseReference: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.sm,
     color: colors.primary,
     fontWeight: '600',
   },
@@ -368,7 +373,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   actionText: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.sm,
     marginLeft: spacing.xs,
     color: colors.textSecondary,
   },
@@ -385,7 +390,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   joinButtonText: {
-    ...typography.bodyBold,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.white,
     marginLeft: spacing.sm,
   },

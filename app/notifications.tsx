@@ -22,7 +22,7 @@ import {
   VolumeX,
 } from 'lucide-react-native';
 
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { typography } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { useSpiritualStore } from '@/store/spiritual-store';
@@ -72,6 +72,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 );
 
 export default function NotificationsScreen() {
+  const { colors } = useTheme();
   const notifications = useSpiritualStore((state) => state.notifications);
   const updateNotificationSettings = useSpiritualStore(
     (state) => state.updateNotificationSettings
@@ -114,6 +115,7 @@ export default function NotificationsScreen() {
             fontWeight: '600',
           },
           headerTintColor: colors.primary,
+          headerBackTitle: 'Retour',
         }}
       />
 

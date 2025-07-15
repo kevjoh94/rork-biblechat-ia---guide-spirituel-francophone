@@ -15,7 +15,8 @@ export default function CalendarScreen() {
           headerStyle: {
             backgroundColor: colors.background,
           },
-          headerTintColor: colors.text,
+          headerTintColor: colors.primary,
+          headerBackTitle: 'Retour',
         }} 
       />
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>

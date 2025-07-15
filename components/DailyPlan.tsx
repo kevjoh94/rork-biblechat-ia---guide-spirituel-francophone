@@ -1,283 +1,260 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Image,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { 
-  Calendar, 
-  Flame, 
-  CheckCircle, 
-  Play, 
-  ChevronDown,
-  ChevronUp,
-  Clock,
-  Book,
-  Heart
+import {
+  CheckCircle,
+  Circle,
+  Star,
+  Heart,
+  BookOpen,
+  Target,
+  Calendar,
+  Trophy,
+  Zap,
 } from 'lucide-react-native';
 import { useTheme } from '@/components/ThemeProvider';
+import { typography } from '@/constants/typography';
+import { spacing } from '@/constants/spacing';
 import { useSpiritualStore } from '@/store/spiritual-store';
 
 interface DailyTask {
   id: string;
   title: string;
-  subtitle: string;
-  duration: string;
+  description: string;
+  icon: React.ComponentType<any>;
+  color: string;
   completed: boolean;
+  points: number;
   type: 'journal' | 'verse' | 'devotional' | 'prayer';
-  image?: string;
-  tags?: string[];
 }
 
 export const DailyPlan: React.FC = () => {
   const { colors } = useTheme();
-  const { dailyProgress } = useSpiritualStore();
-  const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
-
+  const [tasks, setTasks] = useState<DailyTask[]>([]);
+  const [completedTasks, setCompletedTasks] = useState(0);
+  
+  const dailyProgress = useSpiritualStore((state) => state.dailyProgress);
+  const markTaskCompleted = useSpiritualStore((state) => state.markTaskCompleted);
+  const addExperience = useSpiritualStore((state) => state.addExperience);
+  const stats = useSpiritualStore((state) => state.stats);
+  
   const today = new Date();
-  const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-  const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-  ];
-
-  const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-  const todayProgress = dailyProgress[todayKey] || { completed: false, streak: false };
-
-  const dailyTasks: DailyTask[] = [
-    {
-      id: 'journal',
-      title: 'JOURNAL SPIRITUEL',
-      subtitle: 'Réflexion quotidienne',
-      duration: '5 MIN',
-      completed: todayProgress.journalCompleted || false,
-      type: 'journal',
-    },
-    {
-      id: 'verse',
-      title: 'VOTRE VERSET',
-      subtitle: 'Matthieu 3:14-17',
-      duration: '3 MIN',
-      completed: todayProgress.verseCompleted || false,
-      type: 'verse',
-      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop',
-      tags: ['RÉCONFORT', 'DÉLIVRANCE', 'PROTECTION'],
-    },
-    {
-      id: 'devotional',
-      title: 'DÉVOTION PERSONNALISÉE',
-      subtitle: 'Méditation guidée',
-      duration: '3 MIN',
-      completed: todayProgress.devotionalCompleted || false,
-      type: 'devotional',
-    },
-    {
-      id: 'prayer',
-      title: 'PRIÈRE DU JOUR',
-      subtitle: 'Moment de recueillement',
-      duration: '2 MIN',
-      completed: todayProgress.prayerCompleted || false,
-      type: 'prayer',
-    },
-  ];
-
-  const completedTasks = dailyTasks.filter(task => task.completed).length;
-  const progressPercentage = Math.round((completedTasks / dailyTasks.length) * 100);
-
-  const toggleTaskExpansion = (taskId: string) => {
-    setExpandedTasks(prev => 
-      prev.includes(taskId) 
-        ? prev.filter(id => id !== taskId)
-        : [...prev, taskId]
+  const dateKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  const todayProgress = dailyProgress[dateKey];
+  
+  useEffect(() => {
+    const dailyTasks: DailyTask[] = [
+      {
+        id: '1',
+        title: 'Lecture du verset quotidien',
+        description: 'Lisez et méditez sur le verset du jour',
+        icon: BookOpen,
+        color: colors.secondary,
+        completed: todayProgress?.verseCompleted || false,
+        points: 10,
+        type: 'verse',
+      },
+      {
+        id: '2',
+        title: 'Temps de prière',
+        description: 'Prenez 10 minutes pour prier et vous recueillir',
+        icon: Heart,
+        color: colors.primary,
+        completed: todayProgress?.prayerCompleted || false,
+        points: 15,
+        type: 'prayer',
+      },
+      {
+        id: '3',
+        title: 'Méditation spirituelle',
+        description: 'Session de méditation guidée de 5 minutes',
+        icon: Target,
+        color: colors.peace,
+        completed: todayProgress?.devotionalCompleted || false,
+        points: 20,
+        type: 'devotional',
+      },
+      {
+        id: '4',
+        title: 'Journal de gratitude',
+        description: 'Écrivez 3 choses pour lesquelles vous êtes reconnaissant',
+        icon: Star,
+        color: colors.gratitude,
+        completed: todayProgress?.journalCompleted || false,
+        points: 15,
+        type: 'journal',
+      },
+    ];
+    
+    setTasks(dailyTasks);
+    setCompletedTasks(dailyTasks.filter(task => task.completed).length);
+  }, [todayProgress, colors]);
+  
+  const handleTaskComplete = (taskId: string, taskType: DailyTask['type']) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || task.completed) return;
+    
+    // Update local state
+    setTasks(prev => prev.map(t => 
+      t.id === taskId ? { ...t, completed: true } : t
+    ));
+    
+    // Update store
+    markTaskCompleted(taskType);
+    addExperience(task.points);
+    
+    // Update completed count
+    setCompletedTasks(prev => prev + 1);
+    
+    // Show success message
+    Alert.alert(
+      'Félicitations ! 🎉',
+      `Vous avez gagné ${task.points} points d'expérience !`,
+      [{ text: 'Continuer' }]
     );
   };
-
-  const getTaskIcon = (type: string) => {
-    switch (type) {
-      case 'journal': return <Book size={16} color={colors.white} />;
-      case 'verse': return <Heart size={16} color={colors.white} />;
-      case 'devotional': return <Play size={16} color={colors.white} />;
-      case 'prayer': return <Heart size={16} color={colors.white} />;
-      default: return <CheckCircle size={16} color={colors.white} />;
-    }
-  };
-
-  const renderTask = (task: DailyTask) => {
-    const isExpanded = expandedTasks.includes(task.id);
-    
-    return (
-      <View key={task.id} style={[styles.taskContainer, { backgroundColor: colors.card }]}>
-        <TouchableOpacity
-          onPress={() => toggleTaskExpansion(task.id)}
-          style={styles.taskHeader}
-          activeOpacity={0.7}
-        >
-          <View style={styles.taskInfo}>
-            <View style={styles.taskTitleRow}>
-              {task.completed ? (
-                <LinearGradient
-                  colors={[colors.success, '#66BB6A']}
-                  style={styles.taskIcon}
-                >
-                  <CheckCircle size={16} color={colors.white} />
-                </LinearGradient>
-              ) : (
-                <View style={[styles.taskIcon, { backgroundColor: colors.textLight }]}>
-                  {getTaskIcon(task.type)}
-                </View>
-              )}
-              <Text style={[
-                styles.taskTitle, 
-                { color: task.completed ? colors.success : colors.text }
-              ]}>
-                {task.title}
-              </Text>
-              {task.completed && (
-                <Text style={[styles.doneLabel, { color: colors.success }]}>
-                  FAIT
-                </Text>
-              )}
-            </View>
-            <Text style={[styles.taskSubtitle, { color: colors.textSecondary }]}>
-              {task.subtitle}
-            </Text>
-            <View style={styles.taskMeta}>
-              <View style={styles.durationBadge}>
-                <Clock size={12} color={colors.textSecondary} />
-                <Text style={[styles.duration, { color: colors.textSecondary }]}>
-                  {task.duration}
-                </Text>
-              </View>
-            </View>
-          </View>
-          
-          {isExpanded ? (
-            <ChevronUp size={20} color={colors.textSecondary} />
+  
+  const progressPercentage = (completedTasks / tasks.length) * 100;
+  const totalPoints = tasks.filter(t => t.completed).reduce((sum, t) => sum + t.points, 0);
+  
+  const renderTask = (task: DailyTask) => (
+    <TouchableOpacity
+      key={task.id}
+      style={[
+        styles.taskCard,
+        {
+          backgroundColor: colors.card,
+          borderColor: task.completed ? task.color : colors.border,
+          opacity: task.completed ? 0.8 : 1,
+        },
+      ]}
+      onPress={() => handleTaskComplete(task.id, task.type)}
+      disabled={task.completed}
+    >
+      <View style={styles.taskHeader}>
+        <View style={[styles.taskIcon, { backgroundColor: task.color + '20' }]}>
+          <task.icon size={24} color={task.color} />
+        </View>
+        <View style={styles.taskContent}>
+          <Text style={[styles.taskTitle, { color: colors.text }]}>
+            {task.title}
+          </Text>
+          <Text style={[styles.taskDescription, { color: colors.textSecondary }]}>
+            {task.description}
+          </Text>
+        </View>
+        <View style={styles.taskStatus}>
+          {task.completed ? (
+            <CheckCircle size={24} color={colors.success} />
           ) : (
-            <ChevronDown size={20} color={colors.textSecondary} />
+            <Circle size={24} color={colors.textLight} />
           )}
-        </TouchableOpacity>
-
-        {isExpanded && task.image && (
-          <View style={styles.expandedContent}>
-            <Image source={{ uri: task.image }} style={styles.taskImage} />
-            {task.tags && (
-              <View style={styles.tagsContainer}>
-                {task.tags.map((tag, index) => (
-                  <View key={index} style={[styles.tag, { backgroundColor: colors.surface }]}>
-                    <Text style={[styles.tagText, { color: colors.text }]}>
-                      {tag}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-            <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
-              <Play size={16} color={colors.white} />
-              <Text style={[styles.actionButtonText, { color: colors.white }]}>
-                Commencer
-              </Text>
-            </TouchableOpacity>
-          </View>
+        </View>
+      </View>
+      
+      <View style={styles.taskFooter}>
+        <View style={styles.pointsBadge}>
+          <Zap size={12} color={colors.warning} />
+          <Text style={[styles.pointsText, { color: colors.warning }]}>
+            +{task.points} XP
+          </Text>
+        </View>
+        {task.completed && (
+          <Text style={[styles.completedText, { color: colors.success }]}>
+            Terminé !
+          </Text>
         )}
       </View>
-    );
-  };
-
+    </TouchableOpacity>
+  );
+  
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <LinearGradient
         colors={colors.primaryGradient}
         style={styles.header}
       >
         <View style={styles.headerContent}>
-          <View style={styles.profileSection}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>S</Text>
-            </View>
-            <View>
-              <Text style={styles.planTitle}>Plan Quotidien</Text>
-              <Text style={styles.planSubtitle}>Pour Comprendre la Création</Text>
-            </View>
-          </View>
-          
-          <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Calendar size={20} color={colors.white} />
-            </TouchableOpacity>
-            <View style={styles.streakBadge}>
-              <Flame size={16} color={colors.accent} />
-              <Text style={styles.streakNumber}>2</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Week Calendar */}
-        <View style={styles.weekCalendar}>
-          {Array.from({ length: 7 }, (_, i) => {
-            const date = new Date(today);
-            date.setDate(today.getDate() - today.getDay() + i + 1); // Start from Monday
-            const isToday = date.toDateString() === today.toDateString();
-            const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-            const dayProgress = dailyProgress[dayKey];
-            
-            return (
-              <TouchableOpacity key={i} style={styles.dayButton}>
-                <Text style={styles.dayLabel}>
-                  {['L', 'M', 'M', 'J', 'V', 'S', 'D'][i]}
-                </Text>
-                <View style={[
-                  styles.dayCircle,
-                  isToday && styles.todayCircle,
-                  dayProgress?.completed && styles.completedDayCircle,
-                ]}>
-                  {dayProgress?.streak && (
-                    <Flame size={12} color={colors.accent} style={styles.dayStreakIcon} />
-                  )}
-                  <Text style={[
-                    styles.dayNumber,
-                    isToday && styles.todayNumber,
-                    dayProgress?.completed && styles.completedDayNumber,
-                  ]}>
-                    {date.getDate()}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          <Calendar size={28} color={colors.white} />
+          <Text style={styles.headerTitle}>Plan Quotidien</Text>
+          <Text style={styles.headerDate}>
+            {today.toLocaleDateString('fr-FR', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </Text>
         </View>
       </LinearGradient>
-
-      {/* Progress Section */}
-      <View style={[styles.progressSection, { backgroundColor: colors.card }]}>
-        <Text style={[styles.progressTitle, { color: colors.text }]}>
-          Progrès aujourd'hui
-        </Text>
-        <Text style={[styles.progressPercentage, { color: colors.accent }]}>
-          {progressPercentage}%
-        </Text>
-        <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-          <View 
-            style={[
-              styles.progressFill, 
-              { 
-                backgroundColor: colors.accent,
-                width: `${progressPercentage}%`
-              }
-            ]} 
-          />
+      
+      {/* Progress Overview */}
+      <View style={[styles.progressCard, { backgroundColor: colors.card }]}>
+        <View style={styles.progressHeader}>
+          <Text style={[styles.progressTitle, { color: colors.text }]}>Progrès du jour</Text>
+          <Text style={[styles.progressPercentage, { color: colors.primary }]}>
+            {Math.round(progressPercentage)}%
+          </Text>
+        </View>
+        
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBar, { backgroundColor: colors.borderLight }]}>
+            <LinearGradient
+              colors={colors.primaryGradient}
+              style={[styles.progressFill, { width: `${progressPercentage}%` }]}
+            />
+          </View>
+        </View>
+        
+        <View style={styles.progressStats}>
+          <View style={styles.progressStat}>
+            <Trophy size={16} color={colors.warning} />
+            <Text style={[styles.progressStatText, { color: colors.textSecondary }]}>
+              {completedTasks}/{tasks.length} tâches
+            </Text>
+          </View>
+          <View style={styles.progressStat}>
+            <Zap size={16} color={colors.warning} />
+            <Text style={[styles.progressStatText, { color: colors.textSecondary }]}>
+              {totalPoints} XP gagnés
+            </Text>
+          </View>
         </View>
       </View>
-
-      {/* Daily Tasks */}
-      <View style={styles.tasksSection}>
-        {dailyTasks.map(renderTask)}
+      
+      {/* Tasks List */}
+      <View style={styles.tasksContainer}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Tâches quotidiennes</Text>
+        {tasks.map(renderTask)}
       </View>
+      
+      {/* Motivation Message */}
+      {completedTasks === tasks.length ? (
+        <View style={[styles.completionCard, { backgroundColor: colors.success + '20' }]}>
+          <Trophy size={32} color={colors.success} />
+          <Text style={[styles.completionTitle, { color: colors.success }]}>
+            Journée accomplie !
+          </Text>
+          <Text style={[styles.completionMessage, { color: colors.text }]}>
+            Félicitations ! Vous avez terminé toutes vos tâches spirituelles aujourd'hui.
+            Continuez sur cette belle lancée !
+          </Text>
+        </View>
+      ) : (
+        <View style={[styles.motivationCard, { backgroundColor: colors.card }]}>
+          <Text style={[styles.motivationText, { color: colors.textSecondary }]}>
+            « Chaque petit pas compte dans votre parcours spirituel. »
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -287,130 +264,47 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    padding: spacing.xl,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerContent: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.bold,
+    color: '#FFFFFF',
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  headerDate: {
+    fontSize: typography.fontSizes.md,
+    color: '#FFFFFF',
+    opacity: 0.9,
+    textAlign: 'center',
+  },
+  progressCard: {
+    margin: spacing.md,
+    padding: spacing.lg,
+    borderRadius: 16,
+  },
+  progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 20,
-  },
-  profileSection: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  planTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  planSubtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  iconButton: {
-    padding: 8,
-  },
-  streakBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  streakNumber: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  weekCalendar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dayButton: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  dayLabel: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  dayCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  todayCircle: {
-    backgroundColor: 'rgba(212, 175, 55, 0.8)',
-  },
-  completedDayCircle: {
-    backgroundColor: 'rgba(212, 175, 55, 1)',
-  },
-  dayStreakIcon: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-  },
-  dayNumber: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  todayNumber: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  completedDayNumber: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  progressSection: {
-    margin: 16,
-    padding: 20,
-    borderRadius: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    marginBottom: spacing.md,
   },
   progressTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
   },
   progressPercentage: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 12,
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.bold,
+  },
+  progressBarContainer: {
+    marginBottom: spacing.md,
   },
   progressBar: {
     height: 8,
@@ -421,105 +315,105 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 4,
   },
-  tasksSection: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+  progressStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
-  taskContainer: {
-    borderRadius: 16,
-    marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  progressStat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  progressStatText: {
+    fontSize: typography.fontSizes.sm,
+  },
+  tasksContainer: {
+    padding: spacing.md,
+  },
+  sectionTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    marginBottom: spacing.md,
+  },
+  taskCard: {
+    borderRadius: 12,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    borderWidth: 2,
   },
   taskHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-  taskInfo: {
-    flex: 1,
-  },
-  taskTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 4,
+    marginBottom: spacing.sm,
   },
   taskIcon: {
-    width: 24,
-    height: 24,
+    width: 48,
+    height: 48,
     borderRadius: 12,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
   },
-  taskTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+  taskContent: {
     flex: 1,
   },
-  doneLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+  taskTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
+    marginBottom: spacing.xs,
   },
-  taskSubtitle: {
-    fontSize: 14,
-    marginBottom: 8,
-    marginLeft: 36,
+  taskDescription: {
+    fontSize: typography.fontSizes.sm,
+    lineHeight: typography.lineHeights.sm,
   },
-  taskMeta: {
+  taskStatus: {
+    marginLeft: spacing.sm,
+  },
+  taskFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  pointsBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 36,
+    gap: spacing.xs,
   },
-  durationBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+  pointsText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
   },
-  duration: {
-    fontSize: 12,
+  completedText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
   },
-  expandedContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  taskImage: {
-    width: '100%',
-    height: 120,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
-  },
-  tag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+  completionCard: {
+    margin: spacing.md,
+    padding: spacing.xl,
     borderRadius: 16,
-  },
-  tagText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  actionButton: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    borderRadius: 12,
   },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+  completionTitle: {
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.bold,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  completionMessage: {
+    fontSize: typography.fontSizes.md,
+    textAlign: 'center',
+    lineHeight: typography.lineHeights.md,
+  },
+  motivationCard: {
+    margin: spacing.md,
+    padding: spacing.lg,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  motivationText: {
+    fontSize: typography.fontSizes.md,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    lineHeight: typography.lineHeights.md,
   },
 });

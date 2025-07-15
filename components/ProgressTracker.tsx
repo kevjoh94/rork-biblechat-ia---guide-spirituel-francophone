@@ -2,12 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Trophy, Target, Calendar, BookOpen } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
 
 export const ProgressTracker: React.FC = () => {
+  const { colors } = useTheme();
   const stats = useSpiritualStore((state) => state.stats);
   const achievements = useSpiritualStore((state) => state.achievements);
   
@@ -66,7 +67,7 @@ export const ProgressTracker: React.FC = () => {
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <BookOpen size={24} color={colors.wisdom} />
+          <BookOpen size={24} color={colors.secondary} />
           <Text style={styles.statNumber}>{stats.totalReadings}</Text>
           <Text style={styles.statLabel}>Lectures</Text>
         </View>

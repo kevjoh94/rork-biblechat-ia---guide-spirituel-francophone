@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
@@ -15,6 +15,7 @@ interface OfflineData {
 }
 
 export const OfflineManager: React.FC = () => {
+  const { colors } = useTheme();
   const [isOnline, setIsOnline] = useState(true);
   const [offlineData, setOfflineData] = useState<OfflineData | null>(null);
   

@@ -27,6 +27,9 @@ export default function TabLayout() {
           marginTop: 4,
         },
         tabBarShowLabel: true,
+        tabBarItemStyle: {
+          paddingVertical: 4,
+        },
         headerStyle: {
           backgroundColor: colors.background,
           elevation: 0,

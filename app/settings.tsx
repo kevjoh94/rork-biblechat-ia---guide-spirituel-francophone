@@ -22,7 +22,7 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { typography } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { useSpiritualStore } from '@/store/spiritual-store';
@@ -71,6 +71,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
 );
 
 export default function SettingsScreen() {
+  const { colors } = useTheme();
   const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
   const notifications = useSpiritualStore((state) => state.notifications);
   const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
@@ -114,6 +115,7 @@ export default function SettingsScreen() {
             fontWeight: '600',
           },
           headerTintColor: colors.primary,
+          headerBackTitle: 'Retour',
         }}
       />
       

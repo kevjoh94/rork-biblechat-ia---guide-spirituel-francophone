@@ -15,8 +15,8 @@ export default function DailyPlanScreen() {
           headerStyle: {
             backgroundColor: colors.background,
           },
-          headerTintColor: colors.text,
-          headerShown: false,
+          headerTintColor: colors.primary,
+          headerBackTitle: 'Retour',
         }} 
       />
       <View style={[styles.container, { backgroundColor: colors.background }]}>
