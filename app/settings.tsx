@@ -194,10 +194,8 @@ export default function SettingsScreen() {
           title: 'Paramètres',
           headerStyle: {
             backgroundColor: colors.background,
-            shadowOpacity: 0,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.border,
           },
+          headerShadowVisible: false,
           headerTitleStyle: {
             color: colors.text,
             fontWeight: '600',
