@@ -41,34 +41,28 @@ export const EnhancedProfile: React.FC = () => {
   const [userName, setUserName] = useState('Utilisateur Spirituel');
   const [userBio, setUserBio] = useState('Chercheur de vérité');
   
-  // Use selectors to prevent unnecessary re-renders
+  // Use stable selectors to prevent unnecessary re-renders
   const stats = useSpiritualStore((state) => state.stats);
-  const chatHistory = useSpiritualStore((state) => state.chatHistory);
+  const chatHistoryLength = useSpiritualStore((state) => state.chatHistory.length);
   const achievements = useSpiritualStore((state) => state.achievements);
   const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
   const notifications = useSpiritualStore((state) => state.notifications);
   const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
   const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);
   
-  // Get favorites data separately to prevent infinite loops
-  const content = useSpiritualStore((state) => state.content);
-  const favoriteIds = useSpiritualStore((state) => state.favorites);
-  
-  // Memoize favorites to prevent recalculation
-  const favorites = useMemo(() => {
-    return content.filter((c) => favoriteIds.includes(c.id));
-  }, [content, favoriteIds]);
-  const journalEntries = useSpiritualStore((state) => state.journalEntries);
-  const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
-  const readingPlans = useSpiritualStore((state) => state.readingPlans);
+  // Get stable data to prevent infinite loops
+  const favoritesCount = useSpiritualStore((state) => state.favorites.length);
+  const journalEntriesCount = useSpiritualStore((state) => state.journalEntries.length);
+  const meditationSessionsCount = useSpiritualStore((state) => state.meditationSessions.length);
+  const readingPlansCount = useSpiritualStore((state) => state.readingPlans.length);
   const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);
   
   // Calculate level based on experience
   const level = Math.floor(stats.experience / 100) + 1;
   const levelProgress = (stats.experience % 100) / 100;
   
-  // Calculate total activity
-  const totalActivity = stats.totalReadings + chatHistory.length + journalEntries.length + meditationSessions.length;
+  // Calculate total activity using stable values
+  const totalActivity = stats.totalReadings + chatHistoryLength + journalEntriesCount + meditationSessionsCount;
   
   // Create dynamic styles based on theme
   const styles = useMemo(() => StyleSheet.create({
@@ -419,8 +413,8 @@ export const EnhancedProfile: React.FC = () => {
       {/* Quick Stats */}
       <View style={styles.statsGrid}>
         {renderStatCard('Lectures', stats.totalReadings, BookOpen, colors.secondary)}
-        {renderStatCard('Méditations', meditationSessions.length, Target, colors.peace)}
-        {renderStatCard('Journal', journalEntries.length, Edit3, colors.gratitude)}
+        {renderStatCard('Méditations', meditationSessionsCount, Target, colors.peace)}
+        {renderStatCard('Journal', journalEntriesCount, Edit3, colors.gratitude)}
         {renderStatCard('Série', stats.currentStreak, Zap, colors.love)}
       </View>
 
@@ -444,19 +438,19 @@ export const EnhancedProfile: React.FC = () => {
           <View style={styles.activityRow}>
             <Heart size={16} color={colors.love} />
             <Text style={styles.activityText}>
-              {favorites.length} contenus favoris
+              {favoritesCount} contenus favoris
             </Text>
           </View>
           <View style={styles.activityRow}>
             <MessageCircle size={16} color={colors.primary} />
             <Text style={styles.activityText}>
-              {chatHistory.length} conversations spirituelles
+              {chatHistoryLength} conversations spirituelles
             </Text>
           </View>
           <View style={styles.activityRow}>
             <Calendar size={16} color={colors.secondary} />
             <Text style={styles.activityText}>
-              {readingPlans.length} plans de lecture actifs
+              {readingPlansCount} plans de lecture actifs
             </Text>
           </View>
         </View>

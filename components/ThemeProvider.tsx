@@ -16,6 +16,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
   const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
 
+  // Initialize theme based on system preference if not set
+  useEffect(() => {
+    const initializeTheme = () => {
+      const currentMode = useSpiritualStore.getState().isDarkMode;
+      if (currentMode === undefined && systemColorScheme) {
+        // Only set if not already configured by user
+        if (systemColorScheme === 'dark') {
+          toggleDarkMode();
+        }
+      }
+    };
+    initializeTheme();
+  }, [systemColorScheme, toggleDarkMode]);
+
   const colors = useMemo(() => {
     return isDarkMode ? darkColors : lightColors;
   }, [isDarkMode]);

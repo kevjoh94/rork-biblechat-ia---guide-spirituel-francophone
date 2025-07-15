@@ -8,11 +8,12 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Sparkles, RefreshCw, Heart, Star } from 'lucide-react-native';
+import { Sparkles, RefreshCw, Heart, Star, AlertCircle } from 'lucide-react-native';
 import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
+import { makeApiRequest, handleApiError, ApiError } from '@/utils/api-helpers';
 
 interface Insight {
   id: string;
@@ -34,6 +35,7 @@ export const SpiritualInsights: React.FC = () => {
   }), [colors]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<ApiError | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof insightCategories | 'all'>('all');
   
   const journalEntries = useSpiritualStore((state) => state.journalEntries);
@@ -46,6 +48,7 @@ export const SpiritualInsights: React.FC = () => {
 
   const generatePersonalizedInsights = async () => {
     setIsLoading(true);
+    setError(null);
     
     try {
       // Analyze user's spiritual journey
@@ -92,19 +95,10 @@ export const SpiritualInsights: React.FC = () => {
         }
       ];
 
-      const response = await fetch('https://toolkit.rork.com/text/llm/', {
+      const data = await makeApiRequest<{ completion: string }>('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ messages }),
       });
-
-      if (!response.ok) {
-        throw new Error('Erreur de connexion');
-      }
-
-      const data = await response.json();
       
       try {
         // Clean the response by removing markdown code blocks if present
@@ -137,7 +131,8 @@ export const SpiritualInsights: React.FC = () => {
         setDefaultInsights();
       }
     } catch (error) {
-      console.error('Error generating insights:', error);
+      const apiError = handleApiError(error);
+      setError(apiError);
       setDefaultInsights();
     } finally {
       setIsLoading(false);
@@ -323,6 +318,36 @@ export const SpiritualInsights: React.FC = () => {
       textAlign: 'center',
       paddingHorizontal: spacing.lg,
     },
+    errorState: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+      marginTop: spacing.xl,
+    },
+    errorTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: '600',
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    errorMessage: {
+      fontSize: typography.fontSizes.md,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      paddingHorizontal: spacing.lg,
+      marginBottom: spacing.md,
+    },
+    retryButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: 8,
+      gap: spacing.xs,
+    },
+    retryText: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: '600',
+    },
   }), [colors]);
 
   const InsightCard = ({ insight }: { insight: Insight }) => {
@@ -424,7 +449,22 @@ export const SpiritualInsights: React.FC = () => {
           <InsightCard key={insight.id} insight={insight} />
         ))}
         
-        {filteredInsights.length === 0 && !isLoading && (
+        {error && (
+          <View style={styles.errorState}>
+            <AlertCircle size={48} color={colors.error} />
+            <Text style={[styles.errorTitle, { color: colors.error }]}>Erreur de chargement</Text>
+            <Text style={styles.errorMessage}>{error.message}</Text>
+            <TouchableOpacity 
+              style={[styles.retryButton, { backgroundColor: colors.primary }]}
+              onPress={generatePersonalizedInsights}
+            >
+              <RefreshCw size={16} color={colors.white} />
+              <Text style={[styles.retryText, { color: colors.white }]}>Réessayer</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        
+        {filteredInsights.length === 0 && !isLoading && !error && (
           <View style={styles.emptyState}>
             <Sparkles size={48} color={colors.textLight} />
             <Text style={styles.emptyTitle}>Aucun insight disponible</Text>
