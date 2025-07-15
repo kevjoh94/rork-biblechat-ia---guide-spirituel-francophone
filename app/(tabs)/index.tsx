@@ -183,7 +183,7 @@ export default function HomeScreen() {
         <View style={styles.contentContainer}>
           {activeTab === "featured" ? (
             featuredContent.length > 0 ? (
-              featuredContent.map((item) => (
+              featuredContent.map((item: any) => (
                 <BiblicalContentCard
                   key={item.id}
                   content={item}
@@ -196,7 +196,7 @@ export default function HomeScreen() {
               </View>
             )
           ) : favoriteContent.length > 0 ? (
-            favoriteContent.map((item) => (
+            favoriteContent.map((item: any) => (
               <BiblicalContentCard
                 key={item.id}
                 content={item}

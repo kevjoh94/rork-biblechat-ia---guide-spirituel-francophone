@@ -9,6 +9,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -78,6 +80,7 @@ export const NotificationManager: React.FC = () => {
           data: { type: 'daily_verse' },
         },
         trigger: {
+          type: 'calendar',
           hour,
           minute,
           repeats: true,
@@ -94,6 +97,7 @@ export const NotificationManager: React.FC = () => {
           data: { type: 'reading_reminder' },
         },
         trigger: {
+          type: 'calendar',
           hour: hour + 1,
           minute,
           repeats: true,
@@ -110,6 +114,7 @@ export const NotificationManager: React.FC = () => {
           data: { type: 'prayer_reminder' },
         },
         trigger: {
+          type: 'calendar',
           hour: hour + 2,
           minute,
           repeats: true,
@@ -126,6 +131,7 @@ export const NotificationManager: React.FC = () => {
           data: { type: 'meditation_reminder' },
         },
         trigger: {
+          type: 'calendar',
           hour: hour + 3,
           minute,
           repeats: true,
