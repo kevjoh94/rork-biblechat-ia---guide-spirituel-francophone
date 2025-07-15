@@ -23,7 +23,13 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   isSpeaking = false 
 }) => {
   const formatTime = (date: Date | string) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    let dateObj: Date;
+    
+    if (typeof date === 'string') {
+      dateObj = new Date(date);
+    } else {
+      dateObj = date;
+    }
     
     // Check if the date is valid
     if (isNaN(dateObj.getTime())) {

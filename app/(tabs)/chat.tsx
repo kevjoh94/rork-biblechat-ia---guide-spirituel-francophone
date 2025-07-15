@@ -13,7 +13,6 @@ import {
   Alert
 } from "react-native";
 import { Audio } from "expo-av";
-import * as Speech from "expo-speech";
 
 import { ChatBubble } from "@/components/ChatBubble";
 import { colors } from "@/constants/colors";
@@ -47,6 +46,7 @@ export default function ChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [currentSound, setCurrentSound] = useState<Audio.Sound | null>(null);
   const flatListRef = useRef<FlatList>(null);
   
   const chatHistory = useSpiritualStore((state) => state.chatHistory);
@@ -276,93 +276,100 @@ Peux-tu réessayer dans quelques instants ?`,
     }
   };
 
-  const speakText = async (text: string) => {
+  const speakWithOpenAI = async (text: string) => {
     try {
-      if (Platform.OS === 'web') {
-        // Web Speech API avec paramètres améliorés
-        if ('speechSynthesis' in window) {
-          // Nettoyer le texte pour une meilleure prononciation
-          const cleanText = text
-            .replace(/[""]/g, '"')
-            .replace(/['']/g, "'")
-            .replace(/—/g, " - ")
-            .replace(/\*\*/g, "")
-            .replace(/\*/g, "")
-            .replace(/#{1,6}\s/g, "")
-            .replace(/\n{2,}/g, ". ")
-            .replace(/\n/g, ", ");
-
-          const utterance = new SpeechSynthesisUtterance(cleanText);
-          
-          // Paramètres optimisés pour une voix plus naturelle
-          utterance.lang = 'fr-FR';
-          utterance.rate = 0.85; // Légèrement plus lent pour plus de clarté
-          utterance.pitch = 1.1; // Légèrement plus aigu pour plus de chaleur
-          utterance.volume = 0.9;
-          
-          // Essayer de sélectionner une voix française de qualité
-          const voices = speechSynthesis.getVoices();
-          const frenchVoices = voices.filter(voice => 
-            voice.lang.startsWith('fr') && 
-            (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Apple'))
-          );
-          
-          if (frenchVoices.length > 0) {
-            // Préférer les voix féminines qui sont souvent plus douces
-            const femaleVoice = frenchVoices.find(voice => 
-              voice.name.toLowerCase().includes('female') || 
-              voice.name.toLowerCase().includes('marie') ||
-              voice.name.toLowerCase().includes('amelie') ||
-              voice.name.toLowerCase().includes('claire')
-            );
-            utterance.voice = femaleVoice || frenchVoices[0];
-          }
-          
-          utterance.onstart = () => setIsSpeaking(true);
-          utterance.onend = () => setIsSpeaking(false);
-          utterance.onerror = () => setIsSpeaking(false);
-          
-          speechSynthesis.speak(utterance);
+      if (isSpeaking) {
+        // Stop current audio
+        if (currentSound) {
+          await currentSound.stopAsync();
+          await currentSound.unloadAsync();
+          setCurrentSound(null);
         }
-      } else {
-        // Expo Speech avec paramètres améliorés
-        setIsSpeaking(true);
-        
-        // Nettoyer le texte pour une meilleure prononciation
-        const cleanText = text
-          .replace(/[""]/g, '"')
-          .replace(/['']/g, "'")
-          .replace(/—/g, " - ")
-          .replace(/\*\*/g, "")
-          .replace(/\*/g, "")
-          .replace(/#{1,6}\s/g, "")
-          .replace(/\n{2,}/g, ". ")
-          .replace(/\n/g, ", ");
+        setIsSpeaking(false);
+        return;
+      }
 
-        await Speech.speak(cleanText, {
-          language: 'fr-FR',
-          rate: 0.8, // Plus lent pour plus de clarté
-          pitch: 1.05, // Légèrement plus aigu
-          voice: undefined, // Laisser le système choisir la meilleure voix
-          onDone: () => setIsSpeaking(false),
-          onError: () => setIsSpeaking(false),
-        });
+      setIsSpeaking(true);
+
+      // Clean text for better pronunciation
+      const cleanText = text
+        .replace(/[""]/g, '"')
+        .replace(/['']/g, "'")
+        .replace(/—/g, " - ")
+        .replace(/\*\*/g, "")
+        .replace(/\*/g, "")
+        .replace(/#{1,6}\s/g, "")
+        .replace(/\n{2,}/g, ". ")
+        .replace(/\n/g, ", ");
+
+      // Call OpenAI TTS API
+      const response = await fetch('https://toolkit.rork.com/tts/speak/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: cleanText,
+          voice: 'nova', // OpenAI voice (nova is warm and natural)
+          model: 'tts-1-hd', // High quality model
+          speed: 0.9 // Slightly slower for spiritual content
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur TTS');
+      }
+
+      const audioBlob = await response.blob();
+
+      if (Platform.OS === 'web') {
+        // Web: Create audio URL and play
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        audio.onended = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        await audio.play();
+      } else {
+        // Mobile: Convert blob to base64 and play with expo-av
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const base64Audio = reader.result as string;
+            const { sound } = await Audio.Sound.createAsync(
+              { uri: base64Audio },
+              { shouldPlay: true }
+            );
+            
+            setCurrentSound(sound);
+            
+            sound.setOnPlaybackStatusUpdate((status) => {
+              if (status.isLoaded && status.didJustFinish) {
+                setIsSpeaking(false);
+                sound.unloadAsync();
+                setCurrentSound(null);
+              }
+            });
+          } catch (error) {
+            console.error('Erreur lecture audio:', error);
+            setIsSpeaking(false);
+          }
+        };
+        reader.readAsDataURL(audioBlob);
       }
     } catch (error) {
-      console.error('Erreur de synthèse vocale:', error);
+      console.error('Erreur TTS OpenAI:', error);
       setIsSpeaking(false);
+      Alert.alert('Erreur', "Impossible de lire le texte avec la voix OpenAI.");
     }
-  };
-
-  const stopSpeaking = () => {
-    if (Platform.OS === 'web') {
-      if ('speechSynthesis' in window) {
-        speechSynthesis.cancel();
-      }
-    } else {
-      Speech.stop();
-    }
-    setIsSpeaking(false);
   };
 
   const handleVoiceToggle = () => {
@@ -376,11 +383,7 @@ Peux-tu réessayer dans quelques instants ?`,
   const handleSpeakLastMessage = () => {
     const lastAiMessage = [...chatHistory].reverse().find(msg => !msg.isUser);
     if (lastAiMessage) {
-      if (isSpeaking) {
-        stopSpeaking();
-      } else {
-        speakText(lastAiMessage.text);
-      }
+      speakWithOpenAI(lastAiMessage.text);
     }
   };
 
@@ -389,7 +392,7 @@ Peux-tu réessayer dans quelques instants ?`,
       message={item.text}
       isUser={item.isUser}
       timestamp={item.timestamp}
-      onSpeak={!item.isUser ? () => speakText(item.text) : undefined}
+      onSpeak={!item.isUser ? () => speakWithOpenAI(item.text) : undefined}
       isSpeaking={isSpeaking}
     />
   );
