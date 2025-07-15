@@ -177,6 +177,10 @@ Peux-tu réessayer dans quelques instants ?`,
             linearPCMIsBigEndian: false,
             linearPCMIsFloat: false,
           },
+          web: {
+            mimeType: 'audio/webm',
+            bitsPerSecond: 128000,
+          },
         });
 
         setRecording(newRecording);
