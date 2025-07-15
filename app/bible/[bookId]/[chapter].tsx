@@ -79,7 +79,7 @@ export default function ChapterScreen() {
       if (Platform.OS === 'web') {
         // Web: Create audio URL and play
         const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
+        const audio = new window.Audio(audioUrl);
         
         audio.onended = () => {
           setIsSpeaking(false);
