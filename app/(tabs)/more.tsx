@@ -89,6 +89,13 @@ export default function MoreScreen() {
       subtitle: 'Partage et discussions',
       onPress: () => router.push('/(tabs)/community'),
       color: colors.info
+    },
+    {
+      icon: <Calendar />,
+      title: 'Calendrier de Suivi',
+      subtitle: 'Suivez votre progression spirituelle',
+      onPress: () => router.push('/calendar'),
+      color: colors.success
     }
   ];
 
@@ -115,7 +122,7 @@ export default function MoreScreen() {
         // TODO: Navigate to offline content
         console.log('Navigate to offline content');
       },
-      color: colors.success
+      color: colors.warning
     }
   ];
 

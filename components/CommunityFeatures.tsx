@@ -72,6 +72,7 @@ export const CommunityFeatures: React.FC = () => {
   const { colors } = useTheme();
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const stats = useSpiritualStore((state) => state.stats);
+  const categoryConfig = getCategoryConfig(colors);
 
   const handleLike = (postId: string) => {
     setLikedPosts(prev => {

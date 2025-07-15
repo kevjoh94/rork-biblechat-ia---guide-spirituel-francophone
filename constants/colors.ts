@@ -1,5 +1,6 @@
 export const lightColors = {
   primary: "#6B4E71", // Violet spirituel principal
+  primaryLight: "#E8E0EA", // Version claire du primary
   secondary: "#8B7355", // Brun doré spirituel
   accent: "#D4AF37", // Or doux
   background: "#FEFEFE",
@@ -41,6 +42,7 @@ export const lightColors = {
 
 export const darkColors = {
   primary: "#9B7EAF", // Violet spirituel plus clair
+  primaryLight: "#4A3A4F", // Version sombre du primary
   secondary: "#B8A082", // Brun doré plus clair
   accent: "#F4D03F", // Or plus lumineux
   background: "#1A1A1A",

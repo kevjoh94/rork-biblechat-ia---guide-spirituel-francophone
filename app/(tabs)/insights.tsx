@@ -1,10 +1,14 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Stack } from 'expo-router';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { ArrowLeft } from 'lucide-react-native';
 import { SpiritualInsights } from '@/components/SpiritualInsights';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 
 export default function InsightsScreen() {
+  const { colors } = useTheme();
+  const router = useRouter();
+  
   return (
     <>
       <Stack.Screen 
@@ -14,9 +18,14 @@ export default function InsightsScreen() {
             backgroundColor: colors.background,
           },
           headerTintColor: colors.text,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 16 }}>
+              <ArrowLeft size={24} color={colors.text} />
+            </TouchableOpacity>
+          ),
         }} 
       />
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <SpiritualInsights />
       </View>
     </>
@@ -26,6 +35,5 @@ export default function InsightsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
 });

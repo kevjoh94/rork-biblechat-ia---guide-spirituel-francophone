@@ -84,6 +84,81 @@ export default function SettingsScreen() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    section: {
+      marginBottom: spacing.xl,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.md,
+      paddingHorizontal: spacing.lg,
+      color: colors.text,
+    },
+    sectionContent: {
+      marginHorizontal: spacing.lg,
+      borderRadius: 12,
+      overflow: 'hidden',
+      backgroundColor: colors.card,
+    },
+    settingItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    settingLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    iconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+      backgroundColor: colors.primaryLight,
+    },
+    settingContent: {
+      flex: 1,
+    },
+    settingTitle: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.medium,
+      marginBottom: 2,
+      color: colors.text,
+    },
+    settingSubtitle: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+    },
+    settingRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    footer: {
+      padding: spacing.xl,
+      alignItems: 'center',
+    },
+    footerText: {
+      fontSize: typography.fontSizes.sm,
+      textAlign: 'center',
+      color: colors.textSecondary,
+    },
+  });
+
   const handleNotificationToggle = (key: keyof typeof notifications) => {
     updateNotificationSettings({ [key]: !notifications[key] });
   };
@@ -247,69 +322,3 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  section: {
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  sectionContent: {
-    marginHorizontal: spacing.lg,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing.lg,
-    borderBottomWidth: 1,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  settingContent: {
-    flex: 1,
-  },
-  settingTitle: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.medium,
-    marginBottom: 2,
-  },
-  settingSubtitle: {
-    fontSize: typography.fontSizes.sm,
-  },
-  settingRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  footer: {
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
-  },
-});
