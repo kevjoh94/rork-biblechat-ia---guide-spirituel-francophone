@@ -53,7 +53,8 @@ const SettingItem: React.FC<SettingItemProps> = ({
       <View style={styles.iconContainer}>
         {React.cloneElement(icon as React.ReactElement, {
           size: 20,
-        })}
+          color: colors.primary,
+        } as any)}
       </View>
       <View style={styles.settingContent}>
         <Text style={styles.settingTitle}>{title}</Text>

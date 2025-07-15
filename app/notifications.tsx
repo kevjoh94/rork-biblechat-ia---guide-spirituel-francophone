@@ -49,7 +49,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       <View style={[styles.iconContainer, { opacity: enabled ? 1 : 0.5 }]}>
         {React.cloneElement(icon as React.ReactElement, {
           size: 20,
-        })}
+          color: colors.primary,
+        } as any)}
       </View>
       <View style={styles.notificationContent}>
         <Text style={[styles.notificationTitle, { opacity: enabled ? 1 : 0.6 }]}>
