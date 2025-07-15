@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useSpiritualStore } from '@/store/spiritual-store';
@@ -13,8 +13,12 @@ Notifications.setNotificationHandler({
 });
 
 export const NotificationManager: React.FC = () => {
-  const notifications = useSpiritualStore((state) => state.notifications);
-  const getDailyVerse = useSpiritualStore((state) => state.getDailyVerse);
+  // Use stable selectors to prevent infinite loops
+  const notificationsSelector = useCallback((state: any) => state.notifications, []);
+  const getDailyVerseSelector = useCallback((state: any) => state.getDailyVerse, []);
+  
+  const notifications = useSpiritualStore(notificationsSelector);
+  const getDailyVerse = useSpiritualStore(getDailyVerseSelector);
 
   useEffect(() => {
     setupNotifications();

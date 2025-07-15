@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -42,6 +42,21 @@ export const EnhancedProfile: React.FC = () => {
   const [userBio, setUserBio] = useState('Chercheur de vérité');
   
   // Use stable selectors to prevent unnecessary re-renders
+  const selector = useCallback((state: any) => ({
+    stats: state.stats,
+    chatHistory: state.chatHistory,
+    achievements: state.achievements,
+    isDarkMode: state.isDarkMode,
+    notifications: state.notifications,
+    favorites: state.favorites,
+    journalEntries: state.journalEntries,
+    meditationSessions: state.meditationSessions,
+    readingPlans: state.readingPlans,
+    toggleDarkMode: state.toggleDarkMode,
+    updateNotificationSettings: state.updateNotificationSettings,
+    clearChatHistory: state.clearChatHistory
+  }), []);
+  
   const {
     stats,
     chatHistory,
@@ -55,34 +70,45 @@ export const EnhancedProfile: React.FC = () => {
     toggleDarkMode,
     updateNotificationSettings,
     clearChatHistory
-  } = useSpiritualStore((state) => ({
-    stats: state.stats,
-    chatHistory: state.chatHistory,
-    achievements: state.achievements,
-    isDarkMode: state.isDarkMode,
-    notifications: state.notifications,
-    favorites: state.favorites,
-    journalEntries: state.journalEntries,
-    meditationSessions: state.meditationSessions,
-    readingPlans: state.readingPlans,
-    toggleDarkMode: state.toggleDarkMode,
-    updateNotificationSettings: state.updateNotificationSettings,
-    clearChatHistory: state.clearChatHistory
-  }));
+  } = useSpiritualStore(selector);
   
-  // Calculate derived values
-  const chatHistoryLength = chatHistory.length;
-  const favoritesCount = favorites.length;
-  const journalEntriesCount = journalEntries.length;
-  const meditationSessionsCount = meditationSessions.length;
-  const readingPlansCount = readingPlans.length;
+  // Calculate derived values with useMemo to prevent recalculation
+  const derivedValues = useMemo(() => {
+    const chatHistoryLength = chatHistory.length;
+    const favoritesCount = favorites.length;
+    const journalEntriesCount = journalEntries.length;
+    const meditationSessionsCount = meditationSessions.length;
+    const readingPlansCount = readingPlans.length;
+    
+    // Calculate level based on experience
+    const level = Math.floor(stats.experience / 100) + 1;
+    const levelProgress = (stats.experience % 100) / 100;
+    
+    // Calculate total activity using stable values
+    const totalActivity = stats.totalReadings + chatHistoryLength + journalEntriesCount + meditationSessionsCount;
+    
+    return {
+      chatHistoryLength,
+      favoritesCount,
+      journalEntriesCount,
+      meditationSessionsCount,
+      readingPlansCount,
+      level,
+      levelProgress,
+      totalActivity
+    };
+  }, [stats, chatHistory.length, favorites.length, journalEntries.length, meditationSessions.length, readingPlans.length]);
   
-  // Calculate level based on experience
-  const level = Math.floor(stats.experience / 100) + 1;
-  const levelProgress = (stats.experience % 100) / 100;
-  
-  // Calculate total activity using stable values
-  const totalActivity = stats.totalReadings + chatHistoryLength + journalEntriesCount + meditationSessionsCount;
+  const {
+    chatHistoryLength,
+    favoritesCount,
+    journalEntriesCount,
+    meditationSessionsCount,
+    readingPlansCount,
+    level,
+    levelProgress,
+    totalActivity
+  } = derivedValues;
   
   // Create dynamic styles based on theme
   const styles = useMemo(() => StyleSheet.create({

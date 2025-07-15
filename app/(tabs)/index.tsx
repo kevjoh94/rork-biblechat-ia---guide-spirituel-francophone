@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MessageCircle, Sparkles, Star, Heart, Calendar, BookOpen, Target } from "lucide-react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import { BiblicalContentCard } from "@/components/BiblicalContentCard";
@@ -19,14 +19,21 @@ export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<"featured" | "favorites">("featured");
-  const content = useSpiritualStore((state) => state.content);
-  const getFavorites = useSpiritualStore((state) => state.getFavorites);
-  const getDailyVerse = useSpiritualStore((state) => state.getDailyVerse);
-  const initializeDailyVerse = useSpiritualStore((state) => state.initializeDailyVerse);
+  // Use stable selectors to prevent infinite loops
+  const contentSelector = useCallback((state: any) => state.content, []);
+  const getFavoritesSelector = useCallback((state: any) => state.getFavorites, []);
+  const getDailyVerseSelector = useCallback((state: any) => state.getDailyVerse, []);
+  const initializeDailyVerseSelector = useCallback((state: any) => state.initializeDailyVerse, []);
+  
+  const content = useSpiritualStore(contentSelector);
+  const getFavorites = useSpiritualStore(getFavoritesSelector);
+  const getDailyVerse = useSpiritualStore(getDailyVerseSelector);
+  const initializeDailyVerse = useSpiritualStore(initializeDailyVerseSelector);
 
-  const featuredContent = content.slice(0, 4);
-  const favoriteContent = getFavorites();
-  const dailyVerse = getDailyVerse();
+  // Memoize derived values to prevent unnecessary recalculations
+  const featuredContent = useMemo(() => content.slice(0, 4), [content]);
+  const favoriteContent = useMemo(() => getFavorites(), [getFavorites]);
+  const dailyVerse = useMemo(() => getDailyVerse(), [getDailyVerse]);
   
   useEffect(() => {
     initializeDailyVerse();

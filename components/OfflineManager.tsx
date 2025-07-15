@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,8 +19,15 @@ export const OfflineManager: React.FC = () => {
   const [isOnline, setIsOnline] = useState(true);
   const [offlineData, setOfflineData] = useState<OfflineData | null>(null);
   
-  const content = useSpiritualStore((state) => state.content);
-  const dailyVerse = useSpiritualStore((state) => state.getDailyVerse());
+  // Use stable selectors to prevent infinite loops
+  const contentSelector = useCallback((state: any) => state.content, []);
+  const getDailyVerseSelector = useCallback((state: any) => state.getDailyVerse, []);
+  
+  const content = useSpiritualStore(contentSelector);
+  const getDailyVerse = useSpiritualStore(getDailyVerseSelector);
+  
+  // Get daily verse using the function
+  const dailyVerse = getDailyVerse();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
