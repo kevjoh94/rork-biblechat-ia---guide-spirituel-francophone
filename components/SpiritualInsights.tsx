@@ -70,6 +70,8 @@ export const SpiritualInsights: React.FC = () => {
           
           Chaque insight doit inclure un verset biblique pertinent avec sa référence.
           
+          IMPORTANT: Réponds UNIQUEMENT avec du JSON valide, sans markdown, sans backticks, sans texte supplémentaire.
+          
           Format de réponse JSON :
           {
             "insights": [
@@ -104,16 +106,33 @@ export const SpiritualInsights: React.FC = () => {
       const data = await response.json();
       
       try {
-        const parsedInsights = JSON.parse(data.completion);
-        const formattedInsights = parsedInsights.insights.map((insight: any, index: number) => ({
-          ...insight,
-          id: `insight-${Date.now()}-${index}`,
-        }));
+        // Clean the response by removing markdown code blocks if present
+        let cleanedCompletion = data.completion.trim();
         
-        setInsights(formattedInsights);
-        addExperience(5); // Reward for engaging with insights
+        // Remove markdown code blocks (```json ... ```)
+        if (cleanedCompletion.startsWith('```')) {
+          cleanedCompletion = cleanedCompletion.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        // Remove any leading/trailing backticks
+        cleanedCompletion = cleanedCompletion.replace(/^`+|`+$/g, '');
+        
+        const parsedInsights = JSON.parse(cleanedCompletion);
+        
+        if (parsedInsights.insights && Array.isArray(parsedInsights.insights)) {
+          const formattedInsights = parsedInsights.insights.map((insight: any, index: number) => ({
+            ...insight,
+            id: `insight-${Date.now()}-${index}`,
+          }));
+          
+          setInsights(formattedInsights);
+          addExperience(5); // Reward for engaging with insights
+        } else {
+          throw new Error('Invalid insights format');
+        }
       } catch (parseError) {
         console.error('Error parsing insights:', parseError);
+        console.error('Raw completion:', data.completion);
         setDefaultInsights();
       }
     } catch (error) {
