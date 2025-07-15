@@ -108,6 +108,7 @@ export const CommunityFeatures: React.FC = () => {
   };
 
   const renderPost = (post: CommunityPost) => {
+    const categoryConfig = getCategoryConfig(colors);
     const config = categoryConfig[post.category];
     const IconComponent = config.icon;
     const isLiked = likedPosts.has(post.id);
@@ -237,7 +238,6 @@ export const CommunityFeatures: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   headerCard: {
     margin: spacing.md,
@@ -255,19 +255,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: typography.fontSizes.xxl,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.white,
     marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: typography.fontSizes.md,
-    color: colors.white,
     opacity: 0.9,
   },
   statsContainer: {
     flexDirection: 'row',
     marginHorizontal: spacing.md,
     marginBottom: spacing.lg,
-    backgroundColor: colors.card,
     borderRadius: 12,
     padding: spacing.md,
   },
@@ -278,12 +275,10 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.primary,
     marginBottom: spacing.xs,
   },
   statLabel: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
     textAlign: 'center',
   },
   postsSection: {
@@ -292,16 +287,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
     marginBottom: spacing.md,
   },
   postCard: {
-    backgroundColor: colors.card,
     borderRadius: 12,
     padding: spacing.md,
     marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   postHeader: {
     flexDirection: 'row',
@@ -324,11 +316,9 @@ const styles = StyleSheet.create({
   authorName: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
   },
   timestamp: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
   },
   categoryLabel: {
     fontSize: typography.fontSizes.sm,
@@ -336,27 +326,22 @@ const styles = StyleSheet.create({
   },
   postContent: {
     fontSize: typography.fontSizes.md,
-    color: colors.text,
     lineHeight: 22,
     marginBottom: spacing.sm,
   },
   verseContainer: {
-    backgroundColor: colors.background,
     borderRadius: 8,
     padding: spacing.sm,
     marginBottom: spacing.sm,
     borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
   },
   verseText: {
     fontSize: typography.fontSizes.md,
-    color: colors.text,
     fontStyle: 'italic',
     marginBottom: spacing.xs,
   },
   verseReference: {
     fontSize: typography.fontSizes.sm,
-    color: colors.primary,
     fontWeight: '600',
   },
   postActions: {
@@ -364,7 +349,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   actionButton: {
     flexDirection: 'row',
@@ -375,7 +359,6 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: typography.fontSizes.sm,
     marginLeft: spacing.xs,
-    color: colors.textSecondary,
   },
   joinButton: {
     margin: spacing.md,
@@ -392,7 +375,6 @@ const styles = StyleSheet.create({
   joinButtonText: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.white,
     marginLeft: spacing.sm,
   },
 });

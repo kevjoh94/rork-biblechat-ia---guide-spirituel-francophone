@@ -115,17 +115,15 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   offlineIndicator: {
-    backgroundColor: colors.warning,
     padding: spacing.sm,
     alignItems: 'center',
   },
   offlineText: {
-    ...typography.bodyBold,
-    color: colors.white,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
   },
   offlineSubtext: {
-    ...typography.caption,
-    color: colors.white,
+    fontSize: typography.fontSizes.sm,
     opacity: 0.9,
   },
 });

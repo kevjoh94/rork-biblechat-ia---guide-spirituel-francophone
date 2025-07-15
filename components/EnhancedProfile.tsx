@@ -147,7 +147,7 @@ export const EnhancedProfile: React.FC = () => {
 
       {/* Quick Stats */}
       <View style={styles.statsGrid}>
-        {renderStatCard('Lectures', stats.totalReadings, BookOpen, colors.wisdom)}
+        {renderStatCard('Lectures', stats.totalReadings, BookOpen, colors.secondary)}
         {renderStatCard('Méditations', meditationSessions.length, Target, colors.peace)}
         {renderStatCard('Journal', journalEntries.length, Edit3, colors.gratitude)}
         {renderStatCard('Série', stats.currentStreak, Zap, colors.love)}
@@ -183,7 +183,7 @@ export const EnhancedProfile: React.FC = () => {
             </Text>
           </View>
           <View style={styles.activityRow}>
-            <Calendar size={16} color={colors.wisdom} />
+            <Calendar size={16} color={colors.secondary} />
             <Text style={styles.activityText}>
               {readingPlans.length} plans de lecture actifs
             </Text>
@@ -304,7 +304,6 @@ export const EnhancedProfile: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   headerCard: {
     margin: spacing.md,
@@ -329,13 +328,12 @@ const styles = StyleSheet.create({
     marginLeft: spacing.md,
   },
   userName: {
-    ...typography.h3,
-    color: colors.white,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.xs,
   },
   userBio: {
-    ...typography.body,
-    color: colors.white,
+    fontSize: typography.fontSizes.md,
     opacity: 0.9,
     marginBottom: spacing.xs,
   },
@@ -344,8 +342,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   levelText: {
-    ...typography.caption,
-    color: colors.white,
+    fontSize: typography.fontSizes.sm,
     marginLeft: spacing.xs,
     fontWeight: '600',
   },
@@ -363,12 +360,10 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.white,
     borderRadius: 3,
   },
   progressText: {
-    ...typography.caption,
-    color: colors.white,
+    fontSize: typography.fontSizes.sm,
     textAlign: 'center',
   },
   statsGrid: {
@@ -379,7 +374,6 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: '48%',
-    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: spacing.md,
     alignItems: 'center',
@@ -395,13 +389,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   statValue: {
-    ...typography.h2,
-    color: colors.text,
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.bold,
     marginBottom: spacing.xs,
   },
   statTitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: typography.fontSizes.sm,
     textAlign: 'center',
   },
   section: {
@@ -409,12 +402,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   sectionTitle: {
-    ...typography.h3,
-    color: colors.text,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.md,
   },
   achievementsContainer: {
-    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: spacing.md,
   },
@@ -428,22 +420,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   achievementTitle: {
-    ...typography.bodyBold,
-    color: colors.text,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.xs,
   },
   achievementDescription: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: typography.fontSizes.sm,
   },
   emptyText: {
-    ...typography.body,
-    color: colors.textSecondary,
+    fontSize: typography.fontSizes.md,
     textAlign: 'center',
     fontStyle: 'italic',
   },
   activityCard: {
-    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: spacing.md,
   },
@@ -453,28 +442,25 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   activityText: {
-    ...typography.body,
-    color: colors.text,
+    fontSize: typography.fontSizes.md,
     marginLeft: spacing.sm,
   },
   settingsButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
     marginHorizontal: spacing.md,
     marginBottom: spacing.xl,
     padding: spacing.md,
     borderRadius: 12,
   },
   settingsButtonText: {
-    ...typography.bodyBold,
-    color: colors.primary,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     marginLeft: spacing.sm,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -482,15 +468,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   modalTitle: {
-    ...typography.h3,
-    color: colors.text,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
   },
   closeButton: {
-    ...typography.bodyBold,
-    color: colors.primary,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
   },
   modalContent: {
     flex: 1,
@@ -502,58 +487,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   settingInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   settingLabel: {
-    ...typography.body,
-    color: colors.text,
+    fontSize: typography.fontSizes.md,
     marginLeft: spacing.sm,
   },
   dangerButton: {
-    backgroundColor: colors.error,
     padding: spacing.md,
     borderRadius: 8,
     marginTop: spacing.xl,
   },
   dangerButtonText: {
-    ...typography.bodyBold,
-    color: colors.white,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     textAlign: 'center',
   },
   inputGroup: {
     marginBottom: spacing.lg,
   },
   inputLabel: {
-    ...typography.bodyBold,
-    color: colors.text,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.sm,
   },
   textInput: {
-    backgroundColor: colors.surface,
     borderRadius: 8,
     padding: spacing.md,
-    ...typography.body,
-    color: colors.text,
+    fontSize: typography.fontSizes.md,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   textArea: {
     height: 80,
     textAlignVertical: 'top',
   },
   saveButton: {
-    backgroundColor: colors.primary,
     padding: spacing.md,
     borderRadius: 8,
     marginTop: spacing.md,
   },
   saveButtonText: {
-    ...typography.bodyBold,
-    color: colors.white,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     textAlign: 'center',
   },
 });

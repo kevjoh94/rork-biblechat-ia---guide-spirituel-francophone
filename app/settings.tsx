@@ -52,7 +52,6 @@ const SettingItem: React.FC<SettingItemProps> = ({
     <View style={styles.settingLeft}>
       <View style={styles.iconContainer}>
         {React.cloneElement(icon as React.ReactElement, {
-          color: colors.primary,
           size: 20,
         })}
       </View>
@@ -64,7 +63,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
     <View style={styles.settingRight}>
       {rightElement}
       {showChevron && onPress && (
-        <ChevronRight color={colors.textSecondary} size={16} />
+        <ChevronRight size={16} />
       )}
     </View>
   </TouchableOpacity>
@@ -241,7 +240,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -252,12 +250,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
     marginBottom: spacing.md,
     paddingHorizontal: spacing.lg,
   },
   sectionContent: {
-    backgroundColor: colors.card,
     marginHorizontal: spacing.lg,
     borderRadius: 12,
     overflow: 'hidden',
@@ -268,7 +264,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
   },
   settingLeft: {
     flexDirection: 'row',
@@ -279,7 +274,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
@@ -290,12 +284,10 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.medium,
-    color: colors.text,
     marginBottom: 2,
   },
   settingSubtitle: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
   },
   settingRight: {
     flexDirection: 'row',
@@ -308,7 +300,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textLight,
     textAlign: 'center',
   },
 });

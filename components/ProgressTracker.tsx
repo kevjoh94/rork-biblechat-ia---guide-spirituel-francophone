@@ -125,13 +125,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   levelTitle: {
-    ...typography.h3,
-    color: colors.white,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.xs,
   },
   levelSubtitle: {
-    ...typography.body,
-    color: colors.white,
+    fontSize: typography.fontSizes.md,
     opacity: 0.9,
   },
   progressContainer: {
@@ -147,12 +146,11 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.white,
     borderRadius: 4,
   },
   progressText: {
-    ...typography.bodyBold,
-    color: colors.white,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -161,7 +159,6 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: '48%',
-    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: spacing.md,
     alignItems: 'center',
@@ -169,48 +166,41 @@ const styles = StyleSheet.create({
     marginHorizontal: '1%',
   },
   statNumber: {
-    ...typography.h2,
-    color: colors.text,
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.bold,
     marginVertical: spacing.xs,
   },
   statLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: typography.fontSizes.sm,
     textAlign: 'center',
   },
   messageCard: {
-    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: spacing.md,
     marginBottom: spacing.md,
     borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
   },
   messageTitle: {
-    ...typography.bodyBold,
-    color: colors.text,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.xs,
   },
   messageText: {
-    ...typography.body,
-    color: colors.textSecondary,
+    fontSize: typography.fontSizes.md,
     lineHeight: 20,
   },
   nextAchievementCard: {
-    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: spacing.md,
     borderWidth: 1,
-    borderColor: colors.primary,
     borderStyle: 'dashed',
   },
   nextAchievementTitle: {
-    ...typography.bodyBold,
-    color: colors.primary,
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
     marginBottom: spacing.xs,
   },
   nextAchievementText: {
-    ...typography.body,
-    color: colors.text,
+    fontSize: typography.fontSizes.md,
   },
 });

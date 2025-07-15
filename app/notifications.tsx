@@ -48,7 +48,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     <View style={styles.notificationLeft}>
       <View style={[styles.iconContainer, { opacity: enabled ? 1 : 0.5 }]}>
         {React.cloneElement(icon as React.ReactElement, {
-          color: colors.primary,
           size: 20,
         })}
       </View>
@@ -271,7 +270,6 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -285,7 +283,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
@@ -293,13 +290,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.bold,
-    color: colors.text,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   headerSubtitle: {
     fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: typography.lineHeights.md,
   },
@@ -309,12 +304,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
     marginBottom: spacing.md,
     paddingHorizontal: spacing.lg,
   },
   sectionContent: {
-    backgroundColor: colors.card,
     marginHorizontal: spacing.lg,
     borderRadius: 12,
     overflow: 'hidden',
@@ -325,7 +318,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
   },
   masterToggleLeft: {
     flexDirection: 'row',
@@ -339,12 +331,10 @@ const styles = StyleSheet.create({
   masterToggleTitle: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
     marginBottom: 2,
   },
   masterToggleSubtitle: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
   },
   notificationItem: {
     flexDirection: 'row',
@@ -352,7 +342,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
   },
   notificationLeft: {
     flexDirection: 'row',
@@ -363,7 +352,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
@@ -374,23 +362,19 @@ const styles = StyleSheet.create({
   notificationTitle: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.medium,
-    color: colors.text,
     marginBottom: 2,
   },
   notificationSubtitle: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
     marginBottom: 2,
   },
   notificationTime: {
     fontSize: typography.fontSizes.xs,
-    color: colors.primary,
     fontWeight: typography.fontWeights.medium,
   },
   optionItem: {
     padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
   },
   optionLeft: {
     flexDirection: 'row',
@@ -399,12 +383,10 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.medium,
-    color: colors.text,
     marginBottom: 2,
   },
   optionSubtitle: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
   },
   footer: {
     padding: spacing.xl,
@@ -412,7 +394,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textLight,
     textAlign: 'center',
   },
 });

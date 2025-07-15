@@ -84,6 +84,7 @@ export interface MeditationSession {
 
 export interface NotificationSettings {
   push: boolean;
+  daily: boolean;
   dailyVerse: boolean;
   readingReminder: boolean;
   prayerReminder: boolean;
