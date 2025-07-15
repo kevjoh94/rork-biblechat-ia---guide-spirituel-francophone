@@ -4,9 +4,10 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 import { biblicalContent } from "@/mocks/biblical-content";
 import { dailyVerses } from "@/mocks/daily-verses";
-import { BiblicalContent, ChatMessage, UserProfile } from "@/types/spiritual";
+import { BiblicalContent, ChatMessage, UserProfile, ReadingPlan, JournalEntry, MeditationSession, NotificationSettings } from "@/types/spiritual";
 
 interface SpiritualState {
+  // Existing state
   content: BiblicalContent[];
   favorites: string[];
   chatHistory: ChatMessage[];
@@ -18,7 +19,22 @@ interface SpiritualState {
     currentStreak: number;
     longestStreak: number;
     lastReadDate: string | null;
+    totalMeditations: number;
+    totalJournalEntries: number;
+    level: number;
+    experience: number;
   };
+  
+  // New state
+  isDarkMode: boolean;
+  readingPlans: ReadingPlan[];
+  currentReadingPlan: ReadingPlan | null;
+  journalEntries: JournalEntry[];
+  meditationSessions: MeditationSession[];
+  notifications: NotificationSettings;
+  achievements: string[];
+  
+  // Existing actions
   toggleFavorite: (id: string) => void;
   addChatMessage: (message: ChatMessage) => void;
   clearChatHistory: () => void;
@@ -27,6 +43,19 @@ interface SpiritualState {
   getFavorites: () => BiblicalContent[];
   getDailyVerse: () => typeof dailyVerses[0];
   markAsRead: (id: string) => void;
+  
+  // New actions
+  toggleDarkMode: () => void;
+  addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'createdAt'>) => void;
+  updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => void;
+  deleteJournalEntry: (id: string) => void;
+  addMeditationSession: (session: Omit<MeditationSession, 'id' | 'completedAt'>) => void;
+  createReadingPlan: (plan: Omit<ReadingPlan, 'id' | 'createdAt' | 'progress'>) => void;
+  updateReadingPlanProgress: (planId: string, chapterId: string) => void;
+  setCurrentReadingPlan: (planId: string) => void;
+  updateNotificationSettings: (settings: Partial<NotificationSettings>) => void;
+  addAchievement: (achievementId: string) => void;
+  addExperience: (points: number) => void;
 }
 
 export const useSpiritualStore = create<SpiritualState>()(
@@ -43,7 +72,26 @@ export const useSpiritualStore = create<SpiritualState>()(
         currentStreak: 0,
         longestStreak: 0,
         lastReadDate: null,
+        totalMeditations: 0,
+        totalJournalEntries: 0,
+        level: 1,
+        experience: 0,
       },
+      
+      // New state initialization
+      isDarkMode: false,
+      readingPlans: [],
+      currentReadingPlan: null,
+      journalEntries: [],
+      meditationSessions: [],
+      notifications: {
+        dailyVerse: true,
+        readingReminder: true,
+        prayerReminder: true,
+        meditationReminder: false,
+        time: '08:00',
+      },
+      achievements: [],
       toggleFavorite: (id: string) => {
         set((state) => {
           const updatedContent = state.content.map((item) => {
@@ -119,13 +167,149 @@ export const useSpiritualStore = create<SpiritualState>()(
             longestStreak = currentStreak;
           }
           
+          // Add experience points
+          const newExperience = state.stats.experience + 10;
+          const newLevel = Math.floor(newExperience / 100) + 1;
+          
           return {
             stats: {
+              ...state.stats,
               totalReadings: state.stats.totalReadings + 1,
-              totalPrayers: state.stats.totalPrayers,
               currentStreak,
               longestStreak,
               lastReadDate: today,
+              experience: newExperience,
+              level: newLevel,
+            },
+          };
+        });
+      },
+      
+      // New actions implementation
+      toggleDarkMode: () => {
+        set((state) => ({ isDarkMode: !state.isDarkMode }));
+      },
+      
+      addJournalEntry: (entry) => {
+        set((state) => {
+          const newEntry: JournalEntry = {
+            ...entry,
+            id: Date.now().toString(),
+            createdAt: new Date(),
+          };
+          
+          return {
+            journalEntries: [newEntry, ...state.journalEntries],
+            stats: {
+              ...state.stats,
+              totalJournalEntries: state.stats.totalJournalEntries + 1,
+              experience: state.stats.experience + 5,
+            },
+          };
+        });
+      },
+      
+      updateJournalEntry: (id, updates) => {
+        set((state) => ({
+          journalEntries: state.journalEntries.map(entry =>
+            entry.id === id ? { ...entry, ...updates } : entry
+          ),
+        }));
+      },
+      
+      deleteJournalEntry: (id) => {
+        set((state) => ({
+          journalEntries: state.journalEntries.filter(entry => entry.id !== id),
+        }));
+      },
+      
+      addMeditationSession: (session) => {
+        set((state) => {
+          const newSession: MeditationSession = {
+            ...session,
+            id: Date.now().toString(),
+            completedAt: new Date(),
+          };
+          
+          return {
+            meditationSessions: [newSession, ...state.meditationSessions],
+            stats: {
+              ...state.stats,
+              totalMeditations: state.stats.totalMeditations + 1,
+              experience: state.stats.experience + 15,
+            },
+          };
+        });
+      },
+      
+      createReadingPlan: (plan) => {
+        set((state) => {
+          const newPlan: ReadingPlan = {
+            ...plan,
+            id: Date.now().toString(),
+            createdAt: new Date(),
+            progress: [],
+          };
+          
+          return {
+            readingPlans: [...state.readingPlans, newPlan],
+          };
+        });
+      },
+      
+      updateReadingPlanProgress: (planId, chapterId) => {
+        set((state) => ({
+          readingPlans: state.readingPlans.map(plan =>
+            plan.id === planId
+              ? {
+                  ...plan,
+                  progress: [...plan.progress, {
+                    chapterId,
+                    completedAt: new Date(),
+                  }],
+                }
+              : plan
+          ),
+        }));
+      },
+      
+      setCurrentReadingPlan: (planId) => {
+        set((state) => ({
+          currentReadingPlan: state.readingPlans.find(plan => plan.id === planId) || null,
+        }));
+      },
+      
+      updateNotificationSettings: (settings) => {
+        set((state) => ({
+          notifications: { ...state.notifications, ...settings },
+        }));
+      },
+      
+      addAchievement: (achievementId) => {
+        set((state) => {
+          if (!state.achievements.includes(achievementId)) {
+            return {
+              achievements: [...state.achievements, achievementId],
+              stats: {
+                ...state.stats,
+                experience: state.stats.experience + 25,
+              },
+            };
+          }
+          return state;
+        });
+      },
+      
+      addExperience: (points) => {
+        set((state) => {
+          const newExperience = state.stats.experience + points;
+          const newLevel = Math.floor(newExperience / 100) + 1;
+          
+          return {
+            stats: {
+              ...state.stats,
+              experience: newExperience,
+              level: newLevel,
             },
           };
         });

@@ -1,258 +1,344 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { BookOpen, Plus, Heart, Calendar } from "lucide-react-native";
-import React, { useState } from "react";
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TouchableOpacity, 
-  TextInput, 
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
   ScrollView,
-  Modal 
-} from "react-native";
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Modal,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { 
+  Plus, 
+  Edit3, 
+  Trash2, 
+  Heart, 
+  Smile, 
+  Frown, 
+  Meh,
+  Sun,
+  Star,
+  BookOpen,
+  Sparkles
+} from 'lucide-react-native';
+import { colors } from '@/constants/colors';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+import { useSpiritualStore } from '@/store/spiritual-store';
+import { JournalEntry } from '@/types/spiritual';
 
-import { colors } from "@/constants/colors";
-import { spacing } from "@/constants/spacing";
-import { typography } from "@/constants/typography";
+const moodIcons = {
+  grateful: { icon: Heart, color: '#10B981', label: 'Reconnaissant' },
+  peaceful: { icon: Sun, color: '#3B82F6', label: 'Paisible' },
+  hopeful: { icon: Star, color: '#F59E0B', label: 'Plein d\'espoir' },
+  struggling: { icon: Frown, color: '#EF4444', label: 'En difficulté' },
+  joyful: { icon: Smile, color: '#EC4899', label: 'Joyeux' },
+};
 
-interface JournalEntry {
-  id: string;
-  date: Date;
-  title: string;
-  content: string;
-  verse?: string;
-  reference?: string;
-  mood: 'grateful' | 'peaceful' | 'hopeful' | 'struggling' | 'joyful';
-}
+export const SpiritualJournal: React.FC = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [selectedMood, setSelectedMood] = useState<keyof typeof moodIcons | undefined>();
+  const [verse, setVerse] = useState('');
+  const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
 
-interface SpiritualJournalProps {
-  entries: JournalEntry[];
-  onAddEntry: (entry: Omit<JournalEntry, 'id'>) => void;
-}
+  const journalEntries = useSpiritualStore((state) => state.journalEntries);
+  const addJournalEntry = useSpiritualStore((state) => state.addJournalEntry);
+  const updateJournalEntry = useSpiritualStore((state) => state.updateJournalEntry);
+  const deleteJournalEntry = useSpiritualStore((state) => state.deleteJournalEntry);
 
-export const SpiritualJournal: React.FC<SpiritualJournalProps> = ({
-  entries,
-  onAddEntry
-}) => {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newEntry, setNewEntry] = useState({
-    title: '',
-    content: '',
-    verse: '',
-    reference: '',
-    mood: 'peaceful' as JournalEntry['mood']
-  });
-
-  const moodEmojis = {
-    grateful: '🙏',
-    peaceful: '☮️',
-    hopeful: '🌅',
-    struggling: '💪',
-    joyful: '😊'
+  const openModal = (entry?: JournalEntry) => {
+    if (entry) {
+      setEditingEntry(entry);
+      setTitle(entry.title);
+      setContent(entry.content);
+      setSelectedMood(entry.mood);
+      setVerse(entry.verse || '');
+    } else {
+      setEditingEntry(null);
+      setTitle('');
+      setContent('');
+      setSelectedMood(undefined);
+      setVerse('');
+    }
+    setIsModalVisible(true);
   };
 
-  const moodColors = {
-    grateful: colors.gratitude,
-    peaceful: colors.peace,
-    hopeful: colors.hope,
-    struggling: colors.strength,
-    joyful: colors.comfort
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setEditingEntry(null);
+    setTitle('');
+    setContent('');
+    setSelectedMood(undefined);
+    setVerse('');
   };
 
-  const handleAddEntry = () => {
-    if (newEntry.title.trim() && newEntry.content.trim()) {
-      onAddEntry({
-        ...newEntry,
-        date: new Date()
+  const generateAIInsight = async (entryContent: string) => {
+    if (!entryContent.trim()) return '';
+
+    setIsGeneratingInsight(true);
+    try {
+      const messages = [
+        {
+          role: 'system' as const,
+          content: `Tu es un conseiller spirituel bienveillant. Analyse cette entrée de journal spirituel et fournis un insight court et encourageant (2-3 phrases max) basé sur la sagesse biblique. Sois empathique et inspirant.`
+        },
+        {
+          role: 'user' as const,
+          content: `Voici mon entrée de journal spirituel: "${entryContent}". Peux-tu me donner un insight spirituel encourageant ?`
+        }
+      ];
+
+      const response = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages }),
       });
-      setNewEntry({
-        title: '',
-        content: '',
-        verse: '',
-        reference: '',
-        mood: 'peaceful'
-      });
-      setShowAddModal(false);
+
+      if (!response.ok) {
+        throw new Error('Erreur de connexion');
+      }
+
+      const data = await response.json();
+      return data.completion || '';
+    } catch (error) {
+      console.error('Erreur génération insight:', error);
+      return '';
+    } finally {
+      setIsGeneratingInsight(false);
     }
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+  const saveEntry = async () => {
+    if (!title.trim() || !content.trim()) {
+      Alert.alert('Erreur', 'Veuillez remplir le titre et le contenu.');
+      return;
+    }
+
+    const aiInsight = await generateAIInsight(content);
+
+    const entryData = {
+      title: title.trim(),
+      content: content.trim(),
+      mood: selectedMood,
+      tags: [], // Could be enhanced with tag extraction
+      verse: verse.trim() || undefined,
+      aiInsight: aiInsight || undefined,
+    };
+
+    if (editingEntry) {
+      updateJournalEntry(editingEntry.id, entryData);
+    } else {
+      addJournalEntry(entryData);
+    }
+
+    closeModal();
+  };
+
+  const confirmDelete = (entryId: string) => {
+    Alert.alert(
+      'Supprimer l\'entrée',
+      'Êtes-vous sûr de vouloir supprimer cette entrée de journal ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { 
+          text: 'Supprimer', 
+          style: 'destructive',
+          onPress: () => deleteJournalEntry(entryId)
+        },
+      ]
+    );
+  };
+
+  const JournalEntryCard = ({ entry }: { entry: JournalEntry }) => {
+    const moodData = entry.mood ? moodIcons[entry.mood] : null;
+    const MoodIcon = moodData?.icon;
+
+    return (
+      <View style={styles.entryCard}>
+        <LinearGradient
+          colors={[colors.white, colors.cardSecondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.entryGradient}
+        >
+          <View style={styles.entryHeader}>
+            <View style={styles.entryTitleContainer}>
+              <Text style={styles.entryTitle}>{entry.title}</Text>
+              <Text style={styles.entryDate}>
+                {entry.createdAt.toLocaleDateString('fr-FR')}
+              </Text>
+            </View>
+            <View style={styles.entryActions}>
+              {moodData && MoodIcon && (
+                <View style={[styles.moodIndicator, { backgroundColor: moodData.color + '15' }]}>
+                  <MoodIcon size={16} color={moodData.color} />
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => openModal(entry)}
+              >
+                <Edit3 size={16} color={colors.textSecondary} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => confirmDelete(entry.id)}
+              >
+                <Trash2 size={16} color={colors.error} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <Text style={styles.entryContent} numberOfLines={3}>
+            {entry.content}
+          </Text>
+
+          {entry.verse && (
+            <View style={styles.verseContainer}>
+              <BookOpen size={14} color={colors.primary} />
+              <Text style={styles.verseText}>{entry.verse}</Text>
+            </View>
+          )}
+
+          {entry.aiInsight && (
+            <View style={styles.insightContainer}>
+              <Sparkles size={14} color={colors.secondary} />
+              <Text style={styles.insightText}>{entry.aiInsight}</Text>
+            </View>
+          )}
+        </LinearGradient>
+      </View>
+    );
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerIcon}>
-          <BookOpen size={20} color={colors.primary} />
-        </View>
-        <Text style={styles.title}>Mon Journal Spirituel</Text>
-        <TouchableOpacity 
-          onPress={() => setShowAddModal(true)}
+        <Text style={styles.title}>Journal Spirituel</Text>
+        <TouchableOpacity
           style={styles.addButton}
+          onPress={() => openModal()}
         >
-          <Plus size={20} color={colors.white} />
+          <LinearGradient
+            colors={colors.primaryGradient}
+            style={styles.addButtonGradient}
+          >
+            <Plus size={20} color={colors.white} />
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.entriesList} showsVerticalScrollIndicator={false}>
-        {entries.length > 0 ? (
-          entries.map((entry) => (
-            <View key={entry.id} style={styles.entryCard}>
-              <LinearGradient
-                colors={[colors.white, colors.cardSecondary]}
-                style={styles.entryGradient}
-              >
-                <View style={styles.entryHeader}>
-                  <View style={styles.entryMood}>
-                    <Text style={styles.moodEmoji}>
-                      {moodEmojis[entry.mood]}
-                    </Text>
-                    <View 
-                      style={[
-                        styles.moodIndicator, 
-                        { backgroundColor: moodColors[entry.mood] }
-                      ]} 
-                    />
-                  </View>
-                  <View style={styles.entryDate}>
-                    <Calendar size={14} color={colors.textLight} />
-                    <Text style={styles.dateText}>
-                      {formatDate(entry.date)}
-                    </Text>
-                  </View>
-                </View>
-                
-                <Text style={styles.entryTitle}>{entry.title}</Text>
-                <Text style={styles.entryContent} numberOfLines={3}>
-                  {entry.content}
-                </Text>
-                
-                {entry.verse && (
-                  <View style={styles.verseContainer}>
-                    <Text style={styles.entryVerse}>"{entry.verse}"</Text>
-                    {entry.reference && (
-                      <Text style={styles.entryReference}>— {entry.reference}</Text>
-                    )}
-                  </View>
-                )}
-              </LinearGradient>
-            </View>
+        {journalEntries.length > 0 ? (
+          journalEntries.map((entry) => (
+            <JournalEntryCard key={entry.id} entry={entry} />
           ))
         ) : (
           <View style={styles.emptyState}>
             <BookOpen size={48} color={colors.textLight} />
-            <Text style={styles.emptyTitle}>Votre journal vous attend</Text>
+            <Text style={styles.emptyTitle}>Commence ton journal spirituel</Text>
             <Text style={styles.emptySubtitle}>
-              Commencez à noter vos réflexions spirituelles et moments de grâce
+              Écris tes pensées, prières et réflexions quotidiennes
             </Text>
           </View>
         )}
       </ScrollView>
 
       <Modal
-        visible={showAddModal}
+        visible={isModalVisible}
         animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAddModal(false)}
+        presentationStyle="pageSheet"
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Nouvelle réflexion</Text>
-              <TouchableOpacity 
-                onPress={() => setShowAddModal(false)}
-                style={styles.closeButton}
-              >
-                <Text style={styles.closeButtonText}>✕</Text>
-              </TouchableOpacity>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={closeModal}>
+              <Text style={styles.cancelButton}>Annuler</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>
+              {editingEntry ? 'Modifier l\'entrée' : 'Nouvelle entrée'}
+            </Text>
+            <TouchableOpacity onPress={saveEntry} disabled={isGeneratingInsight}>
+              <Text style={[styles.saveButton, isGeneratingInsight && styles.saveButtonDisabled]}>
+                {isGeneratingInsight ? 'Génération...' : 'Sauvegarder'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Titre</Text>
+              <TextInput
+                style={styles.titleInput}
+                value={title}
+                onChangeText={setTitle}
+                placeholder="Titre de votre entrée..."
+                placeholderTextColor={colors.textLight}
+              />
             </View>
 
-            <ScrollView style={styles.modalBody}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Titre</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={newEntry.title}
-                  onChangeText={(text) => setNewEntry(prev => ({ ...prev, title: text }))}
-                  placeholder="Ex: Moment de grâce aujourd'hui"
-                  placeholderTextColor={colors.textLight}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Comment vous sentez-vous ?</Text>
-                <View style={styles.moodSelector}>
-                  {Object.entries(moodEmojis).map(([mood, emoji]) => (
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Comment vous sentez-vous ?</Text>
+              <View style={styles.moodSelector}>
+                {Object.entries(moodIcons).map(([mood, data]) => {
+                  const Icon = data.icon;
+                  const isSelected = selectedMood === mood;
+                  return (
                     <TouchableOpacity
                       key={mood}
                       style={[
                         styles.moodOption,
-                        newEntry.mood === mood && styles.moodOptionActive,
-                        { borderColor: moodColors[mood as JournalEntry['mood']] }
+                        isSelected && { backgroundColor: data.color + '15' }
                       ]}
-                      onPress={() => setNewEntry(prev => ({ 
-                        ...prev, 
-                        mood: mood as JournalEntry['mood'] 
-                      }))}
+                      onPress={() => setSelectedMood(mood as keyof typeof moodIcons)}
                     >
-                      <Text style={styles.moodOptionEmoji}>{emoji}</Text>
+                      <Icon 
+                        size={20} 
+                        color={isSelected ? data.color : colors.textLight} 
+                      />
+                      <Text style={[
+                        styles.moodLabel,
+                        isSelected && { color: data.color }
+                      ]}>
+                        {data.label}
+                      </Text>
                     </TouchableOpacity>
-                  ))}
-                </View>
+                  );
+                })}
               </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Vos réflexions</Text>
-                <TextInput
-                  style={[styles.textInput, styles.textArea]}
-                  value={newEntry.content}
-                  onChangeText={(text) => setNewEntry(prev => ({ ...prev, content: text }))}
-                  placeholder="Partagez vos pensées, prières, ou moments de grâce..."
-                  placeholderTextColor={colors.textLight}
-                  multiline
-                  numberOfLines={6}
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Verset qui vous inspire (optionnel)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={newEntry.verse}
-                  onChangeText={(text) => setNewEntry(prev => ({ ...prev, verse: text }))}
-                  placeholder="Tapez ou collez un verset..."
-                  placeholderTextColor={colors.textLight}
-                />
-                <TextInput
-                  style={[styles.textInput, { marginTop: spacing.sm }]}
-                  value={newEntry.reference}
-                  onChangeText={(text) => setNewEntry(prev => ({ ...prev, reference: text }))}
-                  placeholder="Référence (ex: Jean 3:16)"
-                  placeholderTextColor={colors.textLight}
-                />
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              <TouchableOpacity 
-                onPress={handleAddEntry}
-                style={styles.saveButton}
-              >
-                <LinearGradient
-                  colors={colors.primaryGradient}
-                  style={styles.saveButtonGradient}
-                >
-                  <Heart size={18} color={colors.white} />
-                  <Text style={styles.saveButtonText}>Sauvegarder</Text>
-                </LinearGradient>
-              </TouchableOpacity>
             </View>
-          </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Verset (optionnel)</Text>
+              <TextInput
+                style={styles.verseInput}
+                value={verse}
+                onChangeText={setVerse}
+                placeholder="Un verset qui vous inspire..."
+                placeholderTextColor={colors.textLight}
+                multiline
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Vos pensées</Text>
+              <TextInput
+                style={styles.contentInput}
+                value={content}
+                onChangeText={setContent}
+                placeholder="Partagez vos réflexions, prières, gratitudes..."
+                placeholderTextColor={colors.textLight}
+                multiline
+                textAlignVertical="top"
+              />
+            </View>
+          </ScrollView>
         </View>
       </Modal>
     </View>
@@ -265,35 +351,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing.md,
-    backgroundColor: colors.white,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primary + "15",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: spacing.sm,
+    borderBottomColor: colors.borderLight,
   },
   title: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: "600",
+    fontWeight: '700',
     color: colors.text,
-    flex: 1,
   },
   addButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
+    borderRadius: 20,
+  },
+  addButtonGradient: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   entriesList: {
     flex: 1,
@@ -313,183 +392,181 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   entryHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: spacing.sm,
   },
-  entryMood: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  moodEmoji: {
-    fontSize: 20,
-    marginRight: spacing.xs,
-  },
-  moodIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  entryDate: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  dateText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textLight,
-    marginLeft: spacing.xs,
+  entryTitleContainer: {
+    flex: 1,
   },
   entryTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: "600",
+    fontSize: typography.fontSizes.md,
+    fontWeight: '600',
     color: colors.text,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  entryDate: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+  },
+  entryActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  moodIndicator: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.sm,
+  },
+  actionButton: {
+    padding: spacing.xs,
+    marginLeft: spacing.xs,
   },
   entryContent: {
-    fontSize: typography.fontSizes.md,
+    fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeights.md,
+    lineHeight: typography.lineHeights.sm,
     marginBottom: spacing.sm,
   },
   verseContainer: {
-    backgroundColor: colors.primary + "10",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: colors.primary + '10',
     borderRadius: 8,
     padding: spacing.sm,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    marginBottom: spacing.sm,
   },
-  entryVerse: {
+  verseText: {
     fontSize: typography.fontSizes.sm,
-    color: colors.text,
-    fontStyle: "italic",
-    marginBottom: spacing.xs,
-  },
-  entryReference: {
-    fontSize: typography.fontSizes.xs,
     color: colors.primary,
-    fontWeight: "500",
+    fontStyle: 'italic',
+    marginLeft: spacing.sm,
+    flex: 1,
+  },
+  insightContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: colors.secondary + '10',
+    borderRadius: 8,
+    padding: spacing.sm,
+  },
+  insightText: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.secondary,
+    marginLeft: spacing.sm,
+    flex: 1,
+    fontWeight: '500',
   },
   emptyState: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingVertical: spacing.xl,
     marginTop: spacing.xl,
   },
   emptyTitle: {
     fontSize: typography.fontSizes.lg,
-    fontWeight: "600",
-    color: colors.textSecondary,
+    fontWeight: '600',
+    color: colors.text,
     marginTop: spacing.md,
     marginBottom: spacing.sm,
   },
   emptySubtitle: {
     fontSize: typography.fontSizes.md,
-    color: colors.textLight,
-    textAlign: "center",
+    color: colors.textSecondary,
+    textAlign: 'center',
     paddingHorizontal: spacing.lg,
   },
-  modalOverlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: colors.overlay,
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: colors.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: "90%",
+    backgroundColor: colors.background,
   },
   modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: spacing.lg,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.borderLight,
   },
-  modalTitle: {
-    fontSize: typography.fontSizes.xl,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.cardSecondary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  closeButtonText: {
-    fontSize: typography.fontSizes.lg,
+  cancelButton: {
+    fontSize: typography.fontSizes.md,
     color: colors.textSecondary,
   },
-  modalBody: {
+  modalTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  saveButton: {
+    fontSize: typography.fontSizes.md,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  saveButtonDisabled: {
+    opacity: 0.5,
+  },
+  modalContent: {
     flex: 1,
-    padding: spacing.lg,
+    padding: spacing.md,
   },
   inputGroup: {
     marginBottom: spacing.lg,
   },
   inputLabel: {
     fontSize: typography.fontSizes.md,
-    fontWeight: "500",
+    fontWeight: '600',
     color: colors.text,
     marginBottom: spacing.sm,
   },
-  textInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
+  titleInput: {
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: spacing.md,
     fontSize: typography.fontSizes.md,
     color: colors.text,
-    backgroundColor: colors.white,
-  },
-  textArea: {
-    height: 120,
-    textAlignVertical: "top",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   moodSelector: {
-    flexDirection: "row",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   moodOption: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: colors.border,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.white,
-  },
-  moodOptionActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.cardSecondary,
+    borderRadius: 20,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  moodOptionEmoji: {
-    fontSize: 20,
+  moodLabel: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+    marginLeft: spacing.xs,
   },
-  modalFooter: {
-    padding: spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  saveButton: {
+  verseInput: {
+    backgroundColor: colors.white,
     borderRadius: 12,
-  },
-  saveButtonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 12,
-  },
-  saveButtonText: {
+    padding: spacing.md,
     fontSize: typography.fontSizes.md,
-    fontWeight: "600",
-    color: colors.white,
-    marginLeft: spacing.sm,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+    minHeight: 60,
+  },
+  contentInput: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: spacing.md,
+    fontSize: typography.fontSizes.md,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+    minHeight: 120,
   },
 });

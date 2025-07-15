@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MessageCircle, Sparkles, Star, Heart } from "lucide-react-native";
+import { MessageCircle, Sparkles, Star, Heart, Calendar, BookOpen, Target } from "lucide-react-native";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
@@ -8,6 +8,7 @@ import { BiblicalContentCard } from "@/components/BiblicalContentCard";
 import { Button } from "@/components/Button";
 import { DailyVerseCard } from "@/components/DailyVerseCard";
 import { SpiritualCategoryCard } from "@/components/SpiritualCategoryCard";
+import { ProgressTracker } from "@/components/ProgressTracker";
 import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
@@ -35,6 +36,18 @@ export default function HomeScreen() {
 
   const navigateToChat = () => {
     router.push("/chat");
+  };
+  
+  const navigateToMeditation = () => {
+    router.push("/meditation");
+  };
+  
+  const navigateToJournal = () => {
+    router.push("/journal");
+  };
+  
+  const navigateToReadingPlan = () => {
+    router.push("/reading-plan");
   };
 
   return (
@@ -71,6 +84,39 @@ export default function HomeScreen() {
           fullWidth
           variant="primary"
         />
+        
+        {/* Quick Actions */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity style={styles.quickAction} onPress={navigateToMeditation}>
+            <LinearGradient
+              colors={[colors.peace, colors.peace + 'CC']}
+              style={styles.quickActionGradient}
+            >
+              <Heart size={20} color={colors.white} />
+              <Text style={styles.quickActionText}>Méditer</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.quickAction} onPress={navigateToJournal}>
+            <LinearGradient
+              colors={[colors.gratitude, colors.gratitude + 'CC']}
+              style={styles.quickActionGradient}
+            >
+              <BookOpen size={20} color={colors.white} />
+              <Text style={styles.quickActionText}>Journal</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.quickAction} onPress={navigateToReadingPlan}>
+            <LinearGradient
+              colors={[colors.strength, colors.strength + 'CC']}
+              style={styles.quickActionGradient}
+            >
+              <Calendar size={20} color={colors.white} />
+              <Text style={styles.quickActionText}>Plans</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.sectionHeader}>
           <Star size={20} color={colors.primary} />
@@ -106,6 +152,9 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Progress Tracker */}
+        <ProgressTracker />
+        
         <View style={styles.contentContainer}>
           {activeTab === "featured" ? (
             featuredContent.length > 0 ? (
@@ -250,5 +299,32 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     textAlign: "center",
     marginTop: spacing.xs,
+  },
+  quickActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: spacing.lg,
+    gap: spacing.sm,
+  },
+  quickAction: {
+    flex: 1,
+    borderRadius: 12,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  quickActionGradient: {
+    borderRadius: 12,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  quickActionText: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.white,
+    fontWeight: "600",
   },
 });

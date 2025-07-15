@@ -1,251 +1,321 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { Calendar, CheckCircle, Circle, Target, Trophy } from "lucide-react-native";
-import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Alert,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { 
+  Plus, 
+  Calendar, 
+  BookOpen, 
+  CheckCircle, 
+  Circle,
+  Target,
+  Clock,
+  Star
+} from 'lucide-react-native';
+import { colors } from '@/constants/colors';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+import { useSpiritualStore } from '@/store/spiritual-store';
+import { ReadingPlan as ReadingPlanType } from '@/types/spiritual';
+import { bibleBooks } from '@/mocks/bible-books';
 
-import { colors } from "@/constants/colors";
-import { spacing } from "@/constants/spacing";
-import { typography } from "@/constants/typography";
+const predefinedPlans = [
+  {
+    title: 'Évangiles en 30 jours',
+    description: 'Découvrez la vie de Jésus à travers les quatre évangiles',
+    duration: 30,
+    chapters: ['matthieu-1', 'matthieu-2', 'matthieu-3', 'marc-1', 'marc-2', 'luc-1', 'luc-2', 'jean-1'],
+    category: 'Nouveau Testament',
+  },
+  {
+    title: 'Psaumes de louange',
+    description: 'Un mois de méditation sur les plus beaux psaumes',
+    duration: 31,
+    chapters: ['psaumes-1', 'psaumes-23', 'psaumes-91', 'psaumes-103', 'psaumes-139'],
+    category: 'Ancien Testament',
+  },
+  {
+    title: 'Sagesse biblique',
+    description: 'Proverbes et Ecclésiaste pour grandir en sagesse',
+    duration: 21,
+    chapters: ['proverbes-1', 'proverbes-2', 'proverbes-3', 'ecclesiaste-1', 'ecclesiaste-3'],
+    category: 'Sagesse',
+  },
+  {
+    title: 'Lettres de Paul',
+    description: 'Les enseignements essentiels de l\'apôtre Paul',
+    duration: 28,
+    chapters: ['romains-1', 'romains-8', '1-corinthiens-13', 'ephesiens-1', 'philippiens-4'],
+    category: 'Épîtres',
+  },
+];
 
-interface ReadingPlanDay {
-  day: number;
-  date: Date;
-  readings: {
-    book: string;
-    chapter: number;
-    title: string;
-  }[];
-  completed: boolean;
-}
+export const ReadingPlan: React.FC = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<typeof predefinedPlans[0] | null>(null);
 
-interface ReadingPlan {
-  id: string;
-  title: string;
-  description: string;
-  duration: number; // en jours
-  theme: string;
-  color: string;
-  progress: number; // pourcentage
-  days: ReadingPlanDay[];
-}
+  const readingPlans = useSpiritualStore((state) => state.readingPlans);
+  const currentReadingPlan = useSpiritualStore((state) => state.currentReadingPlan);
+  const createReadingPlan = useSpiritualStore((state) => state.createReadingPlan);
+  const setCurrentReadingPlan = useSpiritualStore((state) => state.setCurrentReadingPlan);
+  const updateReadingPlanProgress = useSpiritualStore((state) => state.updateReadingPlanProgress);
 
-interface ReadingPlanProps {
-  plans: ReadingPlan[];
-  activePlan?: ReadingPlan;
-  onSelectPlan: (plan: ReadingPlan) => void;
-  onMarkDayComplete: (planId: string, day: number) => void;
-}
-
-export const ReadingPlanComponent: React.FC<ReadingPlanProps> = ({
-  plans,
-  activePlan,
-  onSelectPlan,
-  onMarkDayComplete
-}) => {
-  const [selectedTab, setSelectedTab] = useState<'plans' | 'progress'>('plans');
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short'
+  const createPlan = (planData: typeof predefinedPlans[0]) => {
+    createReadingPlan({
+      title: planData.title,
+      description: planData.description,
+      duration: planData.duration,
+      chapters: planData.chapters,
     });
+    setIsModalVisible(false);
   };
 
-  const getStreakDays = (plan: ReadingPlan) => {
-    let streak = 0;
-    const sortedDays = [...plan.days].sort((a, b) => a.day - b.day);
-    
-    for (let i = sortedDays.length - 1; i >= 0; i--) {
-      if (sortedDays[i].completed) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-    return streak;
+  const markChapterComplete = (planId: string, chapterId: string) => {
+    updateReadingPlanProgress(planId, chapterId);
   };
 
-  const PlanCard = ({ plan }: { plan: ReadingPlan }) => (
-    <TouchableOpacity
-      style={styles.planCard}
-      onPress={() => onSelectPlan(plan)}
-      activeOpacity={0.8}
-    >
-      <LinearGradient
-        colors={[colors.white, colors.cardSecondary]}
-        style={styles.planGradient}
-      >
-        <View style={styles.planHeader}>
-          <View style={[styles.planIcon, { backgroundColor: plan.color }]}>
-            <Target size={20} color={colors.white} />
-          </View>
-          <View style={styles.planInfo}>
-            <Text style={styles.planTitle}>{plan.title}</Text>
-            <Text style={styles.planTheme}>{plan.theme}</Text>
-          </View>
-          <View style={styles.planDuration}>
-            <Text style={styles.durationText}>{plan.duration}j</Text>
-          </View>
-        </View>
-        
-        <Text style={styles.planDescription} numberOfLines={2}>
-          {plan.description}
-        </Text>
-        
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressFill, 
-                { width: `${plan.progress}%`, backgroundColor: plan.color }
-              ]} 
-            />
-          </View>
-          <Text style={styles.progressText}>{Math.round(plan.progress)}%</Text>
-        </View>
-        
-        {activePlan?.id === plan.id && (
-          <View style={styles.activeIndicator}>
-            <Text style={styles.activeText}>Plan actif</Text>
-          </View>
-        )}
-      </LinearGradient>
-    </TouchableOpacity>
-  );
+  const getProgressPercentage = (plan: ReadingPlanType) => {
+    return Math.round((plan.progress.length / plan.chapters.length) * 100);
+  };
 
-  const ProgressView = () => {
-    if (!activePlan) {
-      return (
-        <View style={styles.noActivePlan}>
-          <Calendar size={48} color={colors.textLight} />
-          <Text style={styles.noActivePlanText}>
-            Sélectionnez un plan de lecture pour commencer
-          </Text>
-        </View>
-      );
-    }
+  const getDaysRemaining = (plan: ReadingPlanType) => {
+    const createdDate = new Date(plan.createdAt);
+    const endDate = new Date(createdDate.getTime() + plan.duration * 24 * 60 * 60 * 1000);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
 
-    const upcomingDays = activePlan.days
-      .filter(day => !day.completed)
-      .slice(0, 7);
-    
-    const completedDays = activePlan.days.filter(day => day.completed).length;
-    const streak = getStreakDays(activePlan);
+  const PlanCard = ({ plan }: { plan: ReadingPlanType }) => {
+    const progress = getProgressPercentage(plan);
+    const daysRemaining = getDaysRemaining(plan);
+    const isActive = currentReadingPlan?.id === plan.id;
 
     return (
-      <ScrollView style={styles.progressContent}>
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{completedDays}</Text>
-            <Text style={styles.statLabel}>Jours complétés</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{streak}</Text>
-            <Text style={styles.statLabel}>Série actuelle</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{activePlan.duration - completedDays}</Text>
-            <Text style={styles.statLabel}>Jours restants</Text>
-          </View>
-        </View>
-
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Prochaines lectures</Text>
-        </View>
-
-        {upcomingDays.map((day) => (
-          <View key={day.day} style={styles.dayCard}>
-            <View style={styles.dayHeader}>
-              <View style={styles.dayNumber}>
-                <Text style={styles.dayNumberText}>J{day.day}</Text>
-              </View>
-              <View style={styles.dayInfo}>
-                <Text style={styles.dayDate}>{formatDate(day.date)}</Text>
-                <Text style={styles.readingCount}>
-                  {day.readings.length} lecture{day.readings.length > 1 ? 's' : ''}
+      <View style={styles.planCard}>
+        <LinearGradient
+          colors={isActive ? colors.primaryGradient : [colors.white, colors.cardSecondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.planGradient}
+        >
+          <View style={styles.planHeader}>
+            <View style={styles.planInfo}>
+              <Text style={[styles.planTitle, isActive && { color: colors.white }]}>
+                {plan.title}
+              </Text>
+              <Text style={[styles.planDescription, isActive && { color: colors.white + 'CC' }]}>
+                {plan.description}
+              </Text>
+            </View>
+            <View style={styles.planStats}>
+              <View style={[styles.statItem, isActive && { backgroundColor: colors.white + '20' }]}>
+                <Calendar size={16} color={isActive ? colors.white : colors.primary} />
+                <Text style={[styles.statText, isActive && { color: colors.white }]}>
+                  {daysRemaining}j
                 </Text>
               </View>
-              <TouchableOpacity
-                onPress={() => onMarkDayComplete(activePlan.id, day.day)}
-                style={styles.completeButton}
-              >
-                {day.completed ? (
-                  <CheckCircle size={24} color={colors.success} />
-                ) : (
-                  <Circle size={24} color={colors.textLight} />
-                )}
-              </TouchableOpacity>
             </View>
+          </View>
+
+          <View style={styles.progressContainer}>
+            <View style={styles.progressInfo}>
+              <Text style={[styles.progressText, isActive && { color: colors.white }]}>
+                Progression: {progress}%
+              </Text>
+              <Text style={[styles.progressDetail, isActive && { color: colors.white + 'CC' }]}>
+                {plan.progress.length}/{plan.chapters.length} chapitres
+              </Text>
+            </View>
+            <View style={[styles.progressBar, isActive && { backgroundColor: colors.white + '30' }]}>
+              <View 
+                style={[
+                  styles.progressFill, 
+                  { 
+                    width: `${progress}%`,
+                    backgroundColor: isActive ? colors.white : colors.primary
+                  }
+                ]} 
+              />
+            </View>
+          </View>
+
+          <View style={styles.planActions}>
+            {!isActive && (
+              <TouchableOpacity
+                style={styles.activateButton}
+                onPress={() => setCurrentReadingPlan(plan.id)}
+              >
+                <Text style={styles.activateButtonText}>Activer</Text>
+              </TouchableOpacity>
+            )}
+            {isActive && (
+              <View style={styles.activeIndicator}>
+                <Star size={16} color={colors.white} />
+                <Text style={[styles.activeText, { color: colors.white }]}>Plan actif</Text>
+              </View>
+            )}
+          </View>
+        </LinearGradient>
+      </View>
+    );
+  };
+
+  const CurrentPlanProgress = () => {
+    if (!currentReadingPlan) return null;
+
+    const completedChapters = currentReadingPlan.progress.map(p => p.chapterId);
+
+    return (
+      <View style={styles.currentPlanContainer}>
+        <Text style={styles.currentPlanTitle}>Plan en cours</Text>
+        <Text style={styles.currentPlanName}>{currentReadingPlan.title}</Text>
+        
+        <ScrollView style={styles.chaptersList} showsVerticalScrollIndicator={false}>
+          {currentReadingPlan.chapters.map((chapterId, index) => {
+            const isCompleted = completedChapters.includes(chapterId);
             
-            <View style={styles.readingsList}>
-              {day.readings.map((reading, index) => (
-                <View key={index} style={styles.readingItem}>
-                  <Text style={styles.readingText}>
-                    {reading.book} {reading.chapter} - {reading.title}
+            return (
+              <TouchableOpacity
+                key={chapterId}
+                style={styles.chapterItem}
+                onPress={() => {
+                  if (!isCompleted) {
+                    Alert.alert(
+                      'Marquer comme lu',
+                      `Avez-vous terminé la lecture de ce chapitre ?`,
+                      [
+                        { text: 'Annuler', style: 'cancel' },
+                        { 
+                          text: 'Oui', 
+                          onPress: () => markChapterComplete(currentReadingPlan.id, chapterId)
+                        },
+                      ]
+                    );
+                  }
+                }}
+              >
+                <View style={styles.chapterIcon}>
+                  {isCompleted ? (
+                    <CheckCircle size={20} color={colors.success} />
+                  ) : (
+                    <Circle size={20} color={colors.textLight} />
+                  )}
+                </View>
+                <View style={styles.chapterInfo}>
+                  <Text style={[
+                    styles.chapterTitle,
+                    isCompleted && { color: colors.textLight, textDecorationLine: 'line-through' }
+                  ]}>
+                    Jour {index + 1}
+                  </Text>
+                  <Text style={[
+                    styles.chapterReference,
+                    isCompleted && { color: colors.textLight }
+                  ]}>
+                    {chapterId.replace('-', ' ').replace(/^\w/, c => c.toUpperCase())}
                   </Text>
                 </View>
-              ))}
-            </View>
-          </View>
-        ))}
-
-        {completedDays === activePlan.duration && (
-          <View style={styles.completionCard}>
-            <LinearGradient
-              colors={[colors.success + "20", colors.success + "10"]}
-              style={styles.completionGradient}
-            >
-              <Trophy size={32} color={colors.success} />
-              <Text style={styles.completionTitle}>Félicitations !</Text>
-              <Text style={styles.completionText}>
-                Vous avez terminé le plan "{activePlan.title}"
-              </Text>
-            </LinearGradient>
-          </View>
-        )}
-      </ScrollView>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
     );
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Plans de lecture</Text>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, selectedTab === 'plans' && styles.activeTab]}
-            onPress={() => setSelectedTab('plans')}
+        <Text style={styles.title}>Plans de Lecture</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setIsModalVisible(true)}
+        >
+          <LinearGradient
+            colors={colors.primaryGradient}
+            style={styles.addButtonGradient}
           >
-            <Text style={[
-              styles.tabText, 
-              selectedTab === 'plans' && styles.activeTabText
-            ]}>
-              Plans
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, selectedTab === 'progress' && styles.activeTab]}
-            onPress={() => setSelectedTab('progress')}
-          >
-            <Text style={[
-              styles.tabText, 
-              selectedTab === 'progress' && styles.activeTabText
-            ]}>
-              Progrès
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <Plus size={20} color={colors.white} />
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
 
-      {selectedTab === 'plans' ? (
-        <ScrollView style={styles.plansContainer} showsVerticalScrollIndicator={false}>
-          {plans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} />
-          ))}
-        </ScrollView>
-      ) : (
-        <ProgressView />
-      )}
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {currentReadingPlan && <CurrentPlanProgress />}
+        
+        <View style={styles.plansSection}>
+          <Text style={styles.sectionTitle}>Mes Plans</Text>
+          {readingPlans.length > 0 ? (
+            readingPlans.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} />
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Target size={48} color={colors.textLight} />
+              <Text style={styles.emptyTitle}>Aucun plan de lecture</Text>
+              <Text style={styles.emptySubtitle}>
+                Créez votre premier plan pour structurer votre lecture biblique
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+              <Text style={styles.cancelButton}>Annuler</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Nouveau Plan</Text>
+            <View style={styles.placeholder} />
+          </View>
+
+          <ScrollView style={styles.modalContent}>
+            <Text style={styles.modalSubtitle}>Plans recommandés</Text>
+            {predefinedPlans.map((plan, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.predefinedPlan}
+                onPress={() => createPlan(plan)}
+              >
+                <LinearGradient
+                  colors={[colors.white, colors.cardSecondary]}
+                  style={styles.predefinedPlanGradient}
+                >
+                  <View style={styles.predefinedPlanHeader}>
+                    <Text style={styles.predefinedPlanTitle}>{plan.title}</Text>
+                    <View style={styles.predefinedPlanMeta}>
+                      <Clock size={14} color={colors.textSecondary} />
+                      <Text style={styles.predefinedPlanDuration}>{plan.duration} jours</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.predefinedPlanDescription}>{plan.description}</Text>
+                  <View style={styles.predefinedPlanFooter}>
+                    <Text style={styles.predefinedPlanCategory}>{plan.category}</Text>
+                    <Text style={styles.predefinedPlanChapters}>
+                      {plan.chapters.length} chapitres
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -256,49 +326,88 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: spacing.md,
-    backgroundColor: colors.white,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.borderLight,
   },
   title: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: "600",
+    fontWeight: '700',
+    color: colors.text,
+  },
+  addButton: {
+    borderRadius: 20,
+  },
+  addButtonGradient: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+  },
+  currentPlanContainer: {
+    margin: spacing.md,
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: spacing.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  currentPlanTitle: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+    fontWeight: '500',
+    marginBottom: spacing.xs,
+  },
+  currentPlanName: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: '600',
     color: colors.text,
     marginBottom: spacing.md,
   },
-  tabContainer: {
-    flexDirection: "row",
-    backgroundColor: colors.cardSecondary,
-    borderRadius: 8,
-    padding: spacing.xs,
+  chaptersList: {
+    maxHeight: 200,
   },
-  tab: {
-    flex: 1,
+  chapterItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: spacing.sm,
-    alignItems: "center",
-    borderRadius: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
   },
-  activeTab: {
-    backgroundColor: colors.white,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  chapterIcon: {
+    marginRight: spacing.md,
   },
-  tabText: {
-    fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
-    fontWeight: "500",
-  },
-  activeTabText: {
-    color: colors.primary,
-    fontWeight: "600",
-  },
-  plansContainer: {
+  chapterInfo: {
     flex: 1,
+  },
+  chapterTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  chapterReference: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+  },
+  plansSection: {
     padding: spacing.md,
+  },
+  sectionTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing.md,
   },
   planCard: {
     marginBottom: spacing.md,
@@ -314,206 +423,203 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   planHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing.sm,
-  },
-  planIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: spacing.sm,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing.md,
   },
   planInfo: {
     flex: 1,
   },
   planTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: "600",
+    fontSize: typography.fontSizes.md,
+    fontWeight: '600',
     color: colors.text,
-  },
-  planTheme: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-  },
-  planDuration: {
-    backgroundColor: colors.cardSecondary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 12,
-  },
-  durationText: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: "500",
-    color: colors.text,
+    marginBottom: spacing.xs,
   },
   planDescription: {
-    fontSize: typography.fontSizes.md,
+    fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
-    marginBottom: spacing.md,
-    lineHeight: typography.lineHeights.md,
+    lineHeight: typography.lineHeights.sm,
+  },
+  planStats: {
+    alignItems: 'flex-end',
+  },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary + '15',
+    borderRadius: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  statText: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.primary,
+    fontWeight: '500',
+    marginLeft: spacing.xs,
   },
   progressContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    marginBottom: spacing.md,
+  },
+  progressInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: spacing.sm,
-  },
-  progressBar: {
-    flex: 1,
-    height: 6,
-    backgroundColor: colors.border,
-    borderRadius: 3,
-    marginRight: spacing.sm,
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 3,
   },
   progressText: {
     fontSize: typography.fontSizes.sm,
-    fontWeight: "500",
+    fontWeight: '500',
     color: colors.text,
   },
+  progressDetail: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: colors.cardSecondary,
+    borderRadius: 3,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: 3,
+  },
+  planActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  activateButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  activateButtonText: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.white,
+    fontWeight: '500',
+  },
   activeIndicator: {
-    alignSelf: "flex-start",
-    backgroundColor: colors.success + "20",
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  activeText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: '500',
+    marginLeft: spacing.xs,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: spacing.xl,
+    marginTop: spacing.xl,
+  },
+  emptyTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  emptySubtitle: {
+    fontSize: typography.fontSizes.md,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+  },
+  cancelButton: {
+    fontSize: typography.fontSizes.md,
+    color: colors.textSecondary,
+  },
+  modalTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  placeholder: {
+    width: 60,
+  },
+  modalContent: {
+    flex: 1,
+    padding: spacing.md,
+  },
+  modalSubtitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  predefinedPlan: {
+    marginBottom: spacing.md,
+    borderRadius: 16,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  predefinedPlanGradient: {
+    borderRadius: 16,
+    padding: spacing.md,
+  },
+  predefinedPlanHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing.sm,
+  },
+  predefinedPlanTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  predefinedPlanMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  predefinedPlanDuration: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+    marginLeft: spacing.xs,
+  },
+  predefinedPlanDescription: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+    lineHeight: typography.lineHeights.sm,
+    marginBottom: spacing.md,
+  },
+  predefinedPlanFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  predefinedPlanCategory: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.primary,
+    fontWeight: '500',
+    backgroundColor: colors.primary + '15',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: 8,
   },
-  activeText: {
+  predefinedPlanChapters: {
     fontSize: typography.fontSizes.xs,
-    color: colors.success,
-    fontWeight: "500",
-  },
-  progressContent: {
-    flex: 1,
-    padding: spacing.md,
-  },
-  noActivePlan: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing.xl,
-  },
-  noActivePlanText: {
-    fontSize: typography.fontSizes.md,
     color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: spacing.md,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: "center",
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statNumber: {
-    fontSize: typography.fontSizes.xxl,
-    fontWeight: "700",
-    color: colors.primary,
-    marginBottom: spacing.xs,
-  },
-  statLabel: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-    textAlign: "center",
-  },
-  sectionHeader: {
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  dayCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  dayHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing.sm,
-  },
-  dayNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.primary + "15",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: spacing.sm,
-  },
-  dayNumberText: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-  dayInfo: {
-    flex: 1,
-  },
-  dayDate: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: "500",
-    color: colors.text,
-  },
-  readingCount: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-  },
-  completeButton: {
-    padding: spacing.xs,
-  },
-  readingsList: {
-    paddingLeft: spacing.xl,
-  },
-  readingItem: {
-    marginBottom: spacing.xs,
-  },
-  readingText: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-  },
-  completionCard: {
-    marginTop: spacing.lg,
-    borderRadius: 16,
-    overflow: "hidden",
-  },
-  completionGradient: {
-    padding: spacing.xl,
-    alignItems: "center",
-  },
-  completionTitle: {
-    fontSize: typography.fontSizes.xl,
-    fontWeight: "600",
-    color: colors.success,
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  completionText: {
-    fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
-    textAlign: "center",
   },
 });
