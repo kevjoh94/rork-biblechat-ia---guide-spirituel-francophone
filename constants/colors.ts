@@ -27,6 +27,9 @@ export const lightColors = {
   strength: "#8E7DBE",
   gratitude: "#6BBAA7",
   comfort: "#F9C846",
+  prayer: "#9B7EAF",
+  wisdom: "#8B7355",
+  surface: "#F8F6F3",
   
   // Gradients - properly typed as tuples
   primaryGradient: ["#6B4E71", "#8B7355"] as const,
@@ -65,6 +68,9 @@ export const darkColors = {
   strength: "#A08DCE",
   gratitude: "#7BCAB7",
   comfort: "#FBD856",
+  prayer: "#B8A082",
+  wisdom: "#B8A082",
+  surface: "#3A3A3A",
   
   // Gradients adaptés au mode sombre
   primaryGradient: ["#9B7EAF", "#B8A082"] as const,

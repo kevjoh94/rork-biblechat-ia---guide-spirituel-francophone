@@ -90,7 +90,7 @@ export const EnhancedProfile: React.FC = () => {
 
   const renderAchievement = (achievement: any) => (
     <View key={achievement.id} style={styles.achievementItem}>
-      <AchievementBadge achievement={achievement} size="small" />
+      <AchievementBadge achievementId={achievement} isUnlocked={true} size="small" />
       <View style={styles.achievementInfo}>
         <Text style={styles.achievementTitle}>{achievement.title}</Text>
         <Text style={styles.achievementDescription}>{achievement.description}</Text>

@@ -89,6 +89,7 @@ export const useSpiritualStore = create<SpiritualState>()(
         readingReminder: true,
         prayerReminder: true,
         meditationReminder: false,
+        daily: true,
         time: '08:00',
       },
       achievements: [],

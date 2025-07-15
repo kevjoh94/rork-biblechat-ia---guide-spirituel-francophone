@@ -87,6 +87,7 @@ export interface NotificationSettings {
   readingReminder: boolean;
   prayerReminder: boolean;
   meditationReminder: boolean;
+  daily: boolean;
   time: string; // HH:MM format
 }
 
