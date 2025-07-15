@@ -9,6 +9,7 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { bibleBooks } from "@/mocks/bible-books";
 import { bibleChapters } from "@/mocks/bible-chapters";
+import { generateMissingChapter } from "@/utils/bible-generator";
 
 export default function ChapterScreen() {
   const { bookId, chapter } = useLocalSearchParams<{ bookId: string; chapter: string }>();
@@ -17,12 +18,13 @@ export default function ChapterScreen() {
   const [favoriteVerses, setFavoriteVerses] = useState<number[]>([]);
 
   const book = bibleBooks.find((b) => b.id === bookId);
-  const chapterData = bibleChapters[`${bookId}-${chapter}`];
+  const chapterKey = `${bookId}-${chapter}`;
+  const chapterData = bibleChapters[chapterKey] || generateMissingChapter(bookId!, parseInt(chapter!));
 
-  if (!book || !chapterData) {
+  if (!book) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Chapitre non trouvé</Text>
+        <Text style={styles.errorText}>Livre non trouvé</Text>
       </View>
     );
   }
