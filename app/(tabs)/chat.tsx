@@ -279,12 +279,44 @@ Peux-tu réessayer dans quelques instants ?`,
   const speakText = async (text: string) => {
     try {
       if (Platform.OS === 'web') {
-        // Web Speech API
+        // Web Speech API avec paramètres améliorés
         if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(text);
+          // Nettoyer le texte pour une meilleure prononciation
+          const cleanText = text
+            .replace(/[""]/g, '"')
+            .replace(/['']/g, "'")
+            .replace(/—/g, " - ")
+            .replace(/\*\*/g, "")
+            .replace(/\*/g, "")
+            .replace(/#{1,6}\s/g, "")
+            .replace(/\n{2,}/g, ". ")
+            .replace(/\n/g, ", ");
+
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          
+          // Paramètres optimisés pour une voix plus naturelle
           utterance.lang = 'fr-FR';
-          utterance.rate = 0.9;
-          utterance.pitch = 1;
+          utterance.rate = 0.85; // Légèrement plus lent pour plus de clarté
+          utterance.pitch = 1.1; // Légèrement plus aigu pour plus de chaleur
+          utterance.volume = 0.9;
+          
+          // Essayer de sélectionner une voix française de qualité
+          const voices = speechSynthesis.getVoices();
+          const frenchVoices = voices.filter(voice => 
+            voice.lang.startsWith('fr') && 
+            (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Apple'))
+          );
+          
+          if (frenchVoices.length > 0) {
+            // Préférer les voix féminines qui sont souvent plus douces
+            const femaleVoice = frenchVoices.find(voice => 
+              voice.name.toLowerCase().includes('female') || 
+              voice.name.toLowerCase().includes('marie') ||
+              voice.name.toLowerCase().includes('amelie') ||
+              voice.name.toLowerCase().includes('claire')
+            );
+            utterance.voice = femaleVoice || frenchVoices[0];
+          }
           
           utterance.onstart = () => setIsSpeaking(true);
           utterance.onend = () => setIsSpeaking(false);
@@ -293,12 +325,26 @@ Peux-tu réessayer dans quelques instants ?`,
           speechSynthesis.speak(utterance);
         }
       } else {
-        // Expo Speech
+        // Expo Speech avec paramètres améliorés
         setIsSpeaking(true);
-        await Speech.speak(text, {
+        
+        // Nettoyer le texte pour une meilleure prononciation
+        const cleanText = text
+          .replace(/[""]/g, '"')
+          .replace(/['']/g, "'")
+          .replace(/—/g, " - ")
+          .replace(/\*\*/g, "")
+          .replace(/\*/g, "")
+          .replace(/#{1,6}\s/g, "")
+          .replace(/\n{2,}/g, ". ")
+          .replace(/\n/g, ", ");
+
+        await Speech.speak(cleanText, {
           language: 'fr-FR',
-          rate: 0.9,
-          pitch: 1,
+          rate: 0.8, // Plus lent pour plus de clarté
+          pitch: 1.05, // Légèrement plus aigu
+          quality: Speech.VoiceQuality.Enhanced, // Qualité améliorée si disponible
+          voice: undefined, // Laisser le système choisir la meilleure voix
           onDone: () => setIsSpeaking(false),
           onError: () => setIsSpeaking(false),
         });
@@ -460,7 +506,7 @@ Peux-tu réessayer dans quelques instants ?`,
             disabled={!inputText.trim() || isLoading}
           >
             <LinearGradient
-              colors={(!inputText.trim() || isLoading) ? [colors.border, colors.border] : [colors.primary, colors.secondary]}
+              colors={(!inputText.trim() || isLoading) ? [colors.border, colors.border] : colors.primaryGradient}
               style={styles.sendButtonGradient}
             >
               <Send size={18} color={colors.white} />

@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Book, Heart, Share2, Volume2 } from "lucide-react-native";
+import { ArrowLeft, Book, Heart, Share2, Volume2, VolumeX } from "lucide-react-native";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
 import * as Speech from "expo-speech";
@@ -57,8 +57,20 @@ export default function ChapterScreen() {
         if ('speechSynthesis' in window) {
           const utterance = new SpeechSynthesisUtterance(fullText);
           utterance.lang = 'fr-FR';
-          utterance.rate = 0.8;
-          utterance.pitch = 1;
+          utterance.rate = 0.75; // Plus lent pour la lecture biblique
+          utterance.pitch = 1.0; // Ton neutre et respectueux
+          utterance.volume = 0.9;
+          
+          // Essayer de sélectionner une voix française de qualité
+          const voices = speechSynthesis.getVoices();
+          const frenchVoices = voices.filter(voice => 
+            voice.lang.startsWith('fr') && 
+            (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Apple'))
+          );
+          
+          if (frenchVoices.length > 0) {
+            utterance.voice = frenchVoices[0];
+          }
           
           utterance.onstart = () => setIsSpeaking(true);
           utterance.onend = () => setIsSpeaking(false);
@@ -70,8 +82,9 @@ export default function ChapterScreen() {
         setIsSpeaking(true);
         await Speech.speak(fullText, {
           language: 'fr-FR',
-          rate: 0.8,
-          pitch: 1,
+          rate: 0.7, // Plus lent pour la lecture biblique
+          pitch: 1.0, // Ton neutre et respectueux
+          quality: Speech.VoiceQuality.Enhanced,
           onDone: () => setIsSpeaking(false),
           onError: () => setIsSpeaking(false),
         });
@@ -98,7 +111,11 @@ export default function ChapterScreen() {
           </View>
         </View>
         <TouchableOpacity onPress={speakChapter} style={styles.speakButton}>
-          <Volume2 size={20} color={isSpeaking ? colors.primary : colors.textSecondary} />
+          {isSpeaking ? (
+            <VolumeX size={20} color={colors.primary} />
+          ) : (
+            <Volume2 size={20} color={colors.textSecondary} />
+          )}
         </TouchableOpacity>
       </View>
 
