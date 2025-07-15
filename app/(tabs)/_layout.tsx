@@ -45,7 +45,7 @@ export default function TabLayout() {
           color: colors.text,
           fontSize: 18,
         },
-        headerBackTitleVisible: false,
+
         headerLeftContainerStyle: {
           paddingLeft: Platform.OS === 'ios' ? 8 : 16,
         },

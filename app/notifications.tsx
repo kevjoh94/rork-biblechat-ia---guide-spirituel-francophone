@@ -310,7 +310,6 @@ export default function NotificationsScreen() {
           title: 'Notifications',
           headerStyle: {
             backgroundColor: colors.background,
-            elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
@@ -322,7 +321,7 @@ export default function NotificationsScreen() {
           },
           headerTintColor: colors.primary,
           headerBackTitle: '',
-          headerBackTitleVisible: false,
+
           headerLeftContainerStyle: {
             paddingLeft: Platform.OS === 'ios' ? 8 : 16,
           },

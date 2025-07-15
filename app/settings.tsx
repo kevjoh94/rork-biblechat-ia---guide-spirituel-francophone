@@ -194,7 +194,6 @@ export default function SettingsScreen() {
           title: 'Paramètres',
           headerStyle: {
             backgroundColor: colors.background,
-            elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
@@ -206,7 +205,7 @@ export default function SettingsScreen() {
           },
           headerTintColor: colors.primary,
           headerBackTitle: '',
-          headerBackTitleVisible: false,
+
           headerLeftContainerStyle: {
             paddingLeft: Platform.OS === 'ios' ? 8 : 16,
           },
