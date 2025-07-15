@@ -81,10 +81,10 @@ export default function HomeScreen() {
             <View style={styles.sparkleIcon}>
               <Sparkles size={20} color={colors.primary} />
             </View>
-            <Text style={styles.greeting}>Que la paix soit avec toi</Text>
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>Que la paix soit avec toi</Text>
           </View>
-          <Text style={styles.title}>BibleChat IA</Text>
-          <Text style={styles.subtitle}>Ton guide spirituel personnel</Text>
+          <Text style={[styles.title, { color: colors.text }]}>BibleChat IA</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Ton guide spirituel personnel</Text>
         </View>
       </LinearGradient>
 
@@ -232,17 +232,14 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
   },
   title: {
     fontSize: typography.fontSizes.xxxl,
     fontWeight: "700",
-    color: colors.text,
     marginBottom: spacing.xs,
   },
   subtitle: {
     fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
     fontStyle: "italic",
   },
   content: {
@@ -257,7 +254,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSizes.xl,
     fontWeight: "600",
-    color: colors.text,
     marginLeft: spacing.sm,
   },
   categoriesContainer: {
@@ -268,7 +264,6 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: colors.cardSecondary,
     borderRadius: 12,
     padding: spacing.xs,
     marginBottom: spacing.md,
@@ -281,8 +276,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   activeTab: {
-    backgroundColor: colors.white,
-    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -291,10 +284,8 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: typography.fontSizes.md,
     fontWeight: "500",
-    color: colors.textSecondary,
   },
   activeTabText: {
-    color: colors.primary,
     fontWeight: "600",
   },
   contentContainer: {
@@ -306,14 +297,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
     textAlign: "center",
     marginTop: spacing.md,
     fontWeight: "500",
   },
   emptySubtext: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textLight,
     textAlign: "center",
     marginTop: spacing.xs,
   },
@@ -326,7 +315,6 @@ const styles = StyleSheet.create({
   quickAction: {
     flex: 1,
     borderRadius: 12,
-    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -341,7 +329,6 @@ const styles = StyleSheet.create({
   },
   quickActionText: {
     fontSize: typography.fontSizes.sm,
-    color: colors.white,
     fontWeight: "600",
   },
 });

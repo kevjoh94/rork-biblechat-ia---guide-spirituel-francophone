@@ -15,7 +15,7 @@ import {
   ChevronRight
 } from 'lucide-react-native';
 
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { typography } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 
@@ -27,20 +27,26 @@ interface MenuItemProps {
   color?: string;
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ icon, title, subtitle, onPress, color = colors.primary }) => (
-  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-    <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
-      {React.cloneElement(icon as React.ReactElement, { color, size: 24 })}
-    </View>
-    <View style={styles.menuContent}>
-      <Text style={styles.menuTitle}>{title}</Text>
-      <Text style={styles.menuSubtitle}>{subtitle}</Text>
-    </View>
-    <ChevronRight color={colors.textSecondary} size={20} />
-  </TouchableOpacity>
-);
+const MenuItem: React.FC<MenuItemProps> = ({ icon, title, subtitle, onPress, color }) => {
+  const { colors } = useTheme();
+  
+  return (
+    <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.borderLight }]} onPress={onPress}>
+      <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
+        {React.cloneElement(icon as React.ReactElement, { color, size: 24 })}
+      </View>
+      <View style={styles.menuContent}>
+        <Text style={[styles.menuTitle, { color: colors.text }]}>{title}</Text>
+        <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
+      </View>
+      <ChevronRight color={colors.textSecondary} size={20} />
+    </TouchableOpacity>
+  );
+};
 
 export default function MoreScreen() {
+  const { colors } = useTheme();
+  
   const spiritualFeatures = [
     {
       icon: <User />,
@@ -114,16 +120,16 @@ export default function MoreScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>Fonctionnalités</Text>
-          <Text style={styles.subtitle}>Explorez toutes les possibilités de l'app</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Fonctionnalités</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Explorez toutes les possibilités de l'app</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Spiritualité</Text>
-          <View style={styles.menuContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Spiritualité</Text>
+          <View style={[styles.menuContainer, { backgroundColor: colors.card }]}>
             {spiritualFeatures.map((item, index) => (
               <MenuItem
                 key={index}
@@ -138,8 +144,8 @@ export default function MoreScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Application</Text>
-          <View style={styles.menuContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Application</Text>
+          <View style={[styles.menuContainer, { backgroundColor: colors.card }]}>
             {appFeatures.map((item, index) => (
               <MenuItem
                 key={index}
@@ -154,7 +160,7 @@ export default function MoreScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
+          <Text style={[styles.footerText, { color: colors.textLight }]}>
             Découvrez de nouvelles façons d'approfondir votre foi
           </Text>
         </View>
@@ -166,7 +172,6 @@ export default function MoreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -178,12 +183,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: typography.fontSizes.xxl,
     fontWeight: typography.fontWeights.bold,
-    color: colors.text,
     marginBottom: spacing.xs,
   },
   subtitle: {
     fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
     lineHeight: typography.lineHeights.md,
   },
   section: {
@@ -192,12 +195,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
     marginBottom: spacing.md,
     paddingHorizontal: spacing.lg,
   },
   menuContainer: {
-    backgroundColor: colors.card,
     marginHorizontal: spacing.lg,
     borderRadius: 12,
     overflow: 'hidden',
@@ -207,7 +208,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
   },
   iconContainer: {
     width: 48,
@@ -223,12 +223,10 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
     marginBottom: 2,
   },
   menuSubtitle: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
     lineHeight: typography.lineHeights.sm,
   },
   footer: {
@@ -238,7 +236,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textLight,
     textAlign: 'center',
     lineHeight: typography.lineHeights.sm,
   },

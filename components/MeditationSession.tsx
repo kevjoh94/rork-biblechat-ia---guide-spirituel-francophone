@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Play, Pause, RotateCcw, Heart, Wind, BookOpen, Sparkles } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
@@ -56,6 +57,7 @@ const meditationTypes = [
 ];
 
 export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete }) => {
+  const { colors } = useTheme();
   const [selectedType, setSelectedType] = useState(meditationTypes[0]);
   const [isActive, setIsActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(selectedType.duration * 60);
@@ -182,8 +184,8 @@ export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete
   };
 
   const TypeSelector = () => (
-    <View style={styles.typeSelector}>
-      <Text style={styles.selectorTitle}>Choisissez votre méditation</Text>
+    <ScrollView style={styles.typeSelector} showsVerticalScrollIndicator={false}>
+      <Text style={[styles.selectorTitle, { color: colors.text }]}>Choisissez votre méditation</Text>
       <View style={styles.typeGrid}>
         {meditationTypes.map((type) => {
           const Icon = type.icon;
@@ -194,6 +196,7 @@ export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete
               key={type.id}
               style={[
                 styles.typeCard,
+                { borderColor: colors.border },
                 isSelected && { borderColor: type.color, borderWidth: 2 }
               ]}
               onPress={() => {
@@ -203,21 +206,21 @@ export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete
               }}
             >
               <LinearGradient
-                colors={isSelected ? [type.color + '20', type.color + '10'] : [colors.white, colors.cardSecondary]}
+                colors={isSelected ? [type.color + '20', type.color + '10'] : [colors.card, colors.cardSecondary]}
                 style={styles.typeCardGradient}
               >
                 <View style={[styles.typeIcon, { backgroundColor: type.color + '15' }]}>
                   <Icon size={24} color={type.color} />
                 </View>
-                <Text style={styles.typeTitle}>{type.title}</Text>
-                <Text style={styles.typeDuration}>{type.duration} min</Text>
-                <Text style={styles.typeDescription}>{type.description}</Text>
+                <Text style={[styles.typeTitle, { color: colors.text }]}>{type.title}</Text>
+                <Text style={[styles.typeDuration, { color: colors.textSecondary }]}>{type.duration} min</Text>
+                <Text style={[styles.typeDescription, { color: colors.textSecondary }]}>{type.description}</Text>
               </LinearGradient>
             </TouchableOpacity>
           );
         })}
       </View>
-    </View>
+    </ScrollView>
   );
 
   const MeditationTimer = () => (
@@ -263,7 +266,7 @@ export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete
       
       <View style={styles.controls}>
         <TouchableOpacity
-          style={styles.controlButton}
+          style={[styles.controlButton, { backgroundColor: colors.cardSecondary }]}
           onPress={handleReset}
         >
           <RotateCcw size={24} color={colors.textSecondary} />
@@ -278,9 +281,9 @@ export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete
             style={styles.playButtonGradient}
           >
             {isActive ? (
-              <Pause size={32} color={colors.white} />
+              <Pause size={32} color="#FFFFFF" />
             ) : (
-              <Play size={32} color={colors.white} />
+              <Play size={32} color="#FFFFFF" />
             )}
           </LinearGradient>
         </TouchableOpacity>
@@ -291,7 +294,7 @@ export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {!isActive && timeLeft === selectedType.duration * 60 ? (
         <TypeSelector />
       ) : (
@@ -304,7 +307,6 @@ export const MeditationSession: React.FC<MeditationSessionProps> = ({ onComplete
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   typeSelector: {
     flex: 1,
@@ -313,19 +315,17 @@ const styles = StyleSheet.create({
   selectorTitle: {
     fontSize: typography.fontSizes.xl,
     fontWeight: '700',
-    color: colors.text,
     textAlign: 'center',
     marginBottom: spacing.lg,
+    marginTop: spacing.md,
   },
   typeGrid: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingBottom: spacing.xl,
   },
   typeCard: {
     marginBottom: spacing.md,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   typeCardGradient: {
     borderRadius: 16,
@@ -343,18 +343,15 @@ const styles = StyleSheet.create({
   typeTitle: {
     fontSize: typography.fontSizes.lg,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: spacing.xs,
   },
   typeDuration: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
     fontWeight: '500',
     marginBottom: spacing.sm,
   },
   typeDescription: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: typography.lineHeights.sm,
   },
@@ -365,13 +362,13 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     height: 4,
-    backgroundColor: colors.cardSecondary,
+    backgroundColor: '#E5E7EB',
     borderRadius: 2,
     marginTop: spacing.md,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: colors.primary,
+    backgroundColor: '#3B82F6',
     borderRadius: 2,
   },
   centerContent: {
@@ -396,19 +393,16 @@ const styles = StyleSheet.create({
   timeDisplay: {
     fontSize: 48,
     fontWeight: '300',
-    color: colors.text,
     marginBottom: spacing.md,
   },
   phaseText: {
     fontSize: typography.fontSizes.lg,
-    color: colors.textSecondary,
     marginBottom: spacing.md,
     textAlign: 'center',
   },
   sessionTitle: {
     fontSize: typography.fontSizes.xl,
     fontWeight: '600',
-    color: colors.text,
     textAlign: 'center',
   },
   controls: {
@@ -423,7 +417,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.cardSecondary,
   },
   playButton: {
     width: 80,
