@@ -1,0 +1,136 @@
+import React from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { colors } from "@/constants/colors";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
+
+interface ButtonProps {
+  title: string;
+  onPress: () => void;
+  variant?: "primary" | "secondary" | "outline";
+  size?: "small" | "medium" | "large";
+  disabled?: boolean;
+  loading?: boolean;
+  icon?: React.ReactNode;
+  fullWidth?: boolean;
+}
+
+export const Button: React.FC<ButtonProps> = ({
+  title,
+  onPress,
+  variant = "primary",
+  size = "medium",
+  disabled = false,
+  loading = false,
+  icon,
+  fullWidth = false,
+}) => {
+  return (
+    <TouchableOpacity
+      style={[
+        styles.container,
+        variant === "primary" && styles.primaryContainer,
+        variant === "secondary" && styles.secondaryContainer,
+        variant === "outline" && styles.outlineContainer,
+        size === "small" && styles.smallContainer,
+        size === "large" && styles.largeContainer,
+        fullWidth && styles.fullWidth,
+        disabled && styles.disabledContainer,
+      ]}
+      onPress={onPress}
+      disabled={disabled || loading}
+      activeOpacity={0.7}
+    >
+      {loading ? (
+        <ActivityIndicator
+          color={variant === "outline" ? colors.primary : colors.white}
+          size="small"
+        />
+      ) : (
+        <View style={styles.content}>
+          {icon && <View style={styles.iconContainer}>{icon}</View>}
+          <Text
+            style={[
+              styles.text,
+              variant === "primary" && styles.primaryText,
+              variant === "secondary" && styles.secondaryText,
+              variant === "outline" && styles.outlineText,
+              size === "small" && styles.smallText,
+              size === "large" && styles.largeText,
+              disabled && styles.disabledText,
+            ]}
+          >
+            {title}
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  primaryContainer: {
+    backgroundColor: colors.primary,
+  },
+  secondaryContainer: {
+    backgroundColor: colors.secondary,
+  },
+  outlineContainer: {
+    backgroundColor: colors.transparent,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  smallContainer: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  largeContainer: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+  },
+  fullWidth: {
+    width: "100%",
+  },
+  disabledContainer: {
+    backgroundColor: colors.border,
+    borderColor: colors.border,
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconContainer: {
+    marginRight: spacing.sm,
+  },
+  text: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.medium,
+  },
+  primaryText: {
+    color: colors.white,
+  },
+  secondaryText: {
+    color: colors.white,
+  },
+  outlineText: {
+    color: colors.primary,
+  },
+  smallText: {
+    fontSize: typography.fontSizes.sm,
+  },
+  largeText: {
+    fontSize: typography.fontSizes.lg,
+  },
+  disabledText: {
+    color: colors.textSecondary,
+  },
+});
