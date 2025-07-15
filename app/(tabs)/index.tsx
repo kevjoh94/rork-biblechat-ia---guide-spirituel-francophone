@@ -1,6 +1,7 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MessageCircle } from "lucide-react-native";
-import React, { useState, useEffect } from "react";
+import { MessageCircle, Sparkles, Star } from "lucide-react-native";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { BiblicalContentCard } from "@/components/BiblicalContentCard";
@@ -38,61 +39,90 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Que la paix soit avec toi</Text>
-        <Text style={styles.title}>BibleChat IA</Text>
-      </View>
+      <LinearGradient
+        colors={[colors.background, colors.cardSecondary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <View style={styles.greetingContainer}>
+            <View style={styles.sparkleIcon}>
+              <Sparkles size={20} color={colors.primary} />
+            </View>
+            <Text style={styles.greeting}>Que la paix soit avec toi</Text>
+          </View>
+          <Text style={styles.title}>BibleChat IA</Text>
+          <Text style={styles.subtitle}>Ton guide spirituel personnel</Text>
+        </View>
+      </LinearGradient>
 
-      <DailyVerseCard
-        verse={dailyVerse.verse}
-        reference={dailyVerse.reference}
-        message={dailyVerse.message}
-      />
+      <View style={styles.content}>
+        <DailyVerseCard
+          verse={dailyVerse.verse}
+          reference={dailyVerse.reference}
+          message={dailyVerse.message}
+        />
 
-      <Button
-        title="Poser une question spirituelle"
-        onPress={navigateToChat}
-        icon={<MessageCircle size={18} color={colors.white} />}
-        fullWidth
-        variant="secondary"
-      />
+        <Button
+          title="Poser une question spirituelle"
+          onPress={navigateToChat}
+          icon={<MessageCircle size={18} color={colors.white} />}
+          fullWidth
+          variant="primary"
+        />
 
-      <Text style={styles.sectionTitle}>Catégories spirituelles</Text>
-      <View style={styles.categoriesContainer}>
-        {spiritualCategories.map((category) => (
-          <SpiritualCategoryCard
-            key={category.id}
-            category={category}
-            onPress={() => navigateToCategory(category.id)}
-          />
-        ))}
-      </View>
+        <View style={styles.sectionHeader}>
+          <Star size={20} color={colors.primary} />
+          <Text style={styles.sectionTitle}>Catégories spirituelles</Text>
+        </View>
+        
+        <View style={styles.categoriesContainer}>
+          {spiritualCategories.map((category) => (
+            <SpiritualCategoryCard
+              key={category.id}
+              category={category}
+              onPress={() => navigateToCategory(category.id)}
+            />
+          ))}
+        </View>
 
-      <View style={styles.tabContainer}>
-        <Text
-          style={[
-            styles.tabText,
-            activeTab === "featured" && styles.activeTabText,
-          ]}
-          onPress={() => setActiveTab("featured")}
-        >
-          À la une
-        </Text>
-        <Text
-          style={[
-            styles.tabText,
-            activeTab === "favorites" && styles.activeTabText,
-          ]}
-          onPress={() => setActiveTab("favorites")}
-        >
-          Favoris
-        </Text>
-      </View>
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "featured" && styles.activeTab]}
+            onPress={() => setActiveTab("featured")}
+          >
+            <Text style={[styles.tabText, activeTab === "featured" && styles.activeTabText]}>
+              À la une
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "favorites" && styles.activeTab]}
+            onPress={() => setActiveTab("favorites")}
+          >
+            <Text style={[styles.tabText, activeTab === "favorites" && styles.activeTabText]}>
+              Favoris
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.contentContainer}>
-        {activeTab === "featured" ? (
-          featuredContent.length > 0 ? (
-            featuredContent.map((item) => (
+        <View style={styles.contentContainer}>
+          {activeTab === "featured" ? (
+            featuredContent.length > 0 ? (
+              featuredContent.map((item) => (
+                <BiblicalContentCard
+                  key={item.id}
+                  content={item}
+                  onPress={() => navigateToContent(item.id)}
+                />
+              ))
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Aucun contenu disponible</Text>
+              </View>
+            )
+          ) : favoriteContent.length > 0 ? (
+            favoriteContent.map((item) => (
               <BiblicalContentCard
                 key={item.id}
                 content={item}
@@ -100,19 +130,15 @@ export default function HomeScreen() {
               />
             ))
           ) : (
-            <Text style={styles.emptyText}>Aucun contenu disponible</Text>
-          )
-        ) : favoriteContent.length > 0 ? (
-          favoriteContent.map((item) => (
-            <BiblicalContentCard
-              key={item.id}
-              content={item}
-              onPress={() => navigateToContent(item.id)}
-            />
-          ))
-        ) : (
-          <Text style={styles.emptyText}>Aucun favori pour le moment</Text>
-        )}
+            <View style={styles.emptyContainer}>
+              <Heart size={48} color={colors.textLight} />
+              <Text style={styles.emptyText}>Aucun favori pour le moment</Text>
+              <Text style={styles.emptySubtext}>
+                Ajoute des contenus à tes favoris en appuyant sur le cœur
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
     </ScrollView>
   );
@@ -122,27 +148,51 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: spacing.md,
+  },
+  headerGradient: {
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
   },
   header: {
-    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+  },
+  greetingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing.xs,
+  },
+  sparkleIcon: {
+    marginRight: spacing.sm,
   },
   greeting: {
     fontSize: typography.fontSizes.md,
     color: colors.textSecondary,
-    marginBottom: spacing.xs,
   },
   title: {
     fontSize: typography.fontSizes.xxxl,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.bold as any,
     color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
+    fontSize: typography.fontSizes.md,
+    color: colors.textSecondary,
+    fontStyle: "italic",
+  },
+  content: {
+    padding: spacing.md,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
   },
   sectionTitle: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: typography.fontWeights.semibold as any,
     color: colors.text,
-    marginBottom: spacing.md,
-    marginTop: spacing.lg,
+    marginLeft: spacing.sm,
   },
   categoriesContainer: {
     flexDirection: "row",
@@ -152,28 +202,53 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
+    backgroundColor: colors.cardSecondary,
+    borderRadius: 12,
+    padding: spacing.xs,
     marginBottom: spacing.md,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  activeTab: {
+    backgroundColor: colors.white,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   tabText: {
     fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.medium,
+    fontWeight: typography.fontWeights.medium as any,
     color: colors.textSecondary,
-    marginRight: spacing.lg,
-    paddingBottom: spacing.xs,
   },
   activeTabText: {
     color: colors.primary,
-    fontWeight: typography.fontWeights.semibold,
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
+    fontWeight: typography.fontWeights.semibold as any,
   },
   contentContainer: {
     marginBottom: spacing.lg,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingVertical: spacing.xl,
   },
   emptyText: {
     fontSize: typography.fontSizes.md,
     color: colors.textSecondary,
     textAlign: "center",
-    marginVertical: spacing.lg,
+    marginTop: spacing.md,
+    fontWeight: typography.fontWeights.medium as any,
+  },
+  emptySubtext: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textLight,
+    textAlign: "center",
+    marginTop: spacing.xs,
   },
 });

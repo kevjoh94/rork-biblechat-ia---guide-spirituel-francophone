@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -18,11 +19,20 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isUser, timesta
 
   return (
     <View style={[styles.container, isUser ? styles.userContainer : styles.aiContainer]}>
-      <View style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}>
-        <Text style={[styles.message, isUser ? styles.userMessage : styles.aiMessage]}>
-          {message}
-        </Text>
-      </View>
+      {isUser ? (
+        <LinearGradient
+          colors={colors.primaryGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.bubble, styles.userBubble]}
+        >
+          <Text style={styles.userMessage}>{message}</Text>
+        </LinearGradient>
+      ) : (
+        <View style={[styles.bubble, styles.aiBubble]}>
+          <Text style={styles.aiMessage}>{message}</Text>
+        </View>
+      )}
       <Text style={[styles.timestamp, isUser ? styles.userTimestamp : styles.aiTimestamp]}>
         {formatTime(timestamp)}
       </Text>
@@ -33,7 +43,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isUser, timesta
 const styles = StyleSheet.create({
   container: {
     marginBottom: spacing.md,
-    maxWidth: "80%",
+    maxWidth: "85%",
   },
   userContainer: {
     alignSelf: "flex-end",
@@ -44,35 +54,42 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   bubble: {
-    borderRadius: 16,
+    borderRadius: 20,
     padding: spacing.md,
     marginBottom: spacing.xs,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   userBubble: {
-    backgroundColor: colors.primary,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 6,
   },
   aiBubble: {
-    backgroundColor: colors.card,
-    borderBottomLeftRadius: 4,
-  },
-  message: {
-    fontSize: typography.fontSizes.md,
-    lineHeight: typography.lineHeights.md,
+    backgroundColor: colors.white,
+    borderBottomLeftRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   userMessage: {
+    fontSize: typography.fontSizes.md,
+    lineHeight: typography.lineHeights.md,
     color: colors.white,
   },
   aiMessage: {
+    fontSize: typography.fontSizes.md,
+    lineHeight: typography.lineHeights.md,
     color: colors.text,
   },
   timestamp: {
     fontSize: typography.fontSizes.xs,
+    marginHorizontal: spacing.sm,
   },
   userTimestamp: {
-    color: colors.textSecondary,
+    color: colors.textLight,
   },
   aiTimestamp: {
-    color: colors.textSecondary,
+    color: colors.textLight,
   },
 });

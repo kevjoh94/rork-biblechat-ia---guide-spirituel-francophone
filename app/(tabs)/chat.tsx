@@ -1,4 +1,5 @@
-import { Send } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Send, MessageCircle, Sparkles } from "lucide-react-native";
 import React, { useState, useRef } from "react";
 import { 
   FlatList, 
@@ -53,7 +54,13 @@ export default function ChatScreen() {
 
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
     
-    return `${randomResponse.greeting}\n\n📖 "${randomResponse.verse}" (${randomResponse.reference})\n\n${randomResponse.explanation}\n\n${randomResponse.prayer}`;
+    return `${randomResponse.greeting}
+
+📖 "${randomResponse.verse}" (${randomResponse.reference})
+
+${randomResponse.explanation}
+
+${randomResponse.prayer}`;
   };
 
   const handleSend = async () => {
@@ -92,15 +99,46 @@ export default function ChatScreen() {
     />
   );
 
+  const EmptyState = () => (
+    <View style={styles.emptyState}>
+      <LinearGradient
+        colors={[colors.primary + "15", colors.secondary + "15"]}
+        style={styles.emptyIconContainer}
+      >
+        <MessageCircle size={32} color={colors.primary} />
+      </LinearGradient>
+      <Text style={styles.emptyTitle}>Bienvenue dans ton espace spirituel</Text>
+      <Text style={styles.emptySubtitle}>
+        Pose tes questions, partage tes préoccupations, et trouve la paix dans la Parole de Dieu
+      </Text>
+      <View style={styles.suggestionContainer}>
+        <Text style={styles.suggestionTitle}>Suggestions :</Text>
+        <Text style={styles.suggestionText}>• "Comment trouver la paix intérieure ?"</Text>
+        <Text style={styles.suggestionText}>• "Que dit la Bible sur le pardon ?"</Text>
+        <Text style={styles.suggestionText}>• "Comment surmonter mes peurs ?"</Text>
+      </View>
+    </View>
+  );
+
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>Assistant Spirituel</Text>
-        <Text style={styles.subtitle}>Pose tes questions en toute confiance</Text>
-      </View>
+      <LinearGradient
+        colors={[colors.background, colors.cardSecondary]}
+        style={styles.header}
+      >
+        <View style={styles.headerContent}>
+          <View style={styles.headerIcon}>
+            <Sparkles size={20} color={colors.primary} />
+          </View>
+          <View>
+            <Text style={styles.title}>Assistant Spirituel</Text>
+            <Text style={styles.subtitle}>Pose tes questions en toute confiance</Text>
+          </View>
+        </View>
+      </LinearGradient>
 
       <FlatList
         ref={flatListRef}
@@ -108,34 +146,52 @@ export default function ChatScreen() {
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
-        contentContainerStyle={styles.messagesContainer}
+        contentContainerStyle={[
+          styles.messagesContainer,
+          chatHistory.length === 0 && styles.emptyMessagesContainer
+        ]}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={EmptyState}
       />
 
       {isLoading && (
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>L'assistant réfléchit...</Text>
+          <View style={styles.loadingBubble}>
+            <View style={styles.typingIndicator}>
+              <View style={[styles.dot, styles.dot1]} />
+              <View style={[styles.dot, styles.dot2]} />
+              <View style={[styles.dot, styles.dot3]} />
+            </View>
+            <Text style={styles.loadingText}>L'assistant réfléchit...</Text>
+          </View>
         </View>
       )}
 
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Pose ta question spirituelle..."
-          placeholderTextColor={colors.textSecondary}
-          multiline
-          maxLength={500}
-        />
-        <TouchableOpacity
-          style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
-          onPress={handleSend}
-          disabled={!inputText.trim() || isLoading}
-        >
-          <Send size={20} color={colors.white} />
-        </TouchableOpacity>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.textInput}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Pose ta question spirituelle..."
+            placeholderTextColor={colors.textLight}
+            multiline
+            maxLength={500}
+          />
+          <TouchableOpacity
+            style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
+            onPress={handleSend}
+            disabled={!inputText.trim() || isLoading}
+          >
+            <LinearGradient
+              colors={(!inputText.trim() || isLoading) ? [colors.border, colors.border] : colors.primaryGradient}
+              style={styles.sendButtonGradient}
+            >
+              <Send size={18} color={colors.white} />
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -147,13 +203,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.borderLight,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+  },
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary + "15",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.md,
   },
   title: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.bold as any,
     color: colors.text,
     marginBottom: spacing.xs,
   },
@@ -168,9 +239,88 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     paddingBottom: spacing.lg,
   },
-  loadingContainer: {
-    padding: spacing.md,
+  emptyMessagesContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  emptyState: {
     alignItems: "center",
+    paddingHorizontal: spacing.lg,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: spacing.lg,
+  },
+  emptyTitle: {
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.semibold as any,
+    color: colors.text,
+    textAlign: "center",
+    marginBottom: spacing.sm,
+  },
+  emptySubtitle: {
+    fontSize: typography.fontSizes.md,
+    color: colors.textSecondary,
+    textAlign: "center",
+    lineHeight: typography.lineHeights.md,
+    marginBottom: spacing.lg,
+  },
+  suggestionContainer: {
+    backgroundColor: colors.cardSecondary,
+    borderRadius: 12,
+    padding: spacing.md,
+    width: "100%",
+  },
+  suggestionTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold as any,
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  suggestionText: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+  },
+  loadingContainer: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
+  },
+  loadingBubble: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    borderBottomLeftRadius: 6,
+    padding: spacing.md,
+    alignSelf: "flex-start",
+    maxWidth: "85%",
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  typingIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing.xs,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
+    marginRight: spacing.xs,
+  },
+  dot1: {
+    opacity: 0.4,
+  },
+  dot2: {
+    opacity: 0.7,
+  },
+  dot3: {
+    opacity: 1,
+    marginRight: 0,
   },
   loadingText: {
     fontSize: typography.fontSizes.sm,
@@ -178,33 +328,38 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   inputContainer: {
-    flexDirection: "row",
     padding: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.borderLight,
+    backgroundColor: colors.white,
+  },
+  inputWrapper: {
+    flexDirection: "row",
     alignItems: "flex-end",
+    backgroundColor: colors.cardSecondary,
+    borderRadius: 24,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   textInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 20,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginRight: spacing.sm,
     maxHeight: 100,
     fontSize: typography.fontSizes.md,
     color: colors.text,
+    marginRight: spacing.sm,
   },
   sendButton: {
-    backgroundColor: colors.primary,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+  },
+  sendButtonGradient: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
   },
   sendButtonDisabled: {
-    backgroundColor: colors.border,
+    opacity: 0.5,
   },
 });

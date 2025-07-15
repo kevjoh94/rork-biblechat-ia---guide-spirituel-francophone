@@ -1,4 +1,5 @@
-import { Heart } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Heart, BookOpen } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -21,64 +22,132 @@ export const BiblicalContentCard: React.FC<BiblicalContentCardProps> = ({ conten
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{content.title}</Text>
-        <TouchableOpacity onPress={handleFavoritePress} style={styles.favoriteButton}>
-          <Heart
-            size={20}
-            color={content.isFavorite ? colors.primary : colors.textSecondary}
-            fill={content.isFavorite ? colors.primary : "none"}
-          />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.verse} numberOfLines={3}>
-        "{content.verse}"
-      </Text>
-      <Text style={styles.reference}>- {content.reference}</Text>
+    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
+      <LinearGradient
+        colors={colors.cardGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
+      >
+        <View style={styles.header}>
+          <View style={styles.titleContainer}>
+            <View style={styles.bookIcon}>
+              <BookOpen size={16} color={colors.primary} />
+            </View>
+            <Text style={styles.title}>{content.title}</Text>
+          </View>
+          <TouchableOpacity onPress={handleFavoritePress} style={styles.favoriteButton}>
+            <Heart
+              size={20}
+              color={content.isFavorite ? colors.primary : colors.textLight}
+              fill={content.isFavorite ? colors.primary : "none"}
+            />
+          </TouchableOpacity>
+        </View>
+        
+        <Text style={styles.verse} numberOfLines={3}>
+          "{content.verse}"
+        </Text>
+        
+        <View style={styles.footer}>
+          <Text style={styles.reference}>— {content.reference}</Text>
+          <View style={[styles.categoryBadge, { backgroundColor: colors.primary + "15" }]}>
+            <Text style={[styles.categoryText, { color: colors.primary }]}>
+              {content.category}
+            </Text>
+          </View>
+        </View>
+        
+        <View style={[styles.leftBorder, { backgroundColor: colors.primary }]} />
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.card,
+    marginBottom: spacing.md,
+    borderRadius: 16,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  gradient: {
     borderRadius: 16,
     padding: spacing.md,
-    marginBottom: spacing.md,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
+    position: "relative",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: spacing.sm,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  bookIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primary + "15",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.sm,
   },
   title: {
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
     color: colors.text,
     flex: 1,
-    marginRight: spacing.sm,
   },
   favoriteButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: colors.background,
   },
   verse: {
     fontSize: typography.fontSizes.md,
     color: colors.text,
     lineHeight: typography.lineHeights.md,
     fontStyle: "italic",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
+    paddingLeft: spacing.sm,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   reference: {
     fontSize: typography.fontSizes.sm,
     color: colors.primary,
     fontWeight: typography.fontWeights.medium,
+  },
+  categoryBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: 12,
+  },
+  categoryText: {
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.medium,
+    textTransform: "capitalize",
+  },
+  leftBorder: {
+    position: "absolute",
+    left: 0,
+    top: spacing.md,
+    bottom: spacing.md,
+    width: 4,
+    borderRadius: 2,
   },
 });

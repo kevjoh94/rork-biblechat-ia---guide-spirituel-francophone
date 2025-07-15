@@ -1,4 +1,5 @@
-import { Calendar } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Calendar, Heart } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -15,34 +16,69 @@ interface DailyVerseCardProps {
 export const DailyVerseCard: React.FC<DailyVerseCardProps> = ({ verse, reference, message }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Calendar size={20} color={colors.primary} />
-        <Text style={styles.headerText}>Verset du jour</Text>
-      </View>
-      <Text style={styles.verse}>"{verse}"</Text>
-      <Text style={styles.reference}>- {reference}</Text>
-      <Text style={styles.message}>{message}</Text>
+      <LinearGradient
+        colors={colors.primaryGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
+      >
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Calendar size={18} color={colors.white} />
+          </View>
+          <Text style={styles.headerText}>Verset du jour</Text>
+          <View style={styles.heartContainer}>
+            <Heart size={16} color={colors.white} fill={colors.white} />
+          </View>
+        </View>
+        
+        <Text style={styles.verse}>"{verse}"</Text>
+        <Text style={styles.reference}>— {reference}</Text>
+        
+        <View style={styles.divider} />
+        
+        <Text style={styles.message}>{message}</Text>
+      </LinearGradient>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.primary,
-    borderRadius: 16,
-    padding: spacing.lg,
     marginBottom: spacing.lg,
+    borderRadius: 20,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  gradient: {
+    borderRadius: 20,
+    padding: spacing.lg,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: spacing.md,
   },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.sm,
+  },
   headerText: {
     fontSize: typography.fontSizes.md,
     fontWeight: typography.fontWeights.semibold,
     color: colors.white,
-    marginLeft: spacing.sm,
+    flex: 1,
+  },
+  heartContainer: {
+    opacity: 0.8,
   },
   verse: {
     fontSize: typography.fontSizes.lg,
@@ -50,16 +86,28 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeights.lg,
     fontStyle: "italic",
     marginBottom: spacing.sm,
+    textAlign: "center",
   },
   reference: {
     fontSize: typography.fontSizes.md,
     color: colors.white,
     fontWeight: typography.fontWeights.medium,
+    textAlign: "center",
     marginBottom: spacing.md,
+    opacity: 0.9,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    marginVertical: spacing.md,
+    alignSelf: "center",
+    width: "60%",
   },
   message: {
     fontSize: typography.fontSizes.md,
     color: colors.white,
-    opacity: 0.9,
+    opacity: 0.95,
+    textAlign: "center",
+    lineHeight: typography.lineHeights.md,
   },
 });
