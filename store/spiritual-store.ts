@@ -6,6 +6,15 @@ import { biblicalContent } from "@/mocks/biblical-content";
 import { dailyVerses } from "@/mocks/daily-verses";
 import { BiblicalContent, ChatMessage, UserProfile, ReadingPlan, JournalEntry, MeditationSession, NotificationSettings } from "@/types/spiritual";
 
+interface DailyProgress {
+  completed: boolean;
+  streak: boolean;
+  journalCompleted?: boolean;
+  verseCompleted?: boolean;
+  devotionalCompleted?: boolean;
+  prayerCompleted?: boolean;
+}
+
 interface SpiritualState {
   // Existing state
   content: BiblicalContent[];
@@ -33,6 +42,7 @@ interface SpiritualState {
   meditationSessions: MeditationSession[];
   notifications: NotificationSettings;
   achievements: string[];
+  dailyProgress: Record<string, DailyProgress>;
   
   // Existing actions
   toggleFavorite: (id: string) => void;
@@ -57,6 +67,8 @@ interface SpiritualState {
   updateNotificationSettings: (settings: Partial<NotificationSettings>) => void;
   addAchievement: (achievementId: string) => void;
   addExperience: (points: number) => void;
+  updateDailyProgress: (date: string, progress: Partial<DailyProgress>) => void;
+  markTaskCompleted: (taskType: 'journal' | 'verse' | 'devotional' | 'prayer') => void;
 }
 
 export const useSpiritualStore = create<SpiritualState>()(
@@ -94,6 +106,7 @@ export const useSpiritualStore = create<SpiritualState>()(
         time: '08:00',
       },
       achievements: [],
+      dailyProgress: {},
       toggleFavorite: (id: string) => {
         set((state) => {
           const updatedContent = state.content.map((item) => {
@@ -309,6 +322,54 @@ export const useSpiritualStore = create<SpiritualState>()(
             };
           }
           return state;
+        });
+      },
+      
+      updateDailyProgress: (date, progress) => {
+        set((state) => ({
+          dailyProgress: {
+            ...state.dailyProgress,
+            [date]: {
+              ...state.dailyProgress[date],
+              ...progress,
+            },
+          },
+        }));
+      },
+      
+      markTaskCompleted: (taskType) => {
+        const today = new Date();
+        const dateKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        
+        set((state) => {
+          const currentProgress = state.dailyProgress[dateKey] || { completed: false, streak: false };
+          const updatedProgress = {
+            ...currentProgress,
+            [`${taskType}Completed`]: true,
+          };
+          
+          // Check if all tasks are completed
+          const allTasksCompleted = 
+            updatedProgress.journalCompleted &&
+            updatedProgress.verseCompleted &&
+            updatedProgress.devotionalCompleted &&
+            updatedProgress.prayerCompleted;
+          
+          if (allTasksCompleted) {
+            updatedProgress.completed = true;
+            updatedProgress.streak = true;
+          }
+          
+          return {
+            dailyProgress: {
+              ...state.dailyProgress,
+              [dateKey]: updatedProgress,
+            },
+            stats: {
+              ...state.stats,
+              experience: state.stats.experience + 5,
+            },
+          };
         });
       },
       

@@ -9,7 +9,7 @@ import { Button } from "@/components/Button";
 import { DailyVerseCard } from "@/components/DailyVerseCard";
 import { SpiritualCategoryCard } from "@/components/SpiritualCategoryCard";
 import { ProgressTracker } from "@/components/ProgressTracker";
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { spiritualCategories } from "@/mocks/spiritual-categories";
@@ -17,6 +17,7 @@ import { useSpiritualStore } from "@/store/spiritual-store";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<"featured" | "favorites">("featured");
   const content = useSpiritualStore((state) => state.content);
   const getFavorites = useSpiritualStore((state) => state.getFavorites);
@@ -58,6 +59,14 @@ export default function HomeScreen() {
   const navigateToMore = () => {
     router.push("/(tabs)/more");
   };
+  
+  const navigateToDailyPlan = () => {
+    router.push("/daily-plan");
+  };
+  
+  const navigateToCalendar = () => {
+    router.push("/calendar");
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -96,13 +105,23 @@ export default function HomeScreen() {
         
         {/* Quick Actions */}
         <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.quickAction} onPress={navigateToMeditation}>
+          <TouchableOpacity style={styles.quickAction} onPress={navigateToDailyPlan}>
             <LinearGradient
-              colors={[colors.peace, colors.peace + 'CC']}
+              colors={colors.primaryGradient}
               style={styles.quickActionGradient}
             >
-              <Heart size={20} color={colors.white} />
-              <Text style={styles.quickActionText}>Méditer</Text>
+              <Target size={20} color={colors.white} />
+              <Text style={styles.quickActionText}>Plan Quotidien</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.quickAction} onPress={navigateToCalendar}>
+            <LinearGradient
+              colors={[colors.accent, colors.accent + 'CC']}
+              style={styles.quickActionGradient}
+            >
+              <Calendar size={20} color={colors.white} />
+              <Text style={styles.quickActionText}>Calendrier</Text>
             </LinearGradient>
           </TouchableOpacity>
           
@@ -113,16 +132,6 @@ export default function HomeScreen() {
             >
               <BookOpen size={20} color={colors.white} />
               <Text style={styles.quickActionText}>Journal</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.quickAction} onPress={navigateToMore}>
-            <LinearGradient
-              colors={[colors.primary, colors.primary + 'CC']}
-              style={styles.quickActionGradient}
-            >
-              <Target size={20} color={colors.white} />
-              <Text style={styles.quickActionText}>Plus</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -205,7 +214,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   headerGradient: {
     paddingTop: spacing.lg,
