@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: "600",
     color: colors.white,
     flex: 1,
   },
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   reference: {
     fontSize: typography.fontSizes.md,
     color: colors.white,
-    fontWeight: typography.fontWeights.medium,
+    fontWeight: "500",
     textAlign: "center",
     marginBottom: spacing.md,
     opacity: 0.9,

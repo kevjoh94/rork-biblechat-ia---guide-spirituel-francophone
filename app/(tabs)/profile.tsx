@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.fontSizes.xxl,
-    fontWeight: typography.fontWeights.bold as any,
+    fontWeight: "700",
     color: colors.white,
     marginBottom: spacing.xs,
     textAlign: "center",
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.semibold as any,
+    fontWeight: "600",
     color: colors.text,
     marginLeft: spacing.sm,
   },
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   achievementTitle: {
     fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold as any,
+    fontWeight: "600",
     color: colors.text,
     marginBottom: spacing.xs,
   },
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     marginTop: spacing.md,
-    fontWeight: typography.fontWeights.medium as any,
+    fontWeight: "500",
   },
   emptySubtext: {
     fontSize: typography.fontSizes.sm,
@@ -341,6 +341,6 @@ const styles = StyleSheet.create({
   footerReference: {
     fontSize: typography.fontSizes.sm,
     color: colors.primary,
-    fontWeight: typography.fontWeights.medium as any,
+    fontWeight: "500",
   },
 });

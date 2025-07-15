@@ -26,11 +26,11 @@ const colors = {
   gratitude: "#6BBAA7",
   comfort: "#F9C846",
   
-  // Gradients
-  primaryGradient: ["#6B4E71", "#8B7355"],
-  peacefulGradient: ["#7B9EBF", "#A8C8E1"],
-  hopeGradient: ["#F2C4B3", "#F5D5C8"],
-  cardGradient: ["#FFFFFF", "#F8F6F3"],
+  // Gradients - properly typed as tuples
+  primaryGradient: ["#6B4E71", "#8B7355"] as const,
+  peacefulGradient: ["#7B9EBF", "#A8C8E1"] as const,
+  hopeGradient: ["#F2C4B3", "#F5D5C8"] as const,
+  cardGradient: ["#FFFFFF", "#F8F6F3"] as const,
 };
 
 export { colors };

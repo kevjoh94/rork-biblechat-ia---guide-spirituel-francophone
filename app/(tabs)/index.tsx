@@ -1,8 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MessageCircle, Sparkles, Star } from "lucide-react-native";
+import { MessageCircle, Sparkles, Star, Heart } from "lucide-react-native";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import { BiblicalContentCard } from "@/components/BiblicalContentCard";
 import { Button } from "@/components/Button";
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.fontSizes.xxxl,
-    fontWeight: typography.fontWeights.bold as any,
+    fontWeight: "700",
     color: colors.text,
     marginBottom: spacing.xs,
   },
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.semibold as any,
+    fontWeight: "600",
     color: colors.text,
     marginLeft: spacing.sm,
   },
@@ -224,12 +224,12 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.medium as any,
+    fontWeight: "500",
     color: colors.textSecondary,
   },
   activeTabText: {
     color: colors.primary,
-    fontWeight: typography.fontWeights.semibold as any,
+    fontWeight: "600",
   },
   contentContainer: {
     marginBottom: spacing.lg,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     marginTop: spacing.md,
-    fontWeight: typography.fontWeights.medium as any,
+    fontWeight: "500",
   },
   emptySubtext: {
     fontSize: typography.fontSizes.sm,

@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.bold as any,
+    fontWeight: "700",
     color: colors.text,
     marginBottom: spacing.xs,
   },
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.semibold as any,
+    fontWeight: "600",
     color: colors.text,
     textAlign: "center",
     marginBottom: spacing.sm,
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   },
   suggestionTitle: {
     fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold as any,
+    fontWeight: "600",
     color: colors.text,
     marginBottom: spacing.sm,
   },

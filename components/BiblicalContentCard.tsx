@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: "600",
     color: colors.text,
     flex: 1,
   },
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   reference: {
     fontSize: typography.fontSizes.sm,
     color: colors.primary,
-    fontWeight: typography.fontWeights.medium,
+    fontWeight: "500",
   },
   categoryBadge: {
     paddingHorizontal: spacing.sm,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.medium,
+    fontWeight: "500",
     textTransform: "capitalize",
   },
   leftBorder: {
