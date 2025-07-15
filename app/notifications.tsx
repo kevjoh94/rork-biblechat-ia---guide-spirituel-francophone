@@ -274,15 +274,6 @@ export default function NotificationsScreen() {
       fontSize: typography.fontSizes.sm,
       color: colors.textSecondary,
     },
-    iconContainer: {
-      width: 40,
-      height: 40,
-      borderRadius: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: spacing.md,
-      backgroundColor: colors.primaryLight,
-    },
     footer: {
       padding: spacing.xl,
       alignItems: 'center',
