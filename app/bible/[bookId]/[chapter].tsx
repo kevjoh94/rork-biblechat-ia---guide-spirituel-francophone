@@ -84,7 +84,7 @@ export default function ChapterScreen() {
           language: 'fr-FR',
           rate: 0.7, // Plus lent pour la lecture biblique
           pitch: 1.0, // Ton neutre et respectueux
-          quality: Speech.VoiceQuality.Enhanced,
+          voice: undefined, // Laisser le système choisir la meilleure voix
           onDone: () => setIsSpeaking(false),
           onError: () => setIsSpeaking(false),
         });

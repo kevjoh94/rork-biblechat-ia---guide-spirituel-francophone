@@ -343,7 +343,6 @@ Peux-tu réessayer dans quelques instants ?`,
           language: 'fr-FR',
           rate: 0.8, // Plus lent pour plus de clarté
           pitch: 1.05, // Légèrement plus aigu
-          quality: Speech.VoiceQuality.Enhanced, // Qualité améliorée si disponible
           voice: undefined, // Laisser le système choisir la meilleure voix
           onDone: () => setIsSpeaking(false),
           onError: () => setIsSpeaking(false),
