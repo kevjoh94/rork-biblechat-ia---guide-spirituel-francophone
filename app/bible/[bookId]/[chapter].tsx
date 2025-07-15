@@ -37,13 +37,33 @@ export default function ChapterScreen() {
     );
   };
 
+  const cleanTextForSpeech = (text: string): string => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/#{1,6}\s/g, '')
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      .replace(/—/g, " - ")
+      .replace(/\n{2,}/g, '. ')
+      .replace(/\n/g, ', ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   const speakChapterWithExpoSpeech = async () => {
     try {
       if (isSpeaking) {
         // Stop current speech
-        Speech.stop();
+        await Speech.stop();
         setIsSpeaking(false);
         return;
+      }
+
+      // Check if speech is available
+      const isAvailable = await Speech.isSpeakingAsync();
+      if (isAvailable) {
+        await Speech.stop();
       }
 
       setIsSpeaking(true);
@@ -51,12 +71,55 @@ export default function ChapterScreen() {
       const fullText = `${book.name}, chapitre ${chapter}. ` + 
         chapterData.verses.map(verse => `Verset ${verse.number}. ${verse.text}`).join('. ');
       
+      const cleanText = cleanTextForSpeech(fullText);
+      
+      if (!cleanText || cleanText.length === 0) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      // Get available voices
+      const voices = await Speech.getAvailableVoicesAsync();
+      
+      // Find the best French voice
+      let selectedVoice = undefined;
+      
+      if (Platform.OS === 'ios') {
+        const frenchVoices = voices.filter(voice => 
+          voice.language.startsWith('fr') && 
+          (voice.identifier.includes('premium') || voice.identifier.includes('enhanced') || voice.identifier.includes('Amelie'))
+        );
+        
+        if (frenchVoices.length > 0) {
+          selectedVoice = frenchVoices[0].identifier;
+        } else {
+          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
+          if (anyFrenchVoice) {
+            selectedVoice = anyFrenchVoice.identifier;
+          }
+        }
+      } else if (Platform.OS === 'android') {
+        const frenchVoices = voices.filter(voice => 
+          voice.language.startsWith('fr') && 
+          (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('marie'))
+        );
+        
+        if (frenchVoices.length > 0) {
+          selectedVoice = frenchVoices[0].identifier;
+        } else {
+          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
+          if (anyFrenchVoice) {
+            selectedVoice = anyFrenchVoice.identifier;
+          }
+        }
+      }
+
       // Configure speech options for better quality
-      const speechOptions = {
+      const speechOptions: Speech.SpeechOptions = {
         language: 'fr-FR',
         pitch: 1.0,
         rate: 0.75, // Slower for biblical reading
-        voice: Platform.OS === 'ios' ? 'com.apple.ttsbundle.Amelie-compact' : undefined,
+        voice: selectedVoice,
         onDone: () => {
           setIsSpeaking(false);
         },
@@ -66,14 +129,15 @@ export default function ChapterScreen() {
         onError: (error: any) => {
           console.error('Erreur TTS:', error);
           setIsSpeaking(false);
+          Alert.alert('Erreur', "Impossible de lire le chapitre. Vérifiez que votre appareil supporte la synthèse vocale en français.");
         }
       };
 
-      await Speech.speak(fullText, speechOptions);
+      await Speech.speak(cleanText, speechOptions);
     } catch (error) {
       console.error('Erreur TTS:', error);
       setIsSpeaking(false);
-      Alert.alert('Erreur', "Impossible de lire le chapitre.");
+      Alert.alert('Erreur', "Impossible de lire le chapitre. Vérifiez que votre appareil supporte la synthèse vocale en français.");
     }
   };
 

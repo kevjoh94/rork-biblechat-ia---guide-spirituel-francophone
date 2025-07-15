@@ -276,34 +276,96 @@ Peux-tu réessayer dans quelques instants ?`,
     }
   };
 
+  const cleanTextForSpeech = (text: string): string => {
+    return text
+      // Remove markdown formatting
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/#{1,6}\s/g, '')
+      // Replace quotes with standard quotes
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      // Replace em dash with regular dash
+      .replace(/—/g, " - ")
+      // Replace multiple newlines with periods
+      .replace(/\n{2,}/g, '. ')
+      .replace(/\n/g, ', ')
+      // Remove extra spaces
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   const speakWithExpoSpeech = async (text: string) => {
     try {
       if (isSpeaking) {
         // Stop current speech
-        Speech.stop();
+        await Speech.stop();
         setIsSpeaking(false);
         return;
       }
 
+      // Check if speech is available
+      const isAvailable = await Speech.isSpeakingAsync();
+      if (isAvailable) {
+        await Speech.stop();
+      }
+
       setIsSpeaking(true);
 
-      // Clean text for better pronunciation
-      const cleanText = text
-        .replace(/[""]/g, '"')
-        .replace(/['']/g, "'")
-        .replace(/—/g, " - ")
-        .replace(/\*\*/g, "")
-        .replace(/\*/g, "")
-        .replace(/#{1,6}\s/g, "")
-        .replace(/\n{2,}/g, ". ")
-        .replace(/\n/g, ", ");
+      // Clean and prepare text
+      const cleanText = cleanTextForSpeech(text);
+      
+      if (!cleanText || cleanText.length === 0) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      // Get available voices
+      const voices = await Speech.getAvailableVoicesAsync();
+      console.log('Available voices:', voices.map(v => ({ identifier: v.identifier, name: v.name, language: v.language })));
+
+      // Find the best French voice
+      let selectedVoice = undefined;
+      
+      if (Platform.OS === 'ios') {
+        // Prefer high-quality French voices on iOS
+        const frenchVoices = voices.filter(voice => 
+          voice.language.startsWith('fr') && 
+          (voice.identifier.includes('premium') || voice.identifier.includes('enhanced') || voice.identifier.includes('Amelie'))
+        );
+        
+        if (frenchVoices.length > 0) {
+          selectedVoice = frenchVoices[0].identifier;
+        } else {
+          // Fallback to any French voice
+          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
+          if (anyFrenchVoice) {
+            selectedVoice = anyFrenchVoice.identifier;
+          }
+        }
+      } else if (Platform.OS === 'android') {
+        // Find best French voice on Android
+        const frenchVoices = voices.filter(voice => 
+          voice.language.startsWith('fr') && 
+          (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('marie'))
+        );
+        
+        if (frenchVoices.length > 0) {
+          selectedVoice = frenchVoices[0].identifier;
+        } else {
+          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
+          if (anyFrenchVoice) {
+            selectedVoice = anyFrenchVoice.identifier;
+          }
+        }
+      }
 
       // Configure speech options for better quality
-      const speechOptions = {
+      const speechOptions: Speech.SpeechOptions = {
         language: 'fr-FR',
-        pitch: 1.0,
-        rate: 0.8, // Slightly slower for spiritual content
-        voice: Platform.OS === 'ios' ? 'com.apple.ttsbundle.Amelie-compact' : undefined,
+        pitch: 1.1, // Slightly higher pitch for warmth
+        rate: 0.8, // Slower for spiritual content
+        voice: selectedVoice,
         onDone: () => {
           setIsSpeaking(false);
         },
@@ -313,14 +375,16 @@ Peux-tu réessayer dans quelques instants ?`,
         onError: (error: any) => {
           console.error('Erreur TTS:', error);
           setIsSpeaking(false);
+          Alert.alert('Erreur', "Impossible de lire le texte. Vérifiez que votre appareil supporte la synthèse vocale en français.");
         }
       };
 
+      console.log('Speaking with options:', speechOptions);
       await Speech.speak(cleanText, speechOptions);
     } catch (error) {
       console.error('Erreur TTS:', error);
       setIsSpeaking(false);
-      Alert.alert('Erreur', "Impossible de lire le texte.");
+      Alert.alert('Erreur', "Impossible de lire le texte. Vérifiez que votre appareil supporte la synthèse vocale en français.");
     }
   };
 
