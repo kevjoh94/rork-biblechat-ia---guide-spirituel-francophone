@@ -19,6 +19,25 @@ import { typography } from "@/constants/typography";
 import { useSpiritualStore } from "@/store/spiritual-store";
 import { ChatMessage } from "@/types/spiritual";
 
+const SYSTEM_PROMPT = `Tu es BibleChat IA, un assistant spirituel francophone, bienveillant et empathique.  
+Ta mission est d'aider les utilisateurs à trouver des réponses à leurs questions personnelles ou spirituelles en s'appuyant sur la Bible (Segond 21 ou Louis Segond).
+
+Quand un utilisateur pose une question, tu dois toujours répondre en suivant cette structure précise et complète :
+
+1️⃣ Accroche amicale courte (ex : "Cher ami, sache que tu n'es jamais seul.")  
+2️⃣ Un verset biblique pertinent, inspirant et apaisant (avec la référence exacte en Segond 21 ou Louis Segond).  
+3️⃣ Une explication simple et accessible (2 à 4 phrases maximum), pas de théologie complexe.  
+4️⃣ Une courte prière ou un encouragement final (1 à 2 phrases, optionnel mais conseillé).
+
+**Règles importantes à respecter strictement** :
+- Réponds toujours en **français**, dans un ton chaleureux, doux, inspirant et jamais autoritaire.
+- Ne donne jamais de conseils médicaux ou psychologiques précis.
+- Si la question n'est pas spirituelle ou pas en lien avec la Bible, explique poliment : "Je suis conçu pour répondre à des questions spirituelles ou bibliques. Peux-tu reformuler ta question ?"
+- Tu es un guide, pas un juge. Ton but est de rassurer, apaiser et renforcer la foi.
+- Chaque réponse doit donner l'impression de recevoir un message d'un ami bienveillant.
+
+**Ta mission principale est d'apporter réconfort, lumière, guidance chrétienne et de partager des passages bibliques adaptés.**`;
+
 export default function ChatScreen() {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -26,42 +45,6 @@ export default function ChatScreen() {
   
   const chatHistory = useSpiritualStore((state) => state.chatHistory);
   const addChatMessage = useSpiritualStore((state) => state.addChatMessage);
-
-  const generateSpiritualResponse = (question: string): string => {
-    const responses = [
-      {
-        greeting: "Cher ami, sache que tu n'es jamais seul dans tes épreuves.",
-        verse: "Ne t'ai-je pas donné cet ordre: Fortifie-toi et prends courage? Ne t'effraie point et ne t'épouvante point, car l'Éternel, ton Dieu, est avec toi dans tout ce que tu entreprendras.",
-        reference: "Josué 1:9",
-        explanation: "Dieu nous encourage à être forts et courageux car Il est toujours avec nous. Sa présence nous donne la force d'affronter tous les défis de la vie.",
-        prayer: "Que Dieu te bénisse et te donne la paix qui surpasse toute intelligence. 🙏"
-      },
-      {
-        greeting: "Mon frère/ma sœur, ton cœur cherche la paix et Dieu l'entend.",
-        verse: "Je vous laisse la paix, je vous donne ma paix. Je ne vous donne pas comme le monde donne. Que votre cœur ne se trouble point, et ne s'alarme point.",
-        reference: "Jean 14:27",
-        explanation: "Jésus nous offre une paix différente de celle du monde. Cette paix divine peut calmer nos cœurs même dans les tempêtes de la vie.",
-        prayer: "Puisse cette paix divine remplir ton cœur aujourd'hui. Amen."
-      },
-      {
-        greeting: "Bien-aimé(e), Dieu connaît tes besoins avant même que tu les exprimes.",
-        verse: "Car je connais les projets que j'ai formés sur vous, dit l'Éternel, projets de paix et non de malheur, afin de vous donner un avenir et de l'espérance.",
-        reference: "Jérémie 29:11",
-        explanation: "Dieu a de bons projets pour notre vie. Même dans les moments difficiles, nous pouvons avoir confiance en Son plan parfait pour notre avenir.",
-        prayer: "Garde espoir, car de belles choses t'attendent selon Sa volonté."
-      }
-    ];
-
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    
-    return `${randomResponse.greeting}
-
-📖 "${randomResponse.verse}" (${randomResponse.reference})
-
-${randomResponse.explanation}
-
-${randomResponse.prayer}`;
-  };
 
   const handleSend = async () => {
     if (!inputText.trim() || isLoading) return;
@@ -74,21 +57,58 @@ ${randomResponse.prayer}`;
     };
 
     addChatMessage(userMessage);
+    const currentInput = inputText.trim();
     setInputText("");
     setIsLoading(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
+    try {
+      // Préparer les messages pour l'API
+      const messages = [
+        { role: "system" as const, content: SYSTEM_PROMPT },
+        ...chatHistory.slice(-10).map(msg => ({
+          role: msg.isUser ? "user" as const : "assistant" as const,
+          content: msg.text
+        })),
+        { role: "user" as const, content: currentInput }
+      ];
+
+      const response = await fetch("https://toolkit.rork.com/text/llm/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur de connexion");
+      }
+
+      const data = await response.json();
+      
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: generateSpiritualResponse(inputText),
+        text: data.completion || "Désolé, je n'ai pas pu traiter ta demande. Peux-tu réessayer ?",
         isUser: false,
         timestamp: new Date(),
       };
 
       addChatMessage(aiResponse);
+    } catch (error) {
+      console.error("Erreur API:", error);
+      
+      // Message d'erreur spirituel en cas de problème
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: "Cher ami, je rencontre une difficulté technique en ce moment. 🙏\n\nEn attendant, rappelle-toi cette promesse : \"Ne t'inquiète de rien; mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, avec des actions de grâces.\" (Philippiens 4:6)\n\nPeux-tu réessayer dans quelques instants ?",
+        isUser: false,
+        timestamp: new Date(),
+      };
+
+      addChatMessage(errorMessage);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const renderMessage = ({ item }: { item: ChatMessage }) => (
@@ -116,6 +136,7 @@ ${randomResponse.prayer}`;
         <Text style={styles.suggestionText}>• "Comment trouver la paix intérieure ?"</Text>
         <Text style={styles.suggestionText}>• "Que dit la Bible sur le pardon ?"</Text>
         <Text style={styles.suggestionText}>• "Comment surmonter mes peurs ?"</Text>
+        <Text style={styles.suggestionText}>• "Je me sens seul, aide-moi"</Text>
       </View>
     </View>
   );
@@ -134,8 +155,8 @@ ${randomResponse.prayer}`;
             <Sparkles size={20} color={colors.primary} />
           </View>
           <View>
-            <Text style={styles.title}>Assistant Spirituel</Text>
-            <Text style={styles.subtitle}>Pose tes questions en toute confiance</Text>
+            <Text style={styles.title}>BibleChat IA</Text>
+            <Text style={styles.subtitle}>Ton guide spirituel personnel</Text>
           </View>
         </View>
       </LinearGradient>
@@ -163,7 +184,7 @@ ${randomResponse.prayer}`;
               <View style={[styles.dot, styles.dot2]} />
               <View style={[styles.dot, styles.dot3]} />
             </View>
-            <Text style={styles.loadingText}>L'assistant réfléchit...</Text>
+            <Text style={styles.loadingText}>BibleChat IA réfléchit...</Text>
           </View>
         </View>
       )}
@@ -185,7 +206,7 @@ ${randomResponse.prayer}`;
             disabled={!inputText.trim() || isLoading}
           >
             <LinearGradient
-              colors={(!inputText.trim() || isLoading) ? [colors.border, colors.border] : colors.primaryGradient}
+              colors={(!inputText.trim() || isLoading) ? [colors.border, colors.border] : [colors.primary, colors.secondary]}
               style={styles.sendButtonGradient}
             >
               <Send size={18} color={colors.white} />
