@@ -42,6 +42,7 @@ interface SpiritualState {
   getContentByCategory: (category: string) => BiblicalContent[];
   getFavorites: () => BiblicalContent[];
   getDailyVerse: () => typeof dailyVerses[0];
+  initializeDailyVerse: () => void;
   markAsRead: (id: string) => void;
   
   // New actions
@@ -137,11 +138,21 @@ export const useSpiritualStore = create<SpiritualState>()(
         if (!dailyVerse || dailyVerse.reference !== today) {
           const dayIndex = new Date().getDay();
           const selectedVerse = dailyVerses[dayIndex % dailyVerses.length];
-          set({ dailyVerse: selectedVerse });
           return selectedVerse;
         }
         
         return dailyVerse;
+      },
+      
+      initializeDailyVerse: () => {
+        const today = new Date().toDateString();
+        const { dailyVerse } = get();
+        
+        if (!dailyVerse || dailyVerse.reference !== today) {
+          const dayIndex = new Date().getDay();
+          const selectedVerse = dailyVerses[dayIndex % dailyVerses.length];
+          set({ dailyVerse: selectedVerse });
+        }
       },
       markAsRead: (id: string) => {
         set((state) => {

@@ -41,7 +41,7 @@ export const EnhancedProfile: React.FC = () => {
   const [userBio, setUserBio] = useState('Chercheur de vérité');
   
   const stats = useSpiritualStore((state) => state.stats);
-  const favorites = useSpiritualStore((state) => state.getFavorites());
+  const getFavorites = useSpiritualStore((state) => state.getFavorites);
   const chatHistory = useSpiritualStore((state) => state.chatHistory);
   const achievements = useSpiritualStore((state) => state.achievements);
   const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
@@ -52,6 +52,8 @@ export const EnhancedProfile: React.FC = () => {
   const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
   const readingPlans = useSpiritualStore((state) => state.readingPlans);
   const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);
+  
+  const favorites = getFavorites();
   
   // Calculate level based on experience
   const level = Math.floor(stats.experience / 100) + 1;
@@ -88,12 +90,12 @@ export const EnhancedProfile: React.FC = () => {
     </View>
   );
 
-  const renderAchievement = (achievement: any) => (
-    <View key={achievement.id} style={styles.achievementItem}>
-      <AchievementBadge achievementId={achievement} isUnlocked={true} size="small" />
+  const renderAchievement = (achievementId: string) => (
+    <View key={achievementId} style={styles.achievementItem}>
+      <AchievementBadge achievementId={achievementId} isUnlocked={true} size="small" />
       <View style={styles.achievementInfo}>
-        <Text style={styles.achievementTitle}>{achievement.title}</Text>
-        <Text style={styles.achievementDescription}>{achievement.description}</Text>
+        <Text style={styles.achievementTitle}>Réalisation débloquée</Text>
+        <Text style={styles.achievementDescription}>Continuez vos efforts spirituels</Text>
       </View>
     </View>
   );

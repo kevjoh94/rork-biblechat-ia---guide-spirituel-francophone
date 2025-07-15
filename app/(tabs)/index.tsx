@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MessageCircle, Sparkles, Star, Heart, Calendar, BookOpen, Target } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import { BiblicalContentCard } from "@/components/BiblicalContentCard";
@@ -21,10 +21,15 @@ export default function HomeScreen() {
   const content = useSpiritualStore((state) => state.content);
   const getFavorites = useSpiritualStore((state) => state.getFavorites);
   const getDailyVerse = useSpiritualStore((state) => state.getDailyVerse);
+  const initializeDailyVerse = useSpiritualStore((state) => state.initializeDailyVerse);
 
   const featuredContent = content.slice(0, 4);
   const favoriteContent = getFavorites();
   const dailyVerse = getDailyVerse();
+  
+  useEffect(() => {
+    initializeDailyVerse();
+  }, [initializeDailyVerse]);
 
   const navigateToCategory = (categoryId: string) => {
     router.push(`/category/${categoryId}`);
