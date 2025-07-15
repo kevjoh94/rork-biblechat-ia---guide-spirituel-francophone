@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { useSpiritualStore } from '@/store/spiritual-store';
 import { lightColors, darkColors } from '@/constants/colors';
@@ -16,26 +16,27 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemColorScheme = useColorScheme();
   
-  // Use stable selectors
-  const isDarkModeSelector = useCallback((state: any) => state.isDarkMode, []);
-  const toggleDarkModeSelector = useCallback((state: any) => state.toggleDarkMode, []);
-  
-  const isDarkMode = useSpiritualStore(isDarkModeSelector);
-  const toggleDarkMode = useSpiritualStore(toggleDarkModeSelector);
+  // Use direct selectors to avoid recreation
+  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
+  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
 
   // Initialize theme based on system preference if not set
   useEffect(() => {
     const initializeTheme = () => {
-      const currentMode = useSpiritualStore.getState().isDarkMode;
-      if (currentMode === undefined && systemColorScheme) {
-        // Only set if not already configured by user
-        if (systemColorScheme === 'dark') {
-          toggleDarkMode();
+      try {
+        const currentMode = useSpiritualStore.getState().isDarkMode;
+        if (currentMode === undefined && systemColorScheme) {
+          // Only set if not already configured by user
+          if (systemColorScheme === 'dark') {
+            toggleDarkMode();
+          }
         }
+      } catch (error) {
+        console.warn('Error initializing theme:', error);
       }
     };
     initializeTheme();
-  }, [systemColorScheme, toggleDarkMode]);
+  }, [systemColorScheme]);
 
   const colors = useMemo(() => {
     return isDarkMode ? darkColors : lightColors;

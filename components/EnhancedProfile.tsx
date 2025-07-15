@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -41,48 +41,32 @@ export const EnhancedProfile: React.FC = () => {
   const [userName, setUserName] = useState('Utilisateur Spirituel');
   const [userBio, setUserBio] = useState('Chercheur de vérité');
   
-  // Use stable selectors to prevent unnecessary re-renders
-  const selector = useCallback((state: any) => ({
-    stats: state.stats,
-    chatHistory: state.chatHistory,
-    achievements: state.achievements,
-    isDarkMode: state.isDarkMode,
-    notifications: state.notifications,
-    favorites: state.favorites,
-    journalEntries: state.journalEntries,
-    meditationSessions: state.meditationSessions,
-    readingPlans: state.readingPlans,
-    toggleDarkMode: state.toggleDarkMode,
-    updateNotificationSettings: state.updateNotificationSettings,
-    clearChatHistory: state.clearChatHistory
-  }), []);
-  
-  const {
-    stats,
-    chatHistory,
-    achievements,
-    isDarkMode,
-    notifications,
-    favorites,
-    journalEntries,
-    meditationSessions,
-    readingPlans,
-    toggleDarkMode,
-    updateNotificationSettings,
-    clearChatHistory
-  } = useSpiritualStore(selector);
+  // Use individual selectors to prevent unnecessary re-renders
+  const stats = useSpiritualStore((state) => state.stats);
+  const chatHistory = useSpiritualStore((state) => state.chatHistory);
+  const achievements = useSpiritualStore((state) => state.achievements);
+  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
+  const notifications = useSpiritualStore((state) => state.notifications);
+  const favorites = useSpiritualStore((state) => state.favorites);
+  const journalEntries = useSpiritualStore((state) => state.journalEntries);
+  const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
+  const readingPlans = useSpiritualStore((state) => state.readingPlans);
+  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
+  const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);
+  const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);
   
   // Calculate derived values with useMemo to prevent recalculation
   const derivedValues = useMemo(() => {
-    const chatHistoryLength = chatHistory?.length || 0;
-    const favoritesCount = favorites?.length || 0;
-    const journalEntriesCount = journalEntries?.length || 0;
-    const meditationSessionsCount = meditationSessions?.length || 0;
-    const readingPlansCount = readingPlans?.length || 0;
+    const chatHistoryLength = Array.isArray(chatHistory) ? chatHistory.length : 0;
+    const favoritesCount = Array.isArray(favorites) ? favorites.length : 0;
+    const journalEntriesCount = Array.isArray(journalEntries) ? journalEntries.length : 0;
+    const meditationSessionsCount = Array.isArray(meditationSessions) ? meditationSessions.length : 0;
+    const readingPlansCount = Array.isArray(readingPlans) ? readingPlans.length : 0;
     
     // Calculate level based on experience
-    const level = Math.floor((stats?.experience || 0) / 100) + 1;
-    const levelProgress = ((stats?.experience || 0) % 100) / 100;
+    const experience = stats?.experience || 0;
+    const level = Math.floor(experience / 100) + 1;
+    const levelProgress = (experience % 100) / 100;
     
     // Calculate total activity using stable values
     const totalActivity = (stats?.totalReadings || 0) + chatHistoryLength + journalEntriesCount + meditationSessionsCount;
@@ -97,7 +81,15 @@ export const EnhancedProfile: React.FC = () => {
       levelProgress,
       totalActivity
     };
-  }, [stats?.experience, stats?.totalReadings, chatHistory?.length, favorites?.length, journalEntries?.length, meditationSessions?.length, readingPlans?.length]);
+  }, [
+    stats?.experience,
+    stats?.totalReadings,
+    Array.isArray(chatHistory) ? chatHistory.length : 0,
+    Array.isArray(favorites) ? favorites.length : 0,
+    Array.isArray(journalEntries) ? journalEntries.length : 0,
+    Array.isArray(meditationSessions) ? meditationSessions.length : 0,
+    Array.isArray(readingPlans) ? readingPlans.length : 0
+  ]);
   
   const {
     chatHistoryLength,
@@ -468,8 +460,8 @@ export const EnhancedProfile: React.FC = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Réalisations récentes</Text>
         <View style={styles.achievementsContainer}>
-          {(achievements || []).slice(0, 3).map(renderAchievement)}
-          {(!achievements || achievements.length === 0) && (
+          {Array.isArray(achievements) && achievements.slice(0, 3).map(renderAchievement)}
+          {(!Array.isArray(achievements) || achievements.length === 0) && (
             <Text style={styles.emptyText}>
               Continuez à utiliser l'app pour débloquer des réalisations !
             </Text>

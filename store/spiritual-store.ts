@@ -142,26 +142,42 @@ export const useSpiritualStore = create<SpiritualState>()(
         return get().content.filter((c) => c.category === category);
       },
       getFavorites: () => {
-        const { content, favorites } = get();
-        return content.filter((c) => favorites.includes(c.id));
+        try {
+          const { content, favorites } = get();
+          if (!Array.isArray(content) || !Array.isArray(favorites)) {
+            return [];
+          }
+          return content.filter((c) => favorites.includes(c.id));
+        } catch (error) {
+          console.warn('Error getting favorites:', error);
+          return [];
+        }
       },
       getDailyVerse: () => {
-        const state = get();
-        const today = new Date().toDateString();
-        
-        // Return cached verse if it exists and is for today
-        if (state.dailyVerse && state.dailyVerse.reference === today) {
-          return state.dailyVerse;
+        try {
+          const state = get();
+          const today = new Date().toDateString();
+          
+          // Return cached verse if it exists and is for today
+          if (state.dailyVerse && state.dailyVerse.reference === today) {
+            return state.dailyVerse;
+          }
+          
+          // Generate new verse for today
+          const dayIndex = new Date().getDay();
+          const selectedVerse = {
+            ...dailyVerses[dayIndex % dailyVerses.length],
+            reference: today // Store today's date as reference
+          };
+          
+          // Update the store with the new verse
+          set({ dailyVerse: selectedVerse });
+          
+          return selectedVerse;
+        } catch (error) {
+          console.warn('Error getting daily verse:', error);
+          return { verse: '', reference: '', message: '' };
         }
-        
-        // Generate new verse for today
-        const dayIndex = new Date().getDay();
-        const selectedVerse = {
-          ...dailyVerses[dayIndex % dailyVerses.length],
-          reference: today // Store today's date as reference
-        };
-        
-        return selectedVerse;
       },
       
       initializeDailyVerse: () => {

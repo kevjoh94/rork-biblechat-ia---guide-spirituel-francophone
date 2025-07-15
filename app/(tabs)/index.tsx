@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MessageCircle, Sparkles, Star, Heart, Calendar, BookOpen, Target } from "lucide-react-native";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { BiblicalContent } from "@/types/spiritual";
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
@@ -20,25 +20,42 @@ export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<"featured" | "favorites">("featured");
-  // Use stable selectors to prevent infinite loops
-  const contentSelector = useCallback((state: any) => state.content, []);
-  const getFavoritesSelector = useCallback((state: any) => state.getFavorites, []);
-  const getDailyVerseSelector = useCallback((state: any) => state.getDailyVerse, []);
-  const initializeDailyVerseSelector = useCallback((state: any) => state.initializeDailyVerse, []);
-  
-  const content = useSpiritualStore(contentSelector);
-  const getFavorites = useSpiritualStore(getFavoritesSelector);
-  const getDailyVerse = useSpiritualStore(getDailyVerseSelector);
-  const initializeDailyVerse = useSpiritualStore(initializeDailyVerseSelector);
+  // Use direct selectors to prevent infinite loops
+  const content = useSpiritualStore((state) => state.content);
+  const getFavorites = useSpiritualStore((state) => state.getFavorites);
+  const getDailyVerse = useSpiritualStore((state) => state.getDailyVerse);
+  const initializeDailyVerse = useSpiritualStore((state) => state.initializeDailyVerse);
 
   // Memoize derived values to prevent unnecessary recalculations
-  const featuredContent = useMemo(() => content.slice(0, 4), [content]);
-  const favoriteContent = useMemo(() => getFavorites(), [getFavorites]);
-  const dailyVerse = useMemo(() => getDailyVerse(), [getDailyVerse]);
+  const featuredContent = useMemo(() => {
+    return Array.isArray(content) ? content.slice(0, 4) : [];
+  }, [content]);
+  
+  const favoriteContent = useMemo(() => {
+    try {
+      return getFavorites() || [];
+    } catch (error) {
+      console.warn('Error getting favorites:', error);
+      return [];
+    }
+  }, [getFavorites]);
+  
+  const dailyVerse = useMemo(() => {
+    try {
+      return getDailyVerse() || { verse: '', reference: '', message: '' };
+    } catch (error) {
+      console.warn('Error getting daily verse:', error);
+      return { verse: '', reference: '', message: '' };
+    }
+  }, [getDailyVerse]);
   
   useEffect(() => {
-    initializeDailyVerse();
-  }, [initializeDailyVerse]);
+    try {
+      initializeDailyVerse();
+    } catch (error) {
+      console.warn('Error initializing daily verse:', error);
+    }
+  }, []);
 
   const navigateToCategory = (categoryId: string) => {
     router.push(`/category/${categoryId}`);
