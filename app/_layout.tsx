@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NotificationManager from "@/components/NotificationManager";
+import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -11,11 +12,13 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+  const { colors } = useTheme();
+  
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "white" },
+        contentStyle: { backgroundColor: colors.background },
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -24,7 +27,20 @@ function RootLayoutNav() {
       <Stack.Screen name="bible/[bookId]" options={{ headerShown: false, presentation: "card" }} />
       <Stack.Screen name="bible/[bookId]/[chapter]" options={{ headerShown: false, presentation: "card" }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="settings" options={{ headerShown: false, presentation: "card" }} />
+      <Stack.Screen name="notifications" options={{ headerShown: false, presentation: "card" }} />
+      <Stack.Screen name="daily-plan" options={{ headerShown: false, presentation: "card" }} />
+      <Stack.Screen name="calendar" options={{ headerShown: false, presentation: "card" }} />
     </Stack>
+  );
+}
+
+function ThemedRootLayoutNav() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NotificationManager />
+      <RootLayoutNav />
+    </GestureHandlerRootView>
   );
 }
 
@@ -35,10 +51,9 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <NotificationManager />
-        <RootLayoutNav />
-      </GestureHandlerRootView>
+      <ThemeProvider>
+        <ThemedRootLayoutNav />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
