@@ -84,6 +84,26 @@ export default function SettingsScreen() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
 
+  const handleNotificationToggle = (key: keyof typeof notifications) => {
+    updateNotificationSettings({ [key]: !notifications[key] });
+  };
+
+  const showAbout = () => {
+    Alert.alert(
+      'À propos',
+      'Bible Chat - Votre compagnon spirituel\nVersion 1.0.0\n\nDéveloppé avec amour pour enrichir votre parcours spirituel.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const showHelp = () => {
+    Alert.alert(
+      'Aide',
+      'Besoin d\'aide ?\n\n• Explorez les différentes sections\n• Utilisez le chat IA pour vos questions\n• Consultez votre journal spirituel\n• Rejoignez la communauté',
+      [{ text: 'OK' }]
+    );
+  };
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -158,26 +178,6 @@ export default function SettingsScreen() {
       color: colors.textSecondary,
     },
   });
-
-  const handleNotificationToggle = (key: keyof typeof notifications) => {
-    updateNotificationSettings({ [key]: !notifications[key] });
-  };
-
-  const showAbout = () => {
-    Alert.alert(
-      'À propos',
-      'Bible Chat - Votre compagnon spirituel\nVersion 1.0.0\n\nDéveloppé avec amour pour enrichir votre parcours spirituel.',
-      [{ text: 'OK' }]
-    );
-  };
-
-  const showHelp = () => {
-    Alert.alert(
-      'Aide',
-      'Besoin d\'aide ?\n\n• Explorez les différentes sections\n• Utilisez le chat IA pour vos questions\n• Consultez votre journal spirituel\n• Rejoignez la communauté',
-      [{ text: 'OK' }]
-    );
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

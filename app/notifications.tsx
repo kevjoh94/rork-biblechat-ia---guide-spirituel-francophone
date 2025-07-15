@@ -52,7 +52,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         {React.cloneElement(icon as React.ReactElement, {
           size: 20,
           color: colors.primary,
-        })}
+        } as any)}
       </View>
       <View style={styles.notificationContent}>
         <Text style={[styles.notificationTitle, { opacity: enabled ? 1 : 0.6 }]}>
@@ -276,153 +276,153 @@ export default function NotificationsScreen() {
   );
 }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    header: {
-      padding: spacing.lg,
-      alignItems: 'center',
-      marginBottom: spacing.md,
-    },
-    headerIcon: {
-      width: 60,
-      height: 60,
-      borderRadius: 30,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: spacing.md,
-      backgroundColor: colors.primaryLight,
-    },
-    headerTitle: {
-      fontSize: typography.fontSizes.xl,
-      fontWeight: typography.fontWeights.bold,
-      textAlign: 'center',
-      marginBottom: spacing.xs,
-      color: colors.text,
-    },
-    headerSubtitle: {
-      fontSize: typography.fontSizes.md,
-      textAlign: 'center',
-      lineHeight: typography.lineHeights.md,
-      color: colors.textSecondary,
-    },
-    section: {
-      marginBottom: spacing.xl,
-    },
-    sectionTitle: {
-      fontSize: typography.fontSizes.lg,
-      fontWeight: typography.fontWeights.semibold,
-      marginBottom: spacing.md,
-      paddingHorizontal: spacing.lg,
-      color: colors.text,
-    },
-    sectionContent: {
-      marginHorizontal: spacing.lg,
-      borderRadius: 12,
-      overflow: 'hidden',
-      backgroundColor: colors.card,
-    },
-    masterToggle: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: spacing.lg,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      backgroundColor: colors.card,
-    },
-    masterToggleLeft: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flex: 1,
-    },
-    masterToggleContent: {
-      marginLeft: spacing.md,
-      flex: 1,
-    },
-    masterToggleTitle: {
-      fontSize: typography.fontSizes.md,
-      fontWeight: typography.fontWeights.semibold,
-      marginBottom: 2,
-      color: colors.text,
-    },
-    masterToggleSubtitle: {
-      fontSize: typography.fontSizes.sm,
-      color: colors.textSecondary,
-    },
-    notificationItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: spacing.lg,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      backgroundColor: colors.card,
-    },
-    notificationLeft: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flex: 1,
-    },
-    iconContainer: {
-      width: 40,
-      height: 40,
-      borderRadius: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: spacing.md,
-      backgroundColor: colors.primaryLight,
-    },
-    notificationContent: {
-      flex: 1,
-    },
-    notificationTitle: {
-      fontSize: typography.fontSizes.md,
-      fontWeight: typography.fontWeights.medium,
-      marginBottom: 2,
-      color: colors.text,
-    },
-    notificationSubtitle: {
-      fontSize: typography.fontSizes.sm,
-      marginBottom: 2,
-      color: colors.textSecondary,
-    },
-    notificationTime: {
-      fontSize: typography.fontSizes.xs,
-      fontWeight: typography.fontWeights.medium,
-      color: colors.primary,
-    },
-    optionItem: {
-      padding: spacing.lg,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      backgroundColor: colors.card,
-    },
-    optionLeft: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    optionTitle: {
-      fontSize: typography.fontSizes.md,
-      fontWeight: typography.fontWeights.medium,
-      marginBottom: 2,
-      color: colors.text,
-    },
-    optionSubtitle: {
-      fontSize: typography.fontSizes.sm,
-      color: colors.textSecondary,
-    },
-    footer: {
-      padding: spacing.xl,
-      alignItems: 'center',
-    },
-    footerText: {
-      fontSize: typography.fontSizes.sm,
-      textAlign: 'center',
-      color: colors.textSecondary,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    padding: spacing.lg,
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  headerIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+    backgroundColor: colors.primaryLight,
+  },
+  headerTitle: {
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.bold,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+    color: colors.text,
+  },
+  headerSubtitle: {
+    fontSize: typography.fontSizes.md,
+    textAlign: 'center',
+    lineHeight: typography.lineHeights.md,
+    color: colors.textSecondary,
+  },
+  section: {
+    marginBottom: spacing.xl,
+  },
+  sectionTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.lg,
+    color: colors.text,
+  },
+  sectionContent: {
+    marginHorizontal: spacing.lg,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: colors.card,
+  },
+  masterToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.card,
+  },
+  masterToggleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  masterToggleContent: {
+    marginLeft: spacing.md,
+    flex: 1,
+  },
+  masterToggleTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
+    marginBottom: 2,
+    color: colors.text,
+  },
+  masterToggleSubtitle: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+  },
+  notificationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.card,
+  },
+  notificationLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+    backgroundColor: colors.primaryLight,
+  },
+  notificationContent: {
+    flex: 1,
+  },
+  notificationTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.medium,
+    marginBottom: 2,
+    color: colors.text,
+  },
+  notificationSubtitle: {
+    fontSize: typography.fontSizes.sm,
+    marginBottom: 2,
+    color: colors.textSecondary,
+  },
+  notificationTime: {
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.medium,
+    color: colors.primary,
+  },
+  optionItem: {
+    padding: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.card,
+  },
+  optionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  optionTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.medium,
+    marginBottom: 2,
+    color: colors.text,
+  },
+  optionSubtitle: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+  },
+  footer: {
+    padding: spacing.xl,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: typography.fontSizes.sm,
+    textAlign: 'center',
+    color: colors.textSecondary,
+  },
+});
