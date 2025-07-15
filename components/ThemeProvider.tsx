@@ -3,8 +3,10 @@ import { useColorScheme } from 'react-native';
 import { useSpiritualStore } from '@/store/spiritual-store';
 import { lightColors, darkColors } from '@/constants/colors';
 
+type ColorScheme = typeof lightColors;
+
 interface ThemeContextType {
-  colors: typeof lightColors | typeof darkColors;
+  colors: ColorScheme;
   isDarkMode: boolean;
   toggleTheme: () => void;
 }

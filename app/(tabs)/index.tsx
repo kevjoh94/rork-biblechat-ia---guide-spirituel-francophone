@@ -2,6 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MessageCircle, Sparkles, Star, Heart, Calendar, BookOpen, Target } from "lucide-react-native";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { BiblicalContent } from "@/types/spiritual";
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import { BiblicalContentCard } from "@/components/BiblicalContentCard";
@@ -183,7 +184,7 @@ export default function HomeScreen() {
         <View style={styles.contentContainer}>
           {activeTab === "featured" ? (
             featuredContent.length > 0 ? (
-              featuredContent.map((item: any) => (
+              featuredContent.map((item: BiblicalContent) => (
                 <BiblicalContentCard
                   key={item.id}
                   content={item}
@@ -196,7 +197,7 @@ export default function HomeScreen() {
               </View>
             )
           ) : favoriteContent.length > 0 ? (
-            favoriteContent.map((item: any) => (
+            favoriteContent.map((item: BiblicalContent) => (
               <BiblicalContentCard
                 key={item.id}
                 content={item}

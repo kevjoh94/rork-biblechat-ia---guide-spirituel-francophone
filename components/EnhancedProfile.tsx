@@ -74,18 +74,18 @@ export const EnhancedProfile: React.FC = () => {
   
   // Calculate derived values with useMemo to prevent recalculation
   const derivedValues = useMemo(() => {
-    const chatHistoryLength = chatHistory.length;
-    const favoritesCount = favorites.length;
-    const journalEntriesCount = journalEntries.length;
-    const meditationSessionsCount = meditationSessions.length;
-    const readingPlansCount = readingPlans.length;
+    const chatHistoryLength = chatHistory?.length || 0;
+    const favoritesCount = favorites?.length || 0;
+    const journalEntriesCount = journalEntries?.length || 0;
+    const meditationSessionsCount = meditationSessions?.length || 0;
+    const readingPlansCount = readingPlans?.length || 0;
     
     // Calculate level based on experience
-    const level = Math.floor(stats.experience / 100) + 1;
-    const levelProgress = (stats.experience % 100) / 100;
+    const level = Math.floor((stats?.experience || 0) / 100) + 1;
+    const levelProgress = ((stats?.experience || 0) % 100) / 100;
     
     // Calculate total activity using stable values
-    const totalActivity = stats.totalReadings + chatHistoryLength + journalEntriesCount + meditationSessionsCount;
+    const totalActivity = (stats?.totalReadings || 0) + chatHistoryLength + journalEntriesCount + meditationSessionsCount;
     
     return {
       chatHistoryLength,
@@ -97,7 +97,7 @@ export const EnhancedProfile: React.FC = () => {
       levelProgress,
       totalActivity
     };
-  }, [stats, chatHistory.length, favorites.length, journalEntries.length, meditationSessions.length, readingPlans.length]);
+  }, [stats?.experience, stats?.totalReadings, chatHistory?.length, favorites?.length, journalEntries?.length, meditationSessions?.length, readingPlans?.length]);
   
   const {
     chatHistoryLength,
@@ -458,18 +458,18 @@ export const EnhancedProfile: React.FC = () => {
 
       {/* Quick Stats */}
       <View style={styles.statsGrid}>
-        {renderStatCard('Lectures', stats.totalReadings, BookOpen, colors.secondary)}
+        {renderStatCard('Lectures', stats?.totalReadings || 0, BookOpen, colors.secondary)}
         {renderStatCard('Méditations', meditationSessionsCount, Target, colors.peace)}
         {renderStatCard('Journal', journalEntriesCount, Edit3, colors.gratitude)}
-        {renderStatCard('Série', stats.currentStreak, Zap, colors.love)}
+        {renderStatCard('Série', stats?.currentStreak || 0, Zap, colors.love)}
       </View>
 
       {/* Recent Achievements */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Réalisations récentes</Text>
         <View style={styles.achievementsContainer}>
-          {achievements.slice(0, 3).map(renderAchievement)}
-          {achievements.length === 0 && (
+          {(achievements || []).slice(0, 3).map(renderAchievement)}
+          {(!achievements || achievements.length === 0) && (
             <Text style={styles.emptyText}>
               Continuez à utiliser l'app pour débloquer des réalisations !
             </Text>
@@ -544,7 +544,7 @@ export const EnhancedProfile: React.FC = () => {
                 <Text style={styles.settingLabel}>Notifications quotidiennes</Text>
               </View>
               <Switch
-                value={notifications.daily}
+                value={notifications?.daily || false}
                 onValueChange={(value) => updateNotificationSettings({ daily: value })}
                 trackColor={{ false: colors.border, true: colors.primary }}
               />

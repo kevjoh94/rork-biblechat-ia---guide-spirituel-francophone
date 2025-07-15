@@ -146,25 +146,35 @@ export const useSpiritualStore = create<SpiritualState>()(
         return content.filter((c) => favorites.includes(c.id));
       },
       getDailyVerse: () => {
+        const state = get();
         const today = new Date().toDateString();
-        const { dailyVerse } = get();
         
-        if (!dailyVerse || dailyVerse.reference !== today) {
-          const dayIndex = new Date().getDay();
-          const selectedVerse = dailyVerses[dayIndex % dailyVerses.length];
-          return selectedVerse;
+        // Return cached verse if it exists and is for today
+        if (state.dailyVerse && state.dailyVerse.reference === today) {
+          return state.dailyVerse;
         }
         
-        return dailyVerse;
+        // Generate new verse for today
+        const dayIndex = new Date().getDay();
+        const selectedVerse = {
+          ...dailyVerses[dayIndex % dailyVerses.length],
+          reference: today // Store today's date as reference
+        };
+        
+        return selectedVerse;
       },
       
       initializeDailyVerse: () => {
+        const state = get();
         const today = new Date().toDateString();
-        const { dailyVerse } = get();
         
-        if (!dailyVerse || dailyVerse.reference !== today) {
+        // Only update if we don't have a verse for today
+        if (!state.dailyVerse || state.dailyVerse.reference !== today) {
           const dayIndex = new Date().getDay();
-          const selectedVerse = dailyVerses[dayIndex % dailyVerses.length];
+          const selectedVerse = {
+            ...dailyVerses[dayIndex % dailyVerses.length],
+            reference: today // Store today's date as reference
+          };
           set({ dailyVerse: selectedVerse });
         }
       },

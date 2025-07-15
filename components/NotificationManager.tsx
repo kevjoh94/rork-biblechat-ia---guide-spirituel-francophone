@@ -9,8 +9,6 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
   }),
 });
 
@@ -83,7 +81,7 @@ export const NotificationManager: React.FC = () => {
           hour,
           minute,
           repeats: true,
-        },
+        } as any,
       });
     }
 
@@ -99,7 +97,7 @@ export const NotificationManager: React.FC = () => {
           hour: hour + 1,
           minute,
           repeats: true,
-        },
+        } as any,
       });
     }
 
@@ -115,7 +113,7 @@ export const NotificationManager: React.FC = () => {
           hour: hour + 2,
           minute,
           repeats: true,
-        },
+        } as any,
       });
     }
 
@@ -131,7 +129,7 @@ export const NotificationManager: React.FC = () => {
           hour: hour + 3,
           minute,
           repeats: true,
-        },
+        } as any,
       });
     }
   };
