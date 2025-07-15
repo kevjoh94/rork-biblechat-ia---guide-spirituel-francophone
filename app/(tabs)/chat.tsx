@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Send, MessageCircle, Sparkles } from "lucide-react-native";
+import { Send, MessageCircle, Sparkles, Mic, MicOff, Volume2, VolumeX } from "lucide-react-native";
 import React, { useState, useRef } from "react";
 import { 
   FlatList, 
@@ -9,8 +9,11 @@ import {
   Text, 
   TextInput, 
   TouchableOpacity, 
-  View 
+  View,
+  Alert
 } from "react-native";
+import { Audio } from "expo-av";
+import * as Speech from "expo-speech";
 
 import { ChatBubble } from "@/components/ChatBubble";
 import { colors } from "@/constants/colors";
@@ -41,6 +44,9 @@ Quand un utilisateur pose une question, tu dois toujours répondre en suivant ce
 export default function ChatScreen() {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const flatListRef = useRef<FlatList>(null);
   
   const chatHistory = useSpiritualStore((state) => state.chatHistory);
@@ -111,11 +117,218 @@ export default function ChatScreen() {
     }
   };
 
+  const startRecording = async () => {
+    try {
+      if (Platform.OS === 'web') {
+        // Web implementation using MediaRecorder
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks: BlobPart[] = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          chunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+          await transcribeAudio(audioBlob);
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+
+        // Store the mediaRecorder for stopping later
+        (window as any).currentMediaRecorder = mediaRecorder;
+      } else {
+        // Mobile implementation using expo-av
+        const { status } = await Audio.requestPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission requise', 'L\'accès au microphone est nécessaire pour l\'enregistrement vocal.');
+          return;
+        }
+
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+
+        const { recording: newRecording } = await Audio.Recording.createAsync({
+          android: {
+            extension: '.m4a',
+            outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
+            audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+          },
+          ios: {
+            extension: '.wav',
+            outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_LINEARPCM,
+            audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+          },
+        });
+
+        setRecording(newRecording);
+        setIsRecording(true);
+      }
+    } catch (error) {
+      console.error('Erreur lors du démarrage de l\'enregistrement:', error);
+      Alert.alert('Erreur', 'Impossible de démarrer l\'enregistrement.');
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      if (Platform.OS === 'web') {
+        const mediaRecorder = (window as any).currentMediaRecorder;
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+        }
+      } else {
+        if (!recording) return;
+
+        await recording.stopAndUnloadAsync();
+        await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
+
+        const uri = recording.getURI();
+        if (uri) {
+          await transcribeAudioFromUri(uri);
+        }
+
+        setRecording(null);
+      }
+      setIsRecording(false);
+    } catch (error) {
+      console.error('Erreur lors de l\'arrêt de l\'enregistrement:', error);
+      setIsRecording(false);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.wav');
+
+      const response = await fetch('https://toolkit.rork.com/stt/transcribe/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur de transcription');
+      }
+
+      const data = await response.json();
+      if (data.text) {
+        setInputText(data.text);
+      }
+    } catch (error) {
+      console.error('Erreur de transcription:', error);
+      Alert.alert('Erreur', 'Impossible de transcrire l\'audio.');
+    }
+  };
+
+  const transcribeAudioFromUri = async (uri: string) => {
+    try {
+      const uriParts = uri.split('.');
+      const fileType = uriParts[uriParts.length - 1];
+
+      const audioFile = {
+        uri,
+        name: "recording." + fileType,
+        type: "audio/" + fileType
+      };
+
+      const formData = new FormData();
+      formData.append('audio', audioFile as any);
+
+      const response = await fetch('https://toolkit.rork.com/stt/transcribe/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur de transcription');
+      }
+
+      const data = await response.json();
+      if (data.text) {
+        setInputText(data.text);
+      }
+    } catch (error) {
+      console.error('Erreur de transcription:', error);
+      Alert.alert('Erreur', 'Impossible de transcrire l\'audio.');
+    }
+  };
+
+  const speakText = async (text: string) => {
+    try {
+      if (Platform.OS === 'web') {
+        // Web Speech API
+        if ('speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'fr-FR';
+          utterance.rate = 0.9;
+          utterance.pitch = 1;
+          
+          utterance.onstart = () => setIsSpeaking(true);
+          utterance.onend = () => setIsSpeaking(false);
+          utterance.onerror = () => setIsSpeaking(false);
+          
+          speechSynthesis.speak(utterance);
+        }
+      } else {
+        // Expo Speech
+        setIsSpeaking(true);
+        await Speech.speak(text, {
+          language: 'fr-FR',
+          rate: 0.9,
+          pitch: 1,
+          onDone: () => setIsSpeaking(false),
+          onError: () => setIsSpeaking(false),
+        });
+      }
+    } catch (error) {
+      console.error('Erreur de synthèse vocale:', error);
+      setIsSpeaking(false);
+    }
+  };
+
+  const stopSpeaking = () => {
+    if (Platform.OS === 'web') {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+      }
+    } else {
+      Speech.stop();
+    }
+    setIsSpeaking(false);
+  };
+
+  const handleVoiceToggle = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const handleSpeakLastMessage = () => {
+    const lastAiMessage = [...chatHistory].reverse().find(msg => !msg.isUser);
+    if (lastAiMessage) {
+      if (isSpeaking) {
+        stopSpeaking();
+      } else {
+        speakText(lastAiMessage.text);
+      }
+    }
+  };
+
   const renderMessage = ({ item }: { item: ChatMessage }) => (
     <ChatBubble
       message={item.text}
       isUser={item.isUser}
       timestamp={item.timestamp}
+      onSpeak={!item.isUser ? () => speakText(item.text) : undefined}
+      isSpeaking={isSpeaking}
     />
   );
 
@@ -154,10 +367,22 @@ export default function ChatScreen() {
           <View style={styles.headerIcon}>
             <Sparkles size={20} color={colors.primary} />
           </View>
-          <View>
+          <View style={styles.headerText}>
             <Text style={styles.title}>BibleChat IA</Text>
             <Text style={styles.subtitle}>Ton guide spirituel personnel</Text>
           </View>
+          {chatHistory.some(msg => !msg.isUser) && (
+            <TouchableOpacity
+              style={styles.speakButton}
+              onPress={handleSpeakLastMessage}
+            >
+              {isSpeaking ? (
+                <VolumeX size={20} color={colors.primary} />
+              ) : (
+                <Volume2 size={20} color={colors.primary} />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </LinearGradient>
 
@@ -191,6 +416,17 @@ export default function ChatScreen() {
 
       <View style={styles.inputContainer}>
         <View style={styles.inputWrapper}>
+          <TouchableOpacity
+            style={[styles.voiceButton, isRecording && styles.voiceButtonActive]}
+            onPress={handleVoiceToggle}
+          >
+            {isRecording ? (
+              <MicOff size={18} color={colors.white} />
+            ) : (
+              <Mic size={18} color={colors.primary} />
+            )}
+          </TouchableOpacity>
+          
           <TextInput
             style={styles.textInput}
             value={inputText}
@@ -200,6 +436,7 @@ export default function ChatScreen() {
             multiline
             maxLength={500}
           />
+          
           <TouchableOpacity
             style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
             onPress={handleSend}
@@ -213,6 +450,13 @@ export default function ChatScreen() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+        
+        {isRecording && (
+          <View style={styles.recordingIndicator}>
+            <View style={styles.recordingDot} />
+            <Text style={styles.recordingText}>Enregistrement en cours...</Text>
+          </View>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -243,6 +487,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: spacing.md,
   },
+  headerText: {
+    flex: 1,
+  },
   title: {
     fontSize: typography.fontSizes.xl,
     fontWeight: "700",
@@ -252,6 +499,14 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: typography.fontSizes.md,
     color: colors.textSecondary,
+  },
+  speakButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary + "15",
+    justifyContent: "center",
+    alignItems: "center",
   },
   messagesList: {
     flex: 1,
@@ -362,6 +617,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
+  voiceButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary + "15",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.sm,
+  },
+  voiceButtonActive: {
+    backgroundColor: colors.primary,
+  },
   textInput: {
     flex: 1,
     maxHeight: 100,
@@ -382,5 +649,24 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     opacity: 0.5,
+  },
+  recordingIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  recordingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.error,
+    marginRight: spacing.sm,
+  },
+  recordingText: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.error,
+    fontWeight: "500",
   },
 });
