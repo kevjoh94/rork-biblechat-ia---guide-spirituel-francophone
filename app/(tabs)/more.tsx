@@ -82,7 +82,7 @@ export default function MoreScreen() {
     {
       icon: <Settings />,
       title: 'Paramètres',
-      subtitle: 'Configuration de l\\'app',
+      subtitle: 'Configuration de l\'app',
       onPress: () => {
         // TODO: Navigate to settings
         console.log('Navigate to settings');
