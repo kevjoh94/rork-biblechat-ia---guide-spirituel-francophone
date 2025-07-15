@@ -45,68 +45,8 @@ const SettingItem: React.FC<SettingItemProps> = ({
   rightElement,
   showChevron = true,
   colors,
-}) => (
-  <TouchableOpacity
-    style={styles.settingItem}
-    onPress={onPress}
-    disabled={!onPress}
-  >
-    <View style={styles.settingLeft}>
-      <View style={styles.iconContainer}>
-        {React.cloneElement(icon as React.ReactElement, {
-          size: 20,
-          color: colors.primary,
-        } as any)}
-      </View>
-      <View style={styles.settingContent}>
-        <Text style={styles.settingTitle}>{title}</Text>
-        {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
-      </View>
-    </View>
-    <View style={styles.settingRight}>
-      {rightElement}
-      {showChevron && onPress && (
-        <ChevronRight size={16} color={colors.text} />
-      )}
-    </View>
-  </TouchableOpacity>
-);
-
-export default function SettingsScreen() {
-  const { colors } = useTheme();
-  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
-  const notifications = useSpiritualStore((state) => state.notifications);
-  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
-  const updateNotificationSettings = useSpiritualStore(
-    (state) => state.updateNotificationSettings
-  );
-
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [vibrationEnabled, setVibrationEnabled] = useState(true);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    section: {
-      marginBottom: spacing.xl,
-    },
-    sectionTitle: {
-      fontSize: typography.fontSizes.lg,
-      fontWeight: typography.fontWeights.semibold,
-      marginBottom: spacing.md,
-      paddingHorizontal: spacing.lg,
-      color: colors.text,
-    },
-    sectionContent: {
-      marginHorizontal: spacing.lg,
-      borderRadius: 12,
-      overflow: 'hidden',
-      backgroundColor: colors.card,
-    },
+}) => {
+  const itemStyles = StyleSheet.create({
     settingItem: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -147,6 +87,71 @@ export default function SettingsScreen() {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.sm,
+    },
+  });
+
+  return (
+    <TouchableOpacity
+      style={itemStyles.settingItem}
+      onPress={onPress}
+      disabled={!onPress}
+    >
+      <View style={itemStyles.settingLeft}>
+        <View style={itemStyles.iconContainer}>
+          {React.cloneElement(icon as React.ReactElement, {
+            size: 20,
+            color: colors.primary,
+          } as any)}
+        </View>
+        <View style={itemStyles.settingContent}>
+          <Text style={itemStyles.settingTitle}>{title}</Text>
+          {subtitle && <Text style={itemStyles.settingSubtitle}>{subtitle}</Text>}
+        </View>
+      </View>
+      <View style={itemStyles.settingRight}>
+        {rightElement}
+        {showChevron && onPress && (
+          <ChevronRight size={16} color={colors.text} />
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export default function SettingsScreen() {
+  const { colors } = useTheme();
+  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
+  const notifications = useSpiritualStore((state) => state.notifications);
+  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
+  const updateNotificationSettings = useSpiritualStore(
+    (state) => state.updateNotificationSettings
+  );
+
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [vibrationEnabled, setVibrationEnabled] = useState(true);
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    section: {
+      marginBottom: spacing.xl,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.md,
+      paddingHorizontal: spacing.lg,
+      color: colors.text,
+    },
+    sectionContent: {
+      marginHorizontal: spacing.lg,
+      borderRadius: 12,
+      overflow: 'hidden',
+      backgroundColor: colors.card,
     },
     footer: {
       padding: spacing.xl,

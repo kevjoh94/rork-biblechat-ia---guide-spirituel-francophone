@@ -45,33 +45,80 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   onToggle,
   time,
   colors,
-}) => (
-  <View style={styles.notificationItem}>
-    <View style={styles.notificationLeft}>
-      <View style={[styles.iconContainer, { opacity: enabled ? 1 : 0.5 }]}>
-        {React.cloneElement(icon as React.ReactElement, {
-          size: 20,
-          color: colors.primary,
-        } as any)}
+}) => {
+  const itemStyles = StyleSheet.create({
+    notificationItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    notificationLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    iconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+      backgroundColor: colors.primaryLight,
+    },
+    notificationContent: {
+      flex: 1,
+    },
+    notificationTitle: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.medium,
+      marginBottom: 2,
+      color: colors.text,
+    },
+    notificationSubtitle: {
+      fontSize: typography.fontSizes.sm,
+      marginBottom: 2,
+      color: colors.textSecondary,
+    },
+    notificationTime: {
+      fontSize: typography.fontSizes.xs,
+      fontWeight: typography.fontWeights.medium,
+      color: colors.primary,
+    },
+  });
+
+  return (
+    <View style={itemStyles.notificationItem}>
+      <View style={itemStyles.notificationLeft}>
+        <View style={[itemStyles.iconContainer, { opacity: enabled ? 1 : 0.5 }]}>
+          {React.cloneElement(icon as React.ReactElement, {
+            size: 20,
+            color: colors.primary,
+          } as any)}
+        </View>
+        <View style={itemStyles.notificationContent}>
+          <Text style={[itemStyles.notificationTitle, { opacity: enabled ? 1 : 0.6 }]}>
+            {title}
+          </Text>
+          <Text style={itemStyles.notificationSubtitle}>{subtitle}</Text>
+          {time && enabled && (
+            <Text style={itemStyles.notificationTime}>Programmé à {time}</Text>
+          )}
+        </View>
       </View>
-      <View style={styles.notificationContent}>
-        <Text style={[styles.notificationTitle, { opacity: enabled ? 1 : 0.6 }]}>
-          {title}
-        </Text>
-        <Text style={styles.notificationSubtitle}>{subtitle}</Text>
-        {time && enabled && (
-          <Text style={styles.notificationTime}>Programmé à {time}</Text>
-        )}
-      </View>
+      <Switch
+        value={enabled}
+        onValueChange={onToggle}
+        trackColor={{ false: colors.borderLight, true: colors.primary }}
+        thumbColor={colors.white}
+      />
     </View>
-    <Switch
-      value={enabled}
-      onValueChange={onToggle}
-      trackColor={{ false: colors.borderLight, true: colors.primary }}
-      thumbColor={colors.white}
-    />
-  </View>
-);
+  );
+};
 
 export default function NotificationsScreen() {
   const { colors } = useTheme();
@@ -226,6 +273,15 @@ export default function NotificationsScreen() {
     optionSubtitle: {
       fontSize: typography.fontSizes.sm,
       color: colors.textSecondary,
+    },
+    iconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+      backgroundColor: colors.primaryLight,
     },
     footer: {
       padding: spacing.xl,
