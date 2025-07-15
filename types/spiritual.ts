@@ -83,11 +83,11 @@ export interface MeditationSession {
 }
 
 export interface NotificationSettings {
+  push: boolean;
   dailyVerse: boolean;
   readingReminder: boolean;
   prayerReminder: boolean;
   meditationReminder: boolean;
-  daily: boolean;
   time: string; // HH:MM format
 }
 

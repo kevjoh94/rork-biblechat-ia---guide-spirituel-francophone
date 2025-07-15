@@ -86,11 +86,11 @@ export const useSpiritualStore = create<SpiritualState>()(
       journalEntries: [],
       meditationSessions: [],
       notifications: {
+        push: true,
         dailyVerse: true,
         readingReminder: true,
         prayerReminder: true,
         meditationReminder: false,
-        daily: true,
         time: '08:00',
       },
       achievements: [],

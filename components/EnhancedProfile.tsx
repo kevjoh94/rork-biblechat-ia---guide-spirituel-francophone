@@ -40,14 +40,20 @@ export const EnhancedProfile: React.FC = () => {
   const [userName, setUserName] = useState('Utilisateur Spirituel');
   const [userBio, setUserBio] = useState('Chercheur de vérité');
   
+  // Use selectors to prevent unnecessary re-renders
   const stats = useSpiritualStore((state) => state.stats);
-  const getFavorites = useSpiritualStore((state) => state.getFavorites);
   const chatHistory = useSpiritualStore((state) => state.chatHistory);
   const achievements = useSpiritualStore((state) => state.achievements);
   const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
   const notifications = useSpiritualStore((state) => state.notifications);
   const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
   const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);
+  
+  // Memoize favorites to prevent recalculation
+  const favorites = useSpiritualStore((state) => {
+    const { content, favorites: favoriteIds } = state;
+    return content.filter((c) => favoriteIds.includes(c.id));
+  });
   const journalEntries = useSpiritualStore((state) => state.journalEntries);
   const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
   const readingPlans = useSpiritualStore((state) => state.readingPlans);

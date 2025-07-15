@@ -11,15 +11,22 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
+          backgroundColor: colors.card,
           borderTopWidth: 1,
           borderTopColor: colors.border,
           elevation: 0,
           shadowOpacity: 0,
-          height: 60,
-          paddingBottom: 8,
+          height: 65,
+          paddingBottom: 10,
           paddingTop: 8,
         },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "500",
+          marginTop: 4,
+        },
         headerStyle: {
+          backgroundColor: colors.background,
           elevation: 0,
           shadowOpacity: 0,
           borderBottomWidth: 1,
@@ -27,6 +34,7 @@ export default function TabLayout() {
         },
         headerTitleStyle: {
           fontWeight: "600",
+          color: colors.text,
         },
       }}
     >
@@ -58,15 +66,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <MoreHorizontal color={color} size={22} />,
         }}
       />
+      
+      {/* Hidden tabs - accessible via navigation but not shown in tab bar */}
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profil",
-          tabBarIcon: ({ color }) => <User color={color} size={22} />,
+          href: null,
         }}
       />
-      
-      {/* Hidden tabs - accessible via navigation but not shown in tab bar */}
       <Tabs.Screen
         name="meditation"
         options={{

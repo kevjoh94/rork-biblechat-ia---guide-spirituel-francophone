@@ -8,6 +8,7 @@ import {
   Calendar, 
   Sparkles, 
   Users, 
+  User,
   Settings,
   Bell,
   Download,
@@ -41,6 +42,13 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, title, subtitle, onPress, col
 
 export default function MoreScreen() {
   const spiritualFeatures = [
+    {
+      icon: <User />,
+      title: 'Mon Profil',
+      subtitle: 'Statistiques et réalisations',
+      onPress: () => router.push('/(tabs)/profile'),
+      color: colors.primary
+    },
     {
       icon: <Heart />,
       title: 'Méditation',
@@ -83,20 +91,14 @@ export default function MoreScreen() {
       icon: <Settings />,
       title: 'Paramètres',
       subtitle: 'Configuration de l\'app',
-      onPress: () => {
-        // TODO: Navigate to settings
-        console.log('Navigate to settings');
-      },
+      onPress: () => router.push('/settings'),
       color: colors.textSecondary
     },
     {
       icon: <Bell />,
       title: 'Notifications',
       subtitle: 'Rappels et alertes',
-      onPress: () => {
-        // TODO: Navigate to notifications settings
-        console.log('Navigate to notifications');
-      },
+      onPress: () => router.push('/notifications'),
       color: colors.error
     },
     {
