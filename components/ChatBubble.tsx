@@ -9,19 +9,26 @@ import { typography } from "@/constants/typography";
 interface ChatBubbleProps {
   message: string;
   isUser: boolean;
-  timestamp: Date;
+  timestamp: Date | string;
 }
 
 export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isUser, timestamp }) => {
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  const formatTime = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) {
+      return "Maintenant";
+    }
+    
+    return dateObj.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   };
 
   return (
     <View style={[styles.container, isUser ? styles.userContainer : styles.aiContainer]}>
       {isUser ? (
         <LinearGradient
-          colors={colors.primaryGradient}
+          colors={[colors.primary, colors.secondary]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.bubble, styles.userBubble]}
