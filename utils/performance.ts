@@ -1,3 +1,4 @@
+import React from 'react';
 import { InteractionManager } from 'react-native';
 
 export class PerformanceMonitor {
@@ -86,8 +87,8 @@ export const createPerformanceHOC = <P extends object>(
 
 // Memory usage monitoring (development only)
 export const logMemoryUsage = (label: string = 'Memory Usage'): void => {
-  if (__DEV__ && global.performance && global.performance.memory) {
-    const memory = (global.performance as any).memory;
+  if (__DEV__ && typeof window !== 'undefined' && (window as any).performance?.memory) {
+    const memory = (window as any).performance.memory;
     console.log(`📊 ${label}:`, {
       used: `${Math.round(memory.usedJSHeapSize / 1024 / 1024)} MB`,
       total: `${Math.round(memory.totalJSHeapSize / 1024 / 1024)} MB`,

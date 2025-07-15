@@ -4,7 +4,7 @@ import { useSpiritualStore } from '@/store/spiritual-store';
 import { lightColors, darkColors } from '@/constants/colors';
 
 interface ThemeContextType {
-  colors: typeof lightColors;
+  colors: typeof lightColors | typeof darkColors;
   isDarkMode: boolean;
   toggleTheme: () => void;
 }
