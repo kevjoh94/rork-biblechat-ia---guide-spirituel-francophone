@@ -19,7 +19,7 @@ export default function DailyPlanScreen() {
           },
           headerTintColor: colors.text,
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 16 }}>
+            <TouchableOpacity onPress={() => router.push('/(tabs)')} style={{ marginLeft: 16 }}>
               <ArrowLeft size={24} color={colors.text} />
             </TouchableOpacity>
           ),
