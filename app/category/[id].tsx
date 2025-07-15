@@ -1,10 +1,11 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BiblicalContentCard } from "@/components/BiblicalContentCard";
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { spiritualCategories } from "@/mocks/spiritual-categories";
@@ -13,6 +14,8 @@ import { useSpiritualStore } from "@/store/spiritual-store";
 export default function CategoryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const getContentByCategory = useSpiritualStore((state) => state.getContentByCategory);
 
   const category = spiritualCategories.find((c) => c.id === id);
@@ -20,21 +23,35 @@ export default function CategoryScreen() {
 
   if (!category) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Catégorie non trouvée</Text>
-      </View>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.error }]}>Catégorie non trouvée</Text>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color={colors.text} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+        <TouchableOpacity 
+          onPress={() => router.back()} 
+          style={[
+            styles.backButton,
+            {
+              backgroundColor: colors.card,
+              shadowColor: colors.text,
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.1,
+              shadowRadius: 2,
+              elevation: 2,
+            }
+          ]}
+          activeOpacity={0.7}
+        >
+          <ArrowLeft size={20} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>{category.title}</Text>
-          <Text style={styles.description}>{category.description}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{category.title}</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>{category.description}</Text>
         </View>
       </View>
 
@@ -49,28 +66,31 @@ export default function CategoryScreen() {
               />
             ))
           ) : (
-            <Text style={styles.emptyText}>Aucun contenu disponible dans cette catégorie</Text>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Aucun contenu disponible dans cette catégorie</Text>
           )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     padding: spacing.md,
-    paddingTop: spacing.lg,
-    backgroundColor: colors.background,
+    paddingTop: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: spacing.md,
+    marginLeft: Platform.OS === 'ios' ? -4 : 0,
   },
   headerContent: {
     marginBottom: spacing.md,
@@ -78,12 +98,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: typography.fontSizes.xxl,
     fontWeight: typography.fontWeights.bold,
-    color: colors.text,
     marginBottom: spacing.xs,
   },
   description: {
     fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
   },
   scrollContainer: {
     flex: 1,
@@ -93,13 +111,11 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
     textAlign: "center",
     marginVertical: spacing.lg,
   },
   errorText: {
     fontSize: typography.fontSizes.lg,
-    color: colors.error,
     textAlign: "center",
     marginTop: spacing.xl,
   },

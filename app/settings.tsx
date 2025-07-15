@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
@@ -193,13 +194,22 @@ export default function SettingsScreen() {
           title: 'Paramètres',
           headerStyle: {
             backgroundColor: colors.background,
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
           },
           headerTitleStyle: {
             color: colors.text,
             fontWeight: '600',
+            fontSize: 18,
           },
           headerTintColor: colors.primary,
-          headerBackTitle: 'Retour',
+          headerBackTitle: '',
+          headerBackTitleVisible: false,
+          headerLeftContainerStyle: {
+            paddingLeft: Platform.OS === 'ios' ? 8 : 16,
+          },
         }}
       />
       
