@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -18,7 +19,9 @@ import {
   Heart,
   BookOpen,
   Target,
+  ArrowLeft,
 } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/components/ThemeProvider';
 import { typography } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
@@ -42,6 +45,7 @@ interface CalendarDay {
 
 export const SpiritualCalendar: React.FC = () => {
   const { colors } = useTheme();
+  const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
@@ -220,10 +224,32 @@ export const SpiritualCalendar: React.FC = () => {
     );
   };
   
+  const handleGoBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/');
+    }
+  };
+  
   const calendarDays = generateCalendarDays();
   
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+      {/* Back Button - Visible on mobile */}
+      {Platform.OS !== 'web' && (
+        <View style={styles.backButtonContainer}>
+          <TouchableOpacity 
+            onPress={handleGoBack}
+            style={[styles.backButton, { backgroundColor: colors.card }]}
+            activeOpacity={0.7}
+          >
+            <ArrowLeft size={20} color={colors.text} />
+            <Text style={[styles.backButtonText, { color: colors.text }]}>Retour</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      
       {/* Header */}
       <LinearGradient
         colors={colors.primaryGradient}
@@ -467,5 +493,23 @@ const styles = StyleSheet.create({
   activityText: {
     fontSize: typography.fontSizes.md,
     flex: 1,
+  },
+  backButtonContainer: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+    gap: spacing.xs,
+  },
+  backButtonText: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.medium,
   },
 });
