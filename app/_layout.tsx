@@ -30,7 +30,7 @@ function RootLayoutNav() {
         <Stack.Screen name="bible/[bookId]" options={{ headerShown: false, presentation: "card" }} />
         <Stack.Screen name="bible/[bookId]/[chapter]" options={{ headerShown: false, presentation: "card" }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, presentation: "modal" }} />
-        <Stack.Screen name="settings" options={{ headerShown: false, presentation: "card" }} />
+        <Stack.Screen name="settings" options={{ headerShown: true, presentation: "card" }} />
         <Stack.Screen name="notifications" options={{ headerShown: false, presentation: "card" }} />
         <Stack.Screen name="daily-plan" options={{ headerShown: false, presentation: "card" }} />
         <Stack.Screen name="calendar" options={{ headerShown: false, presentation: "card" }} />

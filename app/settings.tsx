@@ -216,7 +216,7 @@ export default function SettingsScreen() {
                 <Switch
                   value={isDarkMode}
                   onValueChange={toggleDarkMode}
-                  trackColor={{ false: colors.borderLight, true: colors.primary }}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                   thumbColor={colors.white}
                 />
               }
@@ -238,7 +238,7 @@ export default function SettingsScreen() {
                 <Switch
                   value={notifications.push}
                   onValueChange={() => handleNotificationToggle('push')}
-                  trackColor={{ false: colors.borderLight, true: colors.primary }}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                   thumbColor={colors.white}
                 />
               }
@@ -253,7 +253,7 @@ export default function SettingsScreen() {
                 <Switch
                   value={soundEnabled}
                   onValueChange={setSoundEnabled}
-                  trackColor={{ false: colors.borderLight, true: colors.primary }}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                   thumbColor={colors.white}
                 />
               }
@@ -268,7 +268,7 @@ export default function SettingsScreen() {
                 <Switch
                   value={vibrationEnabled}
                   onValueChange={setVibrationEnabled}
-                  trackColor={{ false: colors.borderLight, true: colors.primary }}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                   thumbColor={colors.white}
                 />
               }
