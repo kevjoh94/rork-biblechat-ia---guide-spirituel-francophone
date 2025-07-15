@@ -96,6 +96,13 @@ export default function MoreScreen() {
       subtitle: 'Suivez votre progression spirituelle',
       onPress: () => router.push('/calendar'),
       color: colors.success
+    },
+    {
+      icon: <Calendar />,
+      title: 'Plan Quotidien',
+      subtitle: 'Organisez votre journée spirituelle',
+      onPress: () => router.push('/daily-plan'),
+      color: colors.gratitude
     }
   ];
 

@@ -32,12 +32,12 @@ export const lightColors = {
   wisdom: "#8B7355",
   surface: "#F8F6F3",
   
-  // Gradients - properly typed as tuples
-  primaryGradient: ["#6B4E71", "#8B7355"] as const,
-  secondaryGradient: ["#8B7355", "#D4AF37"] as const,
-  peacefulGradient: ["#7B9EBF", "#A8C8E1"] as const,
-  hopeGradient: ["#F2C4B3", "#F5D5C8"] as const,
-  cardGradient: ["#FFFFFF", "#F8F6F3"] as const,
+  // Gradients - properly typed as readonly tuples
+  primaryGradient: ["#6B4E71", "#8B7355"] as readonly [string, string],
+  secondaryGradient: ["#8B7355", "#D4AF37"] as readonly [string, string],
+  peacefulGradient: ["#7B9EBF", "#A8C8E1"] as readonly [string, string],
+  hopeGradient: ["#F2C4B3", "#F5D5C8"] as readonly [string, string],
+  cardGradient: ["#FFFFFF", "#F8F6F3"] as readonly [string, string],
 };
 
 export const darkColors = {
@@ -75,11 +75,11 @@ export const darkColors = {
   surface: "#3A3A3A",
   
   // Gradients adaptés au mode sombre
-  primaryGradient: ["#9B7EAF", "#B8A082"] as const,
-  secondaryGradient: ["#B8A082", "#F4D03F"] as const,
-  peacefulGradient: ["#8BB4D9", "#B8D8F1"] as const,
-  hopeGradient: ["#F5D4C3", "#F8E5D8"] as const,
-  cardGradient: ["#2D2D2D", "#3A3A3A"] as const,
+  primaryGradient: ["#9B7EAF", "#B8A082"] as readonly [string, string],
+  secondaryGradient: ["#B8A082", "#F4D03F"] as readonly [string, string],
+  peacefulGradient: ["#8BB4D9", "#B8D8F1"] as readonly [string, string],
+  hopeGradient: ["#F5D4C3", "#F8E5D8"] as readonly [string, string],
+  cardGradient: ["#2D2D2D", "#3A3A3A"] as readonly [string, string],
 };
 
 // Default to light theme

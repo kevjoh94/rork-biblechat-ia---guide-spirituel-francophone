@@ -87,13 +87,16 @@ export const createPerformanceHOC = <P extends object>(
 
 // Memory usage monitoring (development only)
 export const logMemoryUsage = (label: string = 'Memory Usage'): void => {
-  if (__DEV__ && typeof window !== 'undefined' && (window as any).performance?.memory) {
-    const memory = (window as any).performance.memory;
-    console.log(`📊 ${label}:`, {
-      used: `${Math.round(memory.usedJSHeapSize / 1024 / 1024)} MB`,
-      total: `${Math.round(memory.totalJSHeapSize / 1024 / 1024)} MB`,
-      limit: `${Math.round(memory.jsHeapSizeLimit / 1024 / 1024)} MB`,
-    });
+  if (__DEV__ && typeof window !== 'undefined') {
+    const performance = (window as any).performance;
+    if (performance && performance.memory) {
+      const memory = performance.memory;
+      console.log(`📊 ${label}:`, {
+        used: `${Math.round(memory.usedJSHeapSize / 1024 / 1024)} MB`,
+        total: `${Math.round(memory.totalJSHeapSize / 1024 / 1024)} MB`,
+        limit: `${Math.round(memory.jsHeapSizeLimit / 1024 / 1024)} MB`,
+      });
+    }
   }
 };
 

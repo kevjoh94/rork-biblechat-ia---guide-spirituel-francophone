@@ -42,20 +42,40 @@ export const EnhancedProfile: React.FC = () => {
   const [userBio, setUserBio] = useState('Chercheur de vérité');
   
   // Use stable selectors to prevent unnecessary re-renders
-  const stats = useSpiritualStore((state) => state.stats);
-  const chatHistoryLength = useSpiritualStore((state) => state.chatHistory.length);
-  const achievements = useSpiritualStore((state) => state.achievements);
-  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
-  const notifications = useSpiritualStore((state) => state.notifications);
-  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
-  const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);
+  const {
+    stats,
+    chatHistory,
+    achievements,
+    isDarkMode,
+    notifications,
+    favorites,
+    journalEntries,
+    meditationSessions,
+    readingPlans,
+    toggleDarkMode,
+    updateNotificationSettings,
+    clearChatHistory
+  } = useSpiritualStore((state) => ({
+    stats: state.stats,
+    chatHistory: state.chatHistory,
+    achievements: state.achievements,
+    isDarkMode: state.isDarkMode,
+    notifications: state.notifications,
+    favorites: state.favorites,
+    journalEntries: state.journalEntries,
+    meditationSessions: state.meditationSessions,
+    readingPlans: state.readingPlans,
+    toggleDarkMode: state.toggleDarkMode,
+    updateNotificationSettings: state.updateNotificationSettings,
+    clearChatHistory: state.clearChatHistory
+  }));
   
-  // Get stable data to prevent infinite loops
-  const favoritesCount = useSpiritualStore((state) => state.favorites.length);
-  const journalEntriesCount = useSpiritualStore((state) => state.journalEntries.length);
-  const meditationSessionsCount = useSpiritualStore((state) => state.meditationSessions.length);
-  const readingPlansCount = useSpiritualStore((state) => state.readingPlans.length);
-  const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);
+  // Calculate derived values
+  const chatHistoryLength = chatHistory.length;
+  const favoritesCount = favorites.length;
+  const journalEntriesCount = journalEntries.length;
+  const meditationSessionsCount = meditationSessions.length;
+  const readingPlansCount = readingPlans.length;
   
   // Calculate level based on experience
   const level = Math.floor(stats.experience / 100) + 1;
