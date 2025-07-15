@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Home, MessageCircle, User, Book, Heart, BookOpen, Calendar, Sparkles, Users } from "lucide-react-native";
+import { Home, MessageCircle, User, Book, MoreHorizontal } from "lucide-react-native";
 import React from "react";
 
 import { colors } from "@/constants/colors";
@@ -52,38 +52,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="meditation"
+        name="more"
         options={{
-          title: "Méditation",
-          tabBarIcon: ({ color }) => <Heart color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="journal"
-        options={{
-          title: "Journal",
-          tabBarIcon: ({ color }) => <BookOpen color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="reading-plan"
-        options={{
-          title: "Plans",
-          tabBarIcon: ({ color }) => <Calendar color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="insights"
-        options={{
-          title: "Insights",
-          tabBarIcon: ({ color }) => <Sparkles color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="community"
-        options={{
-          title: "Communauté",
-          tabBarIcon: ({ color }) => <Users color={color} size={22} />,
+          title: "Plus",
+          tabBarIcon: ({ color }) => <MoreHorizontal color={color} size={22} />,
         }}
       />
       <Tabs.Screen
@@ -91,6 +63,38 @@ export default function TabLayout() {
         options={{
           title: "Profil",
           tabBarIcon: ({ color }) => <User color={color} size={22} />,
+        }}
+      />
+      
+      {/* Hidden tabs - accessible via navigation but not shown in tab bar */}
+      <Tabs.Screen
+        name="meditation"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="journal"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="reading-plan"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="insights"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="community"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

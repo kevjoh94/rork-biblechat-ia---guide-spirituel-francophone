@@ -35,19 +35,23 @@ export default function HomeScreen() {
   };
 
   const navigateToChat = () => {
-    router.push("/chat");
+    router.push("/(tabs)/chat");
   };
   
   const navigateToMeditation = () => {
-    router.push("/meditation");
+    router.push("/(tabs)/meditation");
   };
   
   const navigateToJournal = () => {
-    router.push("/journal");
+    router.push("/(tabs)/journal");
   };
   
   const navigateToReadingPlan = () => {
-    router.push("/reading-plan");
+    router.push("/(tabs)/reading-plan");
+  };
+  
+  const navigateToMore = () => {
+    router.push("/(tabs)/more");
   };
 
   return (
@@ -107,13 +111,13 @@ export default function HomeScreen() {
             </LinearGradient>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.quickAction} onPress={navigateToReadingPlan}>
+          <TouchableOpacity style={styles.quickAction} onPress={navigateToMore}>
             <LinearGradient
-              colors={[colors.strength, colors.strength + 'CC']}
+              colors={[colors.primary, colors.primary + 'CC']}
               style={styles.quickActionGradient}
             >
-              <Calendar size={20} color={colors.white} />
-              <Text style={styles.quickActionText}>Plans</Text>
+              <Target size={20} color={colors.white} />
+              <Text style={styles.quickActionText}>Plus</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
