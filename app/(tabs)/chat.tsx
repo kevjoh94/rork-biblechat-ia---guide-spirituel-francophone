@@ -106,7 +106,11 @@ export default function ChatScreen() {
       // Message d'erreur spirituel en cas de problème
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: "Cher ami, je rencontre une difficulté technique en ce moment. 🙏\n\nEn attendant, rappelle-toi cette promesse : \"Ne t'inquiète de rien; mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, avec des actions de grâces.\" (Philippiens 4:6)\n\nPeux-tu réessayer dans quelques instants ?",
+        text: "Cher ami, je rencontre une difficulté technique en ce moment. 🙏
+
+En attendant, rappelle-toi cette promesse : \"Ne t'inquiète de rien; mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, avec des actions de grâces.\" (Philippiens 4:6)
+
+Peux-tu réessayer dans quelques instants ?",
         isUser: false,
         timestamp: new Date(),
       };
@@ -156,13 +160,22 @@ export default function ChatScreen() {
         const { recording: newRecording } = await Audio.Recording.createAsync({
           android: {
             extension: '.m4a',
-            outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
-            audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+            outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+            audioEncoder: Audio.AndroidAudioEncoder.AAC,
+            sampleRate: 44100,
+            numberOfChannels: 2,
+            bitRate: 128000,
           },
           ios: {
             extension: '.wav',
-            outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_LINEARPCM,
-            audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+            outputFormat: Audio.IOSOutputFormat.LINEARPCM,
+            audioQuality: Audio.IOSAudioQuality.HIGH,
+            sampleRate: 44100,
+            numberOfChannels: 2,
+            bitRate: 128000,
+            linearPCMBitDepth: 16,
+            linearPCMIsBigEndian: false,
+            linearPCMIsFloat: false,
           },
         });
 
