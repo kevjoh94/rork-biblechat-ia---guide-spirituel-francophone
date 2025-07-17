@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: typography.fontSizes.sm,
     fontWeight: "600",
-    color: '#FFFFFF',
+    color: colors.white,
   },
   progressSection: {
     marginVertical: spacing.lg,
