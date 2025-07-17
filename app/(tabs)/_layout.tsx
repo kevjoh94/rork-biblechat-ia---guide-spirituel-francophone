@@ -62,7 +62,6 @@ export default function TabLayout() {
           color: colors.text,
           fontSize: 18,
         },
-        gestureEnabled: true,
       }}
     >
       <Tabs.Screen
