@@ -1,10 +1,11 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark } from "lucide-react-native";
+import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark, Settings } from "lucide-react-native";
 import React, { useState, useEffect } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert, Dimensions, Share } from "react-native";
-import * as Speech from "expo-speech";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { openaiTTS } from "@/utils/openai-tts";
+import OpenAIVoiceSelector, { OpenAIVoice } from "@/components/OpenAIVoiceSelector";
 
 import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
@@ -19,26 +20,23 @@ export default function ChapterScreen() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [favoriteVerses, setFavoriteVerses] = useState<number[]>([]);
   const [bookmarkedChapter, setBookmarkedChapter] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState<OpenAIVoice>('nova');
+  const [showVoiceSelector, setShowVoiceSelector] = useState(false);
 
   const book = bibleBooks.find((b) => b.id === bookId);
   const chapterKey = `${bookId}-${chapter}`;
   const chapterData = bibleChapters[chapterKey] || generateMissingChapter(bookId!, parseInt(chapter!));
 
-  // Load bookmarks on component mount
+  // Load bookmarks and voice preference on component mount
   useEffect(() => {
     loadBookmarks();
+    loadVoicePreference();
   }, [bookId, chapter]);
 
   // Cleanup speech when component unmounts
   useEffect(() => {
     return () => {
-      if (Platform.OS === 'web') {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-        }
-      } else {
-        Speech.stop();
-      }
+      openaiTTS.stop();
     };
   }, []);
 
@@ -73,6 +71,26 @@ export default function ChapterScreen() {
       await AsyncStorage.setItem('bible_chapters', JSON.stringify(bookmarks));
     } catch (error) {
       console.warn('Error saving chapter bookmarks:', error);
+    }
+  };
+
+  const loadVoicePreference = async () => {
+    try {
+      const savedVoice = await AsyncStorage.getItem('openai_voice_preference');
+      if (savedVoice) {
+        setSelectedVoice(savedVoice as OpenAIVoice);
+      }
+    } catch (error) {
+      console.warn('Error loading voice preference:', error);
+    }
+  };
+
+  const saveVoicePreference = async (voice: OpenAIVoice) => {
+    try {
+      await AsyncStorage.setItem('openai_voice_preference', voice);
+      setSelectedVoice(voice);
+    } catch (error) {
+      console.warn('Error saving voice preference:', error);
     }
   };
 
@@ -113,37 +131,17 @@ export default function ChapterScreen() {
 
   const speakVerse = async (verseText: string, verseNumber: number) => {
     try {
-      if (Platform.OS === 'web') {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          
-          const text = `Verset ${verseNumber}. ${verseText}`;
-          const cleanText = cleanTextForSpeech(text);
-          const utterance = new SpeechSynthesisUtterance(cleanText);
-          
-          utterance.lang = 'fr-FR';
-          utterance.rate = 0.8;
-          utterance.pitch = 1.0;
-          
-          window.speechSynthesis.speak(utterance);
-        }
-        return;
-      }
-
-      await Speech.stop();
-      
       const text = `Verset ${verseNumber}. ${verseText}`;
       const cleanText = cleanTextForSpeech(text);
       
-      const speechOptions: Speech.SpeechOptions = {
-        language: 'fr-FR',
-        pitch: 1.0,
-        rate: 0.8,
-      };
-
-      await Speech.speak(cleanText, speechOptions);
+      await openaiTTS.speak(cleanText, {
+        voice: selectedVoice,
+        model: 'tts-1',
+        speed: 0.9
+      });
     } catch (error) {
       console.warn('Error speaking verse:', error);
+      Alert.alert('Erreur', 'Impossible de lire le verset. Vérifiez votre connexion internet.');
     }
   };
 
@@ -187,58 +185,13 @@ export default function ChapterScreen() {
       .trim();
   };
 
-  const speakChapterWithExpoSpeech = async () => {
+  const speakChapterWithOpenAI = async () => {
     try {
-      // Check if platform supports TTS
-      if (Platform.OS === 'web') {
-        // Use Web Speech API for web
-        if ('speechSynthesis' in window) {
-          if (isSpeaking) {
-            window.speechSynthesis.cancel();
-            setIsSpeaking(false);
-            return;
-          }
-
-          setIsSpeaking(true);
-          
-          const fullText = `${book?.name}, chapitre ${chapter}. ` + 
-            chapterData.verses.map(verse => `Verset ${verse.number}. ${verse.text}`).join('. ');
-          
-          const cleanText = cleanTextForSpeech(fullText);
-          const utterance = new SpeechSynthesisUtterance(cleanText);
-          
-          utterance.lang = 'fr-FR';
-          utterance.rate = 0.8;
-          utterance.pitch = 1.0;
-          
-          utterance.onend = () => setIsSpeaking(false);
-          utterance.onerror = () => {
-            setIsSpeaking(false);
-            Alert.alert('Erreur', "Erreur lors de la lecture.");
-          };
-          
-          window.speechSynthesis.speak(utterance);
-        } else {
-          Alert.alert('Non supporté', "La synthèse vocale n'est pas disponible sur ce navigateur.");
-        }
-        return;
-      }
-
       if (isSpeaking) {
         // Stop current speech
-        await Speech.stop();
+        openaiTTS.stop();
         setIsSpeaking(false);
         return;
-      }
-
-      // Check if speech is available
-      try {
-        const isAvailable = await Speech.isSpeakingAsync();
-        if (isAvailable) {
-          await Speech.stop();
-        }
-      } catch (error) {
-        console.warn('Could not check speech availability:', error);
       }
 
       setIsSpeaking(true);
@@ -254,73 +207,28 @@ export default function ChapterScreen() {
         return;
       }
 
-      // Limit text length to prevent crashes
-      const maxLength = 8000;
+      // Limit text length for OpenAI TTS (max 4096 characters)
+      const maxLength = 4000;
       const textToSpeak = cleanText.length > maxLength ? 
         cleanText.substring(0, maxLength) + "..." : cleanText;
 
-      // Get available voices with error handling
-      let voices: Speech.Voice[] = [];
-      try {
-        voices = await Speech.getAvailableVoicesAsync();
-      } catch (error) {
-        console.warn('Could not get available voices:', error);
-      }
+      await openaiTTS.speak(textToSpeak, {
+        voice: selectedVoice,
+        model: 'tts-1',
+        speed: 0.9
+      });
 
-      // Find the best French voice
-      let selectedVoice = undefined;
-      
-      if (voices.length > 0) {
-        const frenchVoices = voices.filter(voice => 
-          voice.language && voice.language.startsWith('fr')
-        );
-        
-        if (frenchVoices.length > 0) {
-          if (Platform.OS === 'ios') {
-            const enhancedVoice = frenchVoices.find(voice => 
-              voice.identifier && (
-                voice.identifier.includes('premium') || 
-                voice.identifier.includes('enhanced') || 
-                voice.identifier.includes('Amelie')
-              )
-            );
-            selectedVoice = enhancedVoice ? enhancedVoice.identifier : frenchVoices[0].identifier;
-          } else {
-            selectedVoice = frenchVoices[0].identifier;
-          }
-        }
-      }
-
-      // Configure speech options for better quality
-      const speechOptions: Speech.SpeechOptions = {
-        language: 'fr-FR',
-        pitch: 1.0,
-        rate: 0.75,
-        ...(selectedVoice && { voice: selectedVoice }),
-        onDone: () => {
-          setIsSpeaking(false);
-        },
-        onStopped: () => {
-          setIsSpeaking(false);
-        },
-        onError: (error: any) => {
-          console.error('Erreur TTS:', error);
-          setIsSpeaking(false);
-          Alert.alert('Erreur', "Impossible de lire le chapitre. Vérifiez que votre appareil supporte la synthèse vocale.");
-        }
-      };
-
-      await Speech.speak(textToSpeak, speechOptions);
+      setIsSpeaking(false);
     } catch (error) {
-      console.error('Erreur TTS:', error);
+      console.error('Erreur OpenAI TTS:', error);
       setIsSpeaking(false);
       
       let errorMessage = "Impossible de lire le chapitre.";
       if (error instanceof Error) {
-        if (error.message.includes('not available')) {
-          errorMessage = "La synthèse vocale n'est pas disponible sur cet appareil.";
-        } else if (error.message.includes('language')) {
-          errorMessage = "La langue française n'est pas supportée sur cet appareil.";
+        if (error.message.includes('API')) {
+          errorMessage = "Erreur de connexion à l'API OpenAI. Vérifiez votre connexion internet.";
+        } else if (error.message.includes('401')) {
+          errorMessage = "Clé API OpenAI invalide.";
         }
       }
       
@@ -354,7 +262,10 @@ export default function ChapterScreen() {
             </View>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity onPress={speakChapterWithExpoSpeech} style={[styles.actionButton, isSpeaking && styles.activeActionButton]}>
+            <TouchableOpacity onPress={() => setShowVoiceSelector(true)} style={styles.actionButton}>
+              <Settings size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={speakChapterWithOpenAI} style={[styles.actionButton, isSpeaking && styles.activeActionButton]}>
               {isSpeaking ? (
                 <VolumeX size={18} color={isSpeaking ? colors.white : colors.textSecondary} />
               ) : (
