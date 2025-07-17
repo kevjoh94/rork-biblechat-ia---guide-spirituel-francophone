@@ -298,6 +298,12 @@ Peux-tu réessayer dans quelques instants ?`,
 
   const speakWithExpoSpeech = async (text: string) => {
     try {
+      // Check if platform supports TTS
+      if (Platform.OS === 'web') {
+        Alert.alert('Non supporté', "La synthèse vocale n'est pas disponible sur le web.");
+        return;
+      }
+
       if (isSpeaking) {
         // Stop current speech
         await Speech.stop();
@@ -306,9 +312,13 @@ Peux-tu réessayer dans quelques instants ?`,
       }
 
       // Check if speech is available
-      const isAvailable = await Speech.isSpeakingAsync();
-      if (isAvailable) {
-        await Speech.stop();
+      try {
+        const isAvailable = await Speech.isSpeakingAsync();
+        if (isAvailable) {
+          await Speech.stop();
+        }
+      } catch (error) {
+        console.warn('Could not check speech availability:', error);
       }
 
       setIsSpeaking(true);
@@ -318,45 +328,52 @@ Peux-tu réessayer dans quelques instants ?`,
       
       if (!cleanText || cleanText.length === 0) {
         setIsSpeaking(false);
+        Alert.alert('Erreur', "Aucun texte à lire.");
         return;
       }
 
-      // Get available voices
-      const voices = await Speech.getAvailableVoicesAsync();
-      console.log('Available voices:', voices.map(v => ({ identifier: v.identifier, name: v.name, language: v.language })));
+      // Limit text length to prevent crashes
+      const maxLength = 4000;
+      const textToSpeak = cleanText.length > maxLength ? 
+        cleanText.substring(0, maxLength) + "..." : cleanText;
+
+      // Get available voices with error handling
+      let voices: Speech.Voice[] = [];
+      try {
+        voices = await Speech.getAvailableVoicesAsync();
+      } catch (error) {
+        console.warn('Could not get available voices:', error);
+      }
 
       // Find the best French voice
       let selectedVoice = undefined;
       
-      if (Platform.OS === 'ios') {
-        // Prefer high-quality French voices on iOS
-        const frenchVoices = voices.filter(voice => 
-          voice.language.startsWith('fr') && 
-          (voice.identifier.includes('premium') || voice.identifier.includes('enhanced') || voice.identifier.includes('Amelie'))
-        );
-        
-        if (frenchVoices.length > 0) {
-          selectedVoice = frenchVoices[0].identifier;
-        } else {
-          // Fallback to any French voice
-          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
-          if (anyFrenchVoice) {
-            selectedVoice = anyFrenchVoice.identifier;
+      if (voices.length > 0) {
+        if (Platform.OS === 'ios') {
+          // Prefer high-quality French voices on iOS
+          const frenchVoices = voices.filter(voice => 
+            voice.language && voice.language.startsWith('fr')
+          );
+          
+          if (frenchVoices.length > 0) {
+            // Try to find enhanced voices first
+            const enhancedVoice = frenchVoices.find(voice => 
+              voice.identifier && (
+                voice.identifier.includes('premium') || 
+                voice.identifier.includes('enhanced') || 
+                voice.identifier.includes('Amelie')
+              )
+            );
+            selectedVoice = enhancedVoice ? enhancedVoice.identifier : frenchVoices[0].identifier;
           }
-        }
-      } else if (Platform.OS === 'android') {
-        // Find best French voice on Android
-        const frenchVoices = voices.filter(voice => 
-          voice.language.startsWith('fr') && 
-          (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('marie'))
-        );
-        
-        if (frenchVoices.length > 0) {
-          selectedVoice = frenchVoices[0].identifier;
-        } else {
-          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
-          if (anyFrenchVoice) {
-            selectedVoice = anyFrenchVoice.identifier;
+        } else if (Platform.OS === 'android') {
+          // Find best French voice on Android
+          const frenchVoices = voices.filter(voice => 
+            voice.language && voice.language.startsWith('fr')
+          );
+          
+          if (frenchVoices.length > 0) {
+            selectedVoice = frenchVoices[0].identifier;
           }
         }
       }
@@ -364,9 +381,9 @@ Peux-tu réessayer dans quelques instants ?`,
       // Configure speech options for better quality
       const speechOptions: Speech.SpeechOptions = {
         language: 'fr-FR',
-        pitch: 1.1, // Slightly higher pitch for warmth
-        rate: 0.8, // Slower for spiritual content
-        voice: selectedVoice,
+        pitch: 1.1,
+        rate: 0.8,
+        ...(selectedVoice && { voice: selectedVoice }),
         onDone: () => {
           setIsSpeaking(false);
         },
@@ -376,16 +393,25 @@ Peux-tu réessayer dans quelques instants ?`,
         onError: (error: any) => {
           console.error('Erreur TTS:', error);
           setIsSpeaking(false);
-          Alert.alert('Erreur', "Impossible de lire le texte. Vérifiez que votre appareil supporte la synthèse vocale en français.");
+          Alert.alert('Erreur', "Impossible de lire le texte. Vérifiez que votre appareil supporte la synthèse vocale.");
         }
       };
 
-      console.log('Speaking with options:', speechOptions);
-      await Speech.speak(cleanText, speechOptions);
+      await Speech.speak(textToSpeak, speechOptions);
     } catch (error) {
       console.error('Erreur TTS:', error);
       setIsSpeaking(false);
-      Alert.alert('Erreur', "Impossible de lire le texte. Vérifiez que votre appareil supporte la synthèse vocale en français.");
+      
+      let errorMessage = "Impossible de lire le texte.";
+      if (error instanceof Error) {
+        if (error.message.includes('not available')) {
+          errorMessage = "La synthèse vocale n'est pas disponible sur cet appareil.";
+        } else if (error.message.includes('language')) {
+          errorMessage = "La langue française n'est pas supportée sur cet appareil.";
+        }
+      }
+      
+      Alert.alert('Erreur TTS', errorMessage);
     }
   };
 

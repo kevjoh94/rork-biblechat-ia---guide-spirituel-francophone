@@ -54,6 +54,12 @@ export default function ChapterScreen() {
 
   const speakChapterWithExpoSpeech = async () => {
     try {
+      // Check if platform supports TTS
+      if (Platform.OS === 'web') {
+        Alert.alert('Non supporté', "La synthèse vocale n'est pas disponible sur le web.");
+        return;
+      }
+
       if (isSpeaking) {
         // Stop current speech
         await Speech.stop();
@@ -62,9 +68,13 @@ export default function ChapterScreen() {
       }
 
       // Check if speech is available
-      const isAvailable = await Speech.isSpeakingAsync();
-      if (isAvailable) {
-        await Speech.stop();
+      try {
+        const isAvailable = await Speech.isSpeakingAsync();
+        if (isAvailable) {
+          await Speech.stop();
+        }
+      } catch (error) {
+        console.warn('Could not check speech availability:', error);
       }
 
       setIsSpeaking(true);
@@ -76,41 +86,50 @@ export default function ChapterScreen() {
       
       if (!cleanText || cleanText.length === 0) {
         setIsSpeaking(false);
+        Alert.alert('Erreur', "Aucun texte à lire.");
         return;
       }
 
-      // Get available voices
-      const voices = await Speech.getAvailableVoicesAsync();
-      
+      // Limit text length to prevent crashes
+      const maxLength = 8000; // Longer for bible chapters
+      const textToSpeak = cleanText.length > maxLength ? 
+        cleanText.substring(0, maxLength) + "..." : cleanText;
+
+      // Get available voices with error handling
+      let voices: Speech.Voice[] = [];
+      try {
+        voices = await Speech.getAvailableVoicesAsync();
+      } catch (error) {
+        console.warn('Could not get available voices:', error);
+      }
+
       // Find the best French voice
       let selectedVoice = undefined;
       
-      if (Platform.OS === 'ios') {
-        const frenchVoices = voices.filter(voice => 
-          voice.language.startsWith('fr') && 
-          (voice.identifier.includes('premium') || voice.identifier.includes('enhanced') || voice.identifier.includes('Amelie'))
-        );
-        
-        if (frenchVoices.length > 0) {
-          selectedVoice = frenchVoices[0].identifier;
-        } else {
-          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
-          if (anyFrenchVoice) {
-            selectedVoice = anyFrenchVoice.identifier;
+      if (voices.length > 0) {
+        if (Platform.OS === 'ios') {
+          const frenchVoices = voices.filter(voice => 
+            voice.language && voice.language.startsWith('fr')
+          );
+          
+          if (frenchVoices.length > 0) {
+            // Try to find enhanced voices first
+            const enhancedVoice = frenchVoices.find(voice => 
+              voice.identifier && (
+                voice.identifier.includes('premium') || 
+                voice.identifier.includes('enhanced') || 
+                voice.identifier.includes('Amelie')
+              )
+            );
+            selectedVoice = enhancedVoice ? enhancedVoice.identifier : frenchVoices[0].identifier;
           }
-        }
-      } else if (Platform.OS === 'android') {
-        const frenchVoices = voices.filter(voice => 
-          voice.language.startsWith('fr') && 
-          (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('marie'))
-        );
-        
-        if (frenchVoices.length > 0) {
-          selectedVoice = frenchVoices[0].identifier;
-        } else {
-          const anyFrenchVoice = voices.find(voice => voice.language.startsWith('fr'));
-          if (anyFrenchVoice) {
-            selectedVoice = anyFrenchVoice.identifier;
+        } else if (Platform.OS === 'android') {
+          const frenchVoices = voices.filter(voice => 
+            voice.language && voice.language.startsWith('fr')
+          );
+          
+          if (frenchVoices.length > 0) {
+            selectedVoice = frenchVoices[0].identifier;
           }
         }
       }
@@ -119,8 +138,8 @@ export default function ChapterScreen() {
       const speechOptions: Speech.SpeechOptions = {
         language: 'fr-FR',
         pitch: 1.0,
-        rate: 0.75, // Slower for biblical reading
-        voice: selectedVoice,
+        rate: 0.75,
+        ...(selectedVoice && { voice: selectedVoice }),
         onDone: () => {
           setIsSpeaking(false);
         },
@@ -130,15 +149,25 @@ export default function ChapterScreen() {
         onError: (error: any) => {
           console.error('Erreur TTS:', error);
           setIsSpeaking(false);
-          Alert.alert('Erreur', "Impossible de lire le chapitre. Vérifiez que votre appareil supporte la synthèse vocale en français.");
+          Alert.alert('Erreur', "Impossible de lire le chapitre. Vérifiez que votre appareil supporte la synthèse vocale.");
         }
       };
 
-      await Speech.speak(cleanText, speechOptions);
+      await Speech.speak(textToSpeak, speechOptions);
     } catch (error) {
       console.error('Erreur TTS:', error);
       setIsSpeaking(false);
-      Alert.alert('Erreur', "Impossible de lire le chapitre. Vérifiez que votre appareil supporte la synthèse vocale en français.");
+      
+      let errorMessage = "Impossible de lire le chapitre.";
+      if (error instanceof Error) {
+        if (error.message.includes('not available')) {
+          errorMessage = "La synthèse vocale n'est pas disponible sur cet appareil.";
+        } else if (error.message.includes('language')) {
+          errorMessage = "La langue française n'est pas supportée sur cet appareil.";
+        }
+      }
+      
+      Alert.alert('Erreur TTS', errorMessage);
     }
   };
 
