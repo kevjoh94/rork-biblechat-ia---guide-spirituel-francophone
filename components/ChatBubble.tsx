@@ -3,7 +3,7 @@ import { Volume2 } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 
@@ -22,6 +22,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   onSpeak,
   isSpeaking = false 
 }) => {
+  const { colors } = useTheme();
   const formatTime = (date: Date | string) => {
     let dateObj: Date;
     
@@ -72,7 +73,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     marginBottom: spacing.md,
     maxWidth: "85%",
@@ -141,3 +142,5 @@ const styles = StyleSheet.create({
     color: colors.textLight,
   },
 });
+
+const styles = createStyles(colors);

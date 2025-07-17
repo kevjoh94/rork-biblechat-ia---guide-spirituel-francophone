@@ -16,7 +16,7 @@ import { Audio } from "expo-av";
 import * as Speech from "expo-speech";
 
 import { ChatBubble } from "@/components/ChatBubble";
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useSpiritualStore } from "@/store/spiritual-store";
@@ -43,6 +43,7 @@ Quand un utilisateur pose une question, tu dois toujours répondre en suivant ce
 **Ta mission principale est d'apporter réconfort, lumière, guidance chrétienne et de partager des passages bibliques adaptés.**`;
 
 export default function ChatScreen() {
+  const { colors } = useTheme();
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -462,6 +463,8 @@ Peux-tu réessayer dans quelques instants ?`,
     </View>
   );
 
+  const styles = createStyles(colors);
+
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
@@ -571,7 +574,7 @@ Peux-tu réessayer dans quelques instants ?`,
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

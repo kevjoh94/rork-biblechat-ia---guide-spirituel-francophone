@@ -1,7 +1,7 @@
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 
@@ -26,6 +26,7 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   fullWidth = false,
 }) => {
+  const { colors } = useTheme();
   return (
     <TouchableOpacity
       style={[
@@ -69,7 +70,7 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     borderRadius: 12,
     justifyContent: "center",
@@ -134,3 +135,5 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 });
+
+const styles = createStyles(colors);

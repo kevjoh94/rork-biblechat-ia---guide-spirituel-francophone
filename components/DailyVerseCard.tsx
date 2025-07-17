@@ -3,7 +3,7 @@ import { Calendar, Heart } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 
@@ -14,6 +14,7 @@ interface DailyVerseCardProps {
 }
 
 export const DailyVerseCard: React.FC<DailyVerseCardProps> = ({ verse, reference, message }) => {
+  const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -43,7 +44,7 @@ export const DailyVerseCard: React.FC<DailyVerseCardProps> = ({ verse, reference
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     marginBottom: spacing.lg,
     borderRadius: 20,
@@ -111,3 +112,5 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeights.md,
   },
 });
+
+const styles = createStyles(colors);

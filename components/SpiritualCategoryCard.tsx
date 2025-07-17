@@ -3,7 +3,7 @@ import { Heart, Sun, HandHeart, Sunrise, Gift, Shield } from "lucide-react-nativ
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { SpiritualCategoryInfo } from "@/types/spiritual";
@@ -14,6 +14,7 @@ interface SpiritualCategoryCardProps {
 }
 
 export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ category, onPress }) => {
+  const { colors } = useTheme();
   const IconComponent = ({ name, color, size }: { name: string; color: string; size: number }) => {
     const icons: Record<string, React.ElementType> = {
       heart: Heart,
@@ -56,7 +57,7 @@ export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ ca
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     width: "48%",
     marginBottom: spacing.md,
@@ -109,3 +110,5 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 18,
   },
 });
+
+const styles = createStyles(colors);

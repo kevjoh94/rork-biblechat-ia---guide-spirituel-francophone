@@ -4,7 +4,7 @@ import { Book, Search, Star, BookOpen, Filter, Plus } from "lucide-react-native"
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from "react-native";
 
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { bibleBooks } from "@/mocks/bible-books";
@@ -13,6 +13,7 @@ import BibleSearchModal from "@/components/BibleSearchModal";
 
 
 export default function BibleScreen() {
+  const { colors } = useTheme();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -64,6 +65,8 @@ export default function BibleScreen() {
       </LinearGradient>
     </TouchableOpacity>
   );
+
+  const styles = createStyles(colors);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -205,7 +208,7 @@ export default function BibleScreen() {
 
 const { width } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
