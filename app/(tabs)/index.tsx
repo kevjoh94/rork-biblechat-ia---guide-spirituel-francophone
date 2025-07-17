@@ -170,7 +170,7 @@ export default function HomeScreen() {
 
         <View style={styles.sectionHeader}>
           <Star size={20} color={colors.primary} />
-          <Text style={styles.sectionTitle}>Catégories spirituelles</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Catégories spirituelles</Text>
         </View>
         
         <View style={styles.categoriesContainer}>
@@ -183,20 +183,20 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <View style={styles.tabContainer}>
+        <View style={[styles.tabContainer, { backgroundColor: colors.cardSecondary }]}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === "featured" && styles.activeTab]}
+            style={[styles.tab, activeTab === "featured" && [styles.activeTab, { backgroundColor: colors.card }]]}
             onPress={() => setActiveTab("featured")}
           >
-            <Text style={[styles.tabText, activeTab === "featured" && styles.activeTabText]}>
+            <Text style={[styles.tabText, { color: activeTab === "featured" ? colors.primary : colors.textSecondary }, activeTab === "featured" && styles.activeTabText]}>
               À la une
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === "favorites" && styles.activeTab]}
+            style={[styles.tab, activeTab === "favorites" && [styles.activeTab, { backgroundColor: colors.card }]]}
             onPress={() => setActiveTab("favorites")}
           >
-            <Text style={[styles.tabText, activeTab === "favorites" && styles.activeTabText]}>
+            <Text style={[styles.tabText, { color: activeTab === "favorites" ? colors.primary : colors.textSecondary }, activeTab === "favorites" && styles.activeTabText]}>
               Favoris
             </Text>
           </TouchableOpacity>
@@ -257,7 +257,7 @@ export default function HomeScreen() {
               ))
             ) : (
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Aucun contenu disponible</Text>
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Aucun contenu disponible</Text>
               </View>
             )
           ) : favoriteContent.length > 0 ? (
@@ -271,8 +271,8 @@ export default function HomeScreen() {
           ) : (
             <View style={styles.emptyContainer}>
               <Heart size={48} color={colors.textLight} />
-              <Text style={styles.emptyText}>Aucun favori pour le moment</Text>
-              <Text style={styles.emptySubtext}>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Aucun favori pour le moment</Text>
+              <Text style={[styles.emptySubtext, { color: colors.textLight }]}>
                 Ajoute des contenus à tes favoris en appuyant sur le cœur
               </Text>
             </View>
@@ -404,6 +404,7 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: typography.fontSizes.sm,
     fontWeight: "600",
+    color: "#FFFFFF",
   },
   progressSection: {
     marginVertical: spacing.lg,

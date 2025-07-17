@@ -90,129 +90,44 @@ export default function ReadingProgress({
 
   const progressPercentage = Math.min((weeklyProgress / weeklyGoal) * 100, 100);
 
-  const styles = StyleSheet.create({
-    container: {
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      padding: spacing.lg,
-      marginHorizontal: spacing.lg,
-      marginBottom: spacing.lg,
-      elevation: 2,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-    },
-    title: {
-      fontSize: typography.fontSizes.lg,
-      fontWeight: typography.fontWeights.semibold,
-      color: colors.text,
-      marginBottom: spacing.md,
-      textAlign: 'center',
-    },
-    statsContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      marginBottom: spacing.lg,
-    },
-    statItem: {
-      alignItems: 'center',
-    },
-    statNumber: {
-      fontSize: typography.fontSizes.lg,
-      fontWeight: typography.fontWeights.bold,
-      color: colors.text,
-      marginTop: spacing.xs,
-    },
-    statLabel: {
-      fontSize: typography.fontSizes.sm,
-      color: colors.textSecondary,
-      marginTop: 2,
-    },
-    goalContainer: {
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      paddingTop: spacing.md,
-    },
-    goalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: spacing.sm,
-    },
-    goalTitle: {
-      fontSize: typography.fontSizes.md,
-      fontWeight: typography.fontWeights.medium,
-      color: colors.text,
-    },
-    goalProgress: {
-      fontSize: typography.fontSizes.md,
-      fontWeight: typography.fontWeights.semibold,
-      color: colors.primary,
-    },
-    progressBarContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    progressBarBackground: {
-      flex: 1,
-      height: 8,
-      backgroundColor: colors.border,
-      borderRadius: 4,
-      overflow: 'hidden',
-      marginRight: spacing.sm,
-    },
-    progressBarFill: {
-      height: '100%',
-      borderRadius: 4,
-    },
-    progressPercentage: {
-      fontSize: typography.fontSizes.sm,
-      fontWeight: typography.fontWeights.medium,
-      color: colors.text,
-      minWidth: 35,
-      textAlign: 'right',
-    },
-  });
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Progrès de lecture</Text>
+    <View style={[styles.container, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Progrès de lecture</Text>
       
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <BookOpen size={20} color={colors.primary} />
-          <Text style={styles.statNumber}>{todayProgress.chaptersRead}</Text>
-          <Text style={styles.statLabel}>Chapitres</Text>
+          <Text style={[styles.statNumber, { color: colors.text }]}>{todayProgress.chaptersRead}</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Chapitres</Text>
         </View>
         
         <View style={styles.statItem}>
           <Target size={20} color={colors.secondary} />
-          <Text style={styles.statNumber}>{todayProgress.versesRead}</Text>
-          <Text style={styles.statLabel}>Versets</Text>
+          <Text style={[styles.statNumber, { color: colors.text }]}>{todayProgress.versesRead}</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Versets</Text>
         </View>
         
         <View style={styles.statItem}>
           <Calendar size={20} color={colors.accent} />
-          <Text style={styles.statNumber}>{todayProgress.timeSpent}min</Text>
-          <Text style={styles.statLabel}>Temps</Text>
+          <Text style={[styles.statNumber, { color: colors.text }]}>{todayProgress.timeSpent}min</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Temps</Text>
         </View>
         
         <View style={styles.statItem}>
           <Award size={20} color={colors.warning} />
-          <Text style={styles.statNumber}>{todayProgress.streak}</Text>
-          <Text style={styles.statLabel}>Série</Text>
+          <Text style={[styles.statNumber, { color: colors.text }]}>{todayProgress.streak}</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Série</Text>
         </View>
       </View>
 
-      <View style={styles.goalContainer}>
+      <View style={[styles.goalContainer, { borderTopColor: colors.border }]}>
         <View style={styles.goalHeader}>
-          <Text style={styles.goalTitle}>Objectif hebdomadaire</Text>
-          <Text style={styles.goalProgress}>{weeklyProgress}/{weeklyGoal}</Text>
+          <Text style={[styles.goalTitle, { color: colors.text }]}>Objectif hebdomadaire</Text>
+          <Text style={[styles.goalProgress, { color: colors.primary }]}>{weeklyProgress}/{weeklyGoal}</Text>
         </View>
         
         <View style={styles.progressBarContainer}>
-          <View style={styles.progressBarBackground}>
+          <View style={[styles.progressBarBackground, { backgroundColor: colors.border }]}>
             <LinearGradient
               colors={[colors.primary, colors.secondary]}
               style={[styles.progressBarFill, { width: `${progressPercentage}%` }]}
@@ -220,9 +135,84 @@ export default function ReadingProgress({
               end={{ x: 1, y: 0 }}
             />
           </View>
-          <Text style={styles.progressPercentage}>{Math.round(progressPercentage)}%</Text>
+          <Text style={[styles.progressPercentage, { color: colors.text }]}>{Math.round(progressPercentage)}%</Text>
         </View>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: 16,
+    padding: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  title: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: spacing.lg,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.bold,
+    marginTop: spacing.xs,
+  },
+  statLabel: {
+    fontSize: typography.fontSizes.sm,
+    marginTop: 2,
+  },
+  goalContainer: {
+    borderTopWidth: 1,
+    paddingTop: spacing.md,
+  },
+  goalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  goalTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.medium,
+  },
+  goalProgress: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
+  },
+  progressBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressBarBackground: {
+    flex: 1,
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginRight: spacing.sm,
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressPercentage: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.medium,
+    minWidth: 35,
+    textAlign: 'right',
+  },
+});

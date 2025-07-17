@@ -146,7 +146,7 @@ export default function MoreScreen() {
           <Text style={[styles.menuTitle, { color: colors.text }]}>Thème</Text>
           <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]}>Mode clair/sombre</Text>
         </View>
-        <ThemeToggle showLabel={false} size="small" />
+        <ThemeToggle showLabel={false} variant="switch" />
       </View>
     );
   };
