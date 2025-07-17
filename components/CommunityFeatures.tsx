@@ -74,6 +74,171 @@ export const CommunityFeatures: React.FC = () => {
   const stats = useSpiritualStore((state) => state.stats);
   const categoryConfig = getCategoryConfig(colors);
 
+  const createStyles = (colors: any) => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    headerCard: {
+      margin: spacing.md,
+      borderRadius: 16,
+      padding: spacing.lg,
+    },
+    headerContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    headerText: {
+      marginLeft: spacing.md,
+      flex: 1,
+    },
+    headerTitle: {
+      fontSize: typography.fontSizes.xxl,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.xs,
+      color: colors.white,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSizes.md,
+      opacity: 0.9,
+      color: colors.white,
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      marginHorizontal: spacing.md,
+      marginBottom: spacing.lg,
+      borderRadius: 12,
+      padding: spacing.md,
+      backgroundColor: colors.surface,
+    },
+    statItem: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    statNumber: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.xs,
+      color: colors.text,
+    },
+    statLabel: {
+      fontSize: typography.fontSizes.sm,
+      textAlign: 'center',
+      color: colors.textSecondary,
+    },
+    postsSection: {
+      paddingHorizontal: spacing.md,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.md,
+      color: colors.text,
+    },
+    postCard: {
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+    },
+    postHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    authorInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    categoryBadge: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.sm,
+    },
+    authorName: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      color: colors.text,
+    },
+    timestamp: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+    },
+    categoryLabel: {
+      fontSize: typography.fontSizes.sm,
+      fontWeight: '600',
+    },
+    postContent: {
+      fontSize: typography.fontSizes.md,
+      lineHeight: 22,
+      marginBottom: spacing.sm,
+      color: colors.text,
+    },
+    verseContainer: {
+      borderRadius: 8,
+      padding: spacing.sm,
+      marginBottom: spacing.sm,
+      borderLeftWidth: 3,
+      backgroundColor: colors.background,
+      borderLeftColor: colors.primary,
+    },
+    verseText: {
+      fontSize: typography.fontSizes.md,
+      fontStyle: 'italic',
+      marginBottom: spacing.xs,
+      color: colors.text,
+    },
+    verseReference: {
+      fontSize: typography.fontSizes.sm,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    postActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    actionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
+    },
+    actionText: {
+      fontSize: typography.fontSizes.sm,
+      marginLeft: spacing.xs,
+      color: colors.textSecondary,
+    },
+    joinButton: {
+      margin: spacing.md,
+      marginTop: spacing.lg,
+      borderRadius: 12,
+      overflow: 'hidden',
+    },
+    joinButtonGradient: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.md,
+    },
+    joinButtonText: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      marginLeft: spacing.sm,
+      color: colors.white,
+    },
+  });
+
+  const styles = createStyles(colors);
+
   const handleLike = (postId: string) => {
     setLikedPosts(prev => {
       const newSet = new Set(prev);
@@ -235,147 +400,3 @@ export const CommunityFeatures: React.FC = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  headerCard: {
-    margin: spacing.md,
-    borderRadius: 16,
-    padding: spacing.lg,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerText: {
-    marginLeft: spacing.md,
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: typography.fontSizes.xxl,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: typography.fontSizes.md,
-    opacity: 0.9,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.lg,
-    borderRadius: 12,
-    padding: spacing.md,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.xs,
-  },
-  statLabel: {
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
-  },
-  postsSection: {
-    paddingHorizontal: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.md,
-  },
-  postCard: {
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-  },
-  postHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  authorInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  categoryBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  authorName: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  timestamp: {
-    fontSize: typography.fontSizes.sm,
-  },
-  categoryLabel: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: '600',
-  },
-  postContent: {
-    fontSize: typography.fontSizes.md,
-    lineHeight: 22,
-    marginBottom: spacing.sm,
-  },
-  verseContainer: {
-    borderRadius: 8,
-    padding: spacing.sm,
-    marginBottom: spacing.sm,
-    borderLeftWidth: 3,
-  },
-  verseText: {
-    fontSize: typography.fontSizes.md,
-    fontStyle: 'italic',
-    marginBottom: spacing.xs,
-  },
-  verseReference: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: '600',
-  },
-  postActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-  },
-  actionText: {
-    fontSize: typography.fontSizes.sm,
-    marginLeft: spacing.xs,
-  },
-  joinButton: {
-    margin: spacing.md,
-    marginTop: spacing.lg,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  joinButtonGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.md,
-  },
-  joinButtonText: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    marginLeft: spacing.sm,
-  },
-});
