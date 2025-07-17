@@ -1,11 +1,28 @@
-import { Tabs } from "expo-router";
-import { Home, MessageCircle, User, Book, MoreHorizontal } from "lucide-react-native";
+import { Tabs, useRouter } from "expo-router";
+import { Home, MessageCircle, User, Book, MoreHorizontal, ArrowLeft } from "lucide-react-native";
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, TouchableOpacity, View } from "react-native";
 import { useTheme } from "@/components/ThemeProvider";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  
+  const BackButton = () => (
+    <TouchableOpacity
+      onPress={() => router.back()}
+      style={{
+        padding: 8,
+        marginLeft: Platform.OS === 'ios' ? 4 : 8,
+        marginTop: Platform.OS === 'ios' ? insets.top > 44 ? 4 : 2 : 0,
+      }}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+    >
+      <ArrowLeft color={colors.primary} size={24} />
+    </TouchableOpacity>
+  );
   
   return (
     <Tabs
@@ -45,10 +62,9 @@ export default function TabLayout() {
           color: colors.text,
           fontSize: 18,
         },
-
-        headerLeftContainerStyle: {
-          paddingLeft: Platform.OS === 'ios' ? 8 : 16,
-        },
+        swipeEnabled: true,
+        animationEnabled: true,
+        gestureEnabled: true,
       }}
     >
       <Tabs.Screen
@@ -85,36 +101,54 @@ export default function TabLayout() {
         name="profile"
         options={{
           href: null,
+          headerShown: true,
+          title: "Profil",
+          headerLeft: () => <BackButton />,
         }}
       />
       <Tabs.Screen
         name="meditation"
         options={{
           href: null,
+          headerShown: true,
+          title: "Méditation",
+          headerLeft: () => <BackButton />,
         }}
       />
       <Tabs.Screen
         name="journal"
         options={{
           href: null,
+          headerShown: true,
+          title: "Journal Spirituel",
+          headerLeft: () => <BackButton />,
         }}
       />
       <Tabs.Screen
         name="reading-plan"
         options={{
           href: null,
+          headerShown: true,
+          title: "Plan de Lecture",
+          headerLeft: () => <BackButton />,
         }}
       />
       <Tabs.Screen
         name="insights"
         options={{
           href: null,
+          headerShown: true,
+          title: "Insights",
+          headerLeft: () => <BackButton />,
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
           href: null,
+          headerShown: true,
+          title: "Communauté",
+          headerLeft: () => <BackButton />,
         }}
       />
     </Tabs>

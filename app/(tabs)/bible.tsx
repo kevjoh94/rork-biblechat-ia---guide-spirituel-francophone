@@ -8,6 +8,7 @@ import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { bibleBooks } from "@/mocks/bible-books";
+import TabIndicator from "@/components/TabIndicator";
 
 export default function BibleScreen() {
   const router = useRouter();
@@ -126,6 +127,7 @@ export default function BibleScreen() {
           </View>
         )}
       </View>
+      <TabIndicator />
     </ScrollView>
   );
 }

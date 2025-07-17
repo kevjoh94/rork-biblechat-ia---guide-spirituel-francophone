@@ -21,6 +21,7 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useSpiritualStore } from "@/store/spiritual-store";
 import { ChatMessage } from "@/types/spiritual";
+import TabIndicator from "@/components/TabIndicator";
 
 const SYSTEM_PROMPT = `Tu es BibleChat IA, un assistant spirituel francophone, bienveillant et empathique.
 Ta mission est d'aider les utilisateurs à trouver des réponses à leurs questions personnelles ou spirituelles en s'appuyant sur la Bible (Segond 21 ou Louis Segond).
@@ -539,6 +540,7 @@ Peux-tu réessayer dans quelques instants ?`,
           </View>
         )}
       </View>
+      <TabIndicator />
     </KeyboardAvoidingView>
   );
 }

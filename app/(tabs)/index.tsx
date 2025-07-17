@@ -11,6 +11,7 @@ import { DailyVerseCard } from "@/components/DailyVerseCard";
 import { SpiritualCategoryCard } from "@/components/SpiritualCategoryCard";
 import { ProgressTracker } from "@/components/ProgressTracker";
 import { useTheme } from "@/components/ThemeProvider";
+import TabIndicator from "@/components/TabIndicator";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { spiritualCategories } from "@/mocks/spiritual-categories";
@@ -232,6 +233,7 @@ export default function HomeScreen() {
           )}
         </View>
       </View>
+      <TabIndicator />
     </ScrollView>
   );
 }
