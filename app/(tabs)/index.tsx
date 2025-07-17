@@ -10,7 +10,7 @@ import { Button } from "@/components/Button";
 import { DailyVerseCard } from "@/components/DailyVerseCard";
 import { SpiritualCategoryCard } from "@/components/SpiritualCategoryCard";
 import { ProgressTracker } from "@/components/ProgressTracker";
-import { useTheme } from "@/components/ThemeProvider";
+import { colors } from "@/constants/colors";
 import TabIndicator from "@/components/TabIndicator";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import ReadingProgress from "@/components/ReadingProgress";
@@ -22,7 +22,6 @@ import { useSpiritualStore } from "@/store/spiritual-store";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<"featured" | "favorites">("featured");
   // Use direct selectors to prevent infinite loops
   const content = useSpiritualStore((state) => state.content);

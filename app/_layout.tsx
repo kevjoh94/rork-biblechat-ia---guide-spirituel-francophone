@@ -6,10 +6,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NotificationManager from "@/components/NotificationManager";
 import NotificationBanner from "@/components/NotificationBanner";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import SwipeNavigation from "@/components/SwipeNavigation";
 import QuickNavigation from "@/components/QuickNavigation";
+import { colors } from "@/constants/colors";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -17,7 +17,6 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
-  const { colors } = useTheme();
   const [notification, setNotification] = useState<{
     visible: boolean;
     type: 'success' | 'error' | 'warning' | 'info';
@@ -73,9 +72,7 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <RootLayoutNav />
-        </ThemeProvider>
+        <RootLayoutNav />
       </QueryClientProvider>
     </ErrorBoundary>
   );

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BookOpen, Target, Calendar, Award } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '@/components/ThemeProvider';
+import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 
@@ -18,7 +18,6 @@ export default function ReadingProgress({
   chapter, 
   onProgressUpdate 
 }: ReadingProgressProps) {
-  const { colors } = useTheme();
   const [todayProgress, setTodayProgress] = useState({
     chaptersRead: 0,
     versesRead: 0,

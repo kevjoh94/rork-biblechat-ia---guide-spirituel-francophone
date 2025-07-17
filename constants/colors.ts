@@ -1,4 +1,4 @@
-export const lightColors = {
+export const colors = {
   primary: "#6B4E71", // Violet spirituel principal
   primaryLight: "#E8E0EA", // Version claire du primary
   secondary: "#8B7355", // Brun doré spirituel
@@ -40,49 +40,3 @@ export const lightColors = {
   hopeGradient: ["#F2C4B3", "#F5D5C8"] as readonly [string, string],
   cardGradient: ["#FFFFFF", "#F8F6F3"] as readonly [string, string],
 };
-
-export const darkColors = {
-  primary: "#9B7EAF", // Violet spirituel plus clair
-  primaryLight: "#4A3A4F", // Version sombre du primary
-  secondary: "#B8A082", // Brun doré plus clair
-  accent: "#F4D03F", // Or plus lumineux
-  background: "#1A1A1A",
-  card: "#2D2D2D",
-  cardSecondary: "#3A3A3A",
-  text: "#FFFFFF",
-  textSecondary: "#B0B0B0",
-  textLight: "#808080",
-  border: "#404040",
-  borderLight: "#505050",
-  success: "#66BB6A",
-  error: "#EF5350",
-  warning: "#FFA726",
-  info: "#42A5F5",
-  white: "#FFFFFF",
-  black: "#000000",
-  shadow: "#000000",
-  overlay: "rgba(0, 0, 0, 0.7)",
-  transparent: "transparent",
-  
-  // Couleurs spirituelles adaptées au mode sombre
-  spiritual: "#9B7EAF",
-  peace: "#8BB4D9",
-  hope: "#F5D4C3",
-  love: "#F598AB",
-  strength: "#A08DCE",
-  gratitude: "#7BCAB7",
-  comfort: "#FBD856",
-  prayer: "#B8A082",
-  wisdom: "#B8A082",
-  surface: "#3A3A3A",
-  
-  // Gradients adaptés au mode sombre
-  primaryGradient: ["#9B7EAF", "#B8A082"] as readonly [string, string],
-  secondaryGradient: ["#B8A082", "#F4D03F"] as readonly [string, string],
-  peacefulGradient: ["#8BB4D9", "#B8D8F1"] as readonly [string, string],
-  hopeGradient: ["#F5D4C3", "#F8E5D8"] as readonly [string, string],
-  cardGradient: ["#2D2D2D", "#3A3A3A"] as readonly [string, string],
-};
-
-// Default to light theme
-export const colors = lightColors;

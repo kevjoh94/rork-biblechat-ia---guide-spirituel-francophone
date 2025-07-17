@@ -2,11 +2,10 @@ import { Tabs, useRouter } from "expo-router";
 import { Home, MessageCircle, User, Book, MoreHorizontal, ArrowLeft } from "lucide-react-native";
 import React from "react";
 import { Platform, TouchableOpacity, View } from "react-native";
-import { useTheme } from "@/components/ThemeProvider";
+import { colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
-  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   

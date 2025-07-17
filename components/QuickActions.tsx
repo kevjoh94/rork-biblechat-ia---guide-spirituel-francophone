@@ -12,7 +12,7 @@ import {
   Headphones
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/components/ThemeProvider';
+import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 
@@ -26,7 +26,6 @@ interface QuickAction {
 }
 
 export default function QuickActions() {
-  const { colors } = useTheme();
   const router = useRouter();
 
   const quickActions: QuickAction[] = [

@@ -35,7 +35,6 @@ interface SpiritualState {
   };
   
   // New state
-  isDarkMode: boolean;
   readingPlans: ReadingPlan[];
   currentReadingPlan: ReadingPlan | null;
   journalEntries: JournalEntry[];
@@ -56,7 +55,6 @@ interface SpiritualState {
   markAsRead: (id: string) => void;
   
   // New actions
-  toggleDarkMode: () => void;
   addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'createdAt'>) => void;
   updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => void;
   deleteJournalEntry: (id: string) => void;
@@ -92,7 +90,6 @@ export const useSpiritualStore = create<SpiritualState>()(
       },
       
       // New state initialization
-      isDarkMode: false,
       readingPlans: [],
       currentReadingPlan: null,
       journalEntries: [],
@@ -238,10 +235,6 @@ export const useSpiritualStore = create<SpiritualState>()(
       },
       
       // New actions implementation
-      toggleDarkMode: () => {
-        set((state) => ({ isDarkMode: !state.isDarkMode }));
-      },
-      
       addJournalEntry: (entry) => {
         set((state) => {
           const newEntry: JournalEntry = {
