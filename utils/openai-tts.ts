@@ -22,9 +22,8 @@ export class OpenAITTSService {
   async generateSpeech(options: OpenAITTSOptions): Promise<string> {
     try {
       const apiKey = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
-      if (!apiKey || apiKey === 'your_openai_api_key_here') {
-        console.warn('OpenAI API key not configured. Using fallback TTS.');
-        // Return a fallback - we'll handle this in the speak method
+      if (!apiKey || apiKey === 'your_openai_api_key_here' || apiKey.trim() === '') {
+        console.log('OpenAI API key not configured. Using fallback TTS.');
         throw new Error('API_KEY_NOT_CONFIGURED');
       }
 
@@ -77,6 +76,7 @@ export class OpenAITTSService {
         }
       } catch (error: any) {
         if (error.message === 'API_KEY_NOT_CONFIGURED') {
+          console.log('OpenAI API key not configured, using system TTS fallback');
           // Fallback to system TTS
           return this.fallbackToSystemTTS(text);
         }
@@ -84,7 +84,13 @@ export class OpenAITTSService {
       }
     } catch (error) {
       console.error('Error in speak:', error);
-      throw error;
+      // If all else fails, try system TTS as last resort
+      try {
+        return this.fallbackToSystemTTS(text);
+      } catch (fallbackError) {
+        console.error('Fallback TTS also failed:', fallbackError);
+        throw error; // Throw original error
+      }
     }
   }
 
@@ -132,21 +138,30 @@ export class OpenAITTSService {
       
       this.isPlaying = true;
       
-      sound.setOnPlaybackStatusUpdate((status: any) => {
-        if (status.didJustFinish) {
+      return new Promise((resolve, reject) => {
+        sound.setOnPlaybackStatusUpdate((status: any) => {
+          if (status.didJustFinish) {
+            this.isPlaying = false;
+            sound.unloadAsync();
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+          }
+          if (status.error) {
+            this.isPlaying = false;
+            sound.unloadAsync();
+            URL.revokeObjectURL(audioUrl);
+            console.error('Audio playback error:', status.error);
+            reject(new Error('Audio playback failed'));
+          }
+        });
+        
+        sound.playAsync().catch((error) => {
           this.isPlaying = false;
           sound.unloadAsync();
           URL.revokeObjectURL(audioUrl);
-        }
-        if (status.error) {
-          this.isPlaying = false;
-          sound.unloadAsync();
-          URL.revokeObjectURL(audioUrl);
-          console.error('Audio playback error:', status.error);
-        }
+          reject(error);
+        });
       });
-      
-      await sound.playAsync();
     } catch (error) {
       this.isPlaying = false;
       URL.revokeObjectURL(audioUrl);
@@ -155,21 +170,45 @@ export class OpenAITTSService {
   }
 
   stop(): void {
-    if (Platform.OS === 'web' && this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio.currentTime = 0;
-      this.currentAudio = null;
+    try {
+      if (Platform.OS === 'web') {
+        // Stop web audio
+        if (this.currentAudio) {
+          this.currentAudio.pause();
+          this.currentAudio.currentTime = 0;
+          this.currentAudio = null;
+        }
+        // Stop web speech synthesis
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      } else {
+        // Stop mobile speech
+        try {
+          const { Speech } = require('expo-speech');
+          Speech.stop();
+        } catch (error) {
+          console.warn('Could not stop expo-speech:', error);
+        }
+      }
+    } catch (error) {
+      console.warn('Error stopping TTS:', error);
     }
     this.isPlaying = false;
   }
 
   private async fallbackToSystemTTS(text: string): Promise<void> {
     try {
+      console.log('Using system TTS fallback');
+      
       if (Platform.OS === 'web') {
         // Use Web Speech API as fallback
         if ('speechSynthesis' in window) {
+          // Cancel any ongoing speech
+          window.speechSynthesis.cancel();
+          
           const utterance = new SpeechSynthesisUtterance(text);
-          utterance.rate = 1.0;
+          utterance.rate = 0.9;
           utterance.pitch = 1.0;
           utterance.volume = 1.0;
           
@@ -180,37 +219,54 @@ export class OpenAITTSService {
             };
             utterance.onerror = (error) => {
               this.isPlaying = false;
-              reject(error);
+              console.error('Web Speech API error:', error);
+              reject(new Error('Web Speech API failed'));
             };
             
-            window.speechSynthesis.speak(utterance);
-            this.isPlaying = true;
+            try {
+              window.speechSynthesis.speak(utterance);
+              this.isPlaying = true;
+            } catch (error) {
+              this.isPlaying = false;
+              reject(error);
+            }
           });
         } else {
           throw new Error('Speech synthesis not supported in this browser');
         }
       } else {
         // Use expo-speech as fallback for mobile
-        const { Speech } = require('expo-speech');
-        
-        return new Promise((resolve, reject) => {
-          Speech.speak(text, {
-            onDone: () => {
-              this.isPlaying = false;
-              resolve();
-            },
-            onError: (error: any) => {
-              this.isPlaying = false;
-              reject(error);
-            },
-            rate: 1.0,
-            pitch: 1.0,
+        try {
+          const { Speech } = require('expo-speech');
+          
+          // Stop any ongoing speech
+          Speech.stop();
+          
+          return new Promise((resolve, reject) => {
+            Speech.speak(text, {
+              onDone: () => {
+                this.isPlaying = false;
+                resolve();
+              },
+              onError: (error: any) => {
+                this.isPlaying = false;
+                console.error('Expo Speech error:', error);
+                reject(new Error('System TTS failed'));
+              },
+              rate: 0.9,
+              pitch: 1.0,
+              language: 'fr-FR', // French language
+            });
+            this.isPlaying = true;
           });
-          this.isPlaying = true;
-        });
+        } catch (error) {
+          console.error('Failed to load expo-speech:', error);
+          throw new Error('System TTS not available');
+        }
       }
     } catch (error) {
       console.error('Fallback TTS error:', error);
+      this.isPlaying = false;
       throw error;
     }
   }

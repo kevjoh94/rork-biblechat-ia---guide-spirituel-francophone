@@ -141,7 +141,7 @@ export default function ChapterScreen() {
       });
     } catch (error) {
       console.warn('Error speaking verse:', error);
-      Alert.alert('Erreur', 'Impossible de lire le verset. Vérifiez votre connexion internet.');
+      Alert.alert('Erreur', 'Impossible de lire le verset. Veuillez réessayer.');
     }
   };
 
@@ -220,19 +220,10 @@ export default function ChapterScreen() {
 
       setIsSpeaking(false);
     } catch (error) {
-      console.error('Erreur OpenAI TTS:', error);
+      console.error('Erreur TTS:', error);
       setIsSpeaking(false);
       
-      let errorMessage = "Impossible de lire le chapitre.";
-      if (error instanceof Error) {
-        if (error.message.includes('API')) {
-          errorMessage = "Erreur de connexion à l'API OpenAI. Vérifiez votre connexion internet.";
-        } else if (error.message.includes('401')) {
-          errorMessage = "Clé API OpenAI invalide.";
-        }
-      }
-      
-      Alert.alert('Erreur TTS', errorMessage);
+      Alert.alert('Erreur', 'Impossible de lire le chapitre. Veuillez réessayer.');
     }
   };
 
