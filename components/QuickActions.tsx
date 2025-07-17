@@ -21,7 +21,7 @@ interface QuickAction {
   title: string;
   subtitle: string;
   icon: any;
-  colors: string[];
+  colors: readonly [string, string, ...string[]];
   route: string;
 }
 
@@ -31,7 +31,7 @@ const quickActions: QuickAction[] = [
     title: 'Chat IA',
     subtitle: 'Pose tes questions',
     icon: MessageCircle,
-    colors: [colors.primary, colors.primary + 'CC'],
+    colors: [colors.primary, colors.primary + 'CC'] as const,
     route: '/(tabs)/chat'
   },
   {
@@ -39,7 +39,7 @@ const quickActions: QuickAction[] = [
     title: 'Lire la Bible',
     subtitle: 'Explore les Écritures',
     icon: BookOpen,
-    colors: [colors.secondary, colors.secondary + 'CC'],
+    colors: [colors.secondary, colors.secondary + 'CC'] as const,
     route: '/(tabs)/bible'
   },
   {
@@ -47,7 +47,7 @@ const quickActions: QuickAction[] = [
     title: 'Méditation',
     subtitle: 'Moment de paix',
     icon: Headphones,
-    colors: [colors.gratitude, colors.gratitude + 'CC'],
+    colors: [colors.gratitude, colors.gratitude + 'CC'] as const,
     route: '/(tabs)/meditation'
   },
   {
@@ -55,7 +55,7 @@ const quickActions: QuickAction[] = [
     title: 'Journal',
     subtitle: 'Écris tes pensées',
     icon: PenTool,
-    colors: [colors.accent, colors.accent + 'CC'],
+    colors: [colors.accent, colors.accent + 'CC'] as const,
     route: '/(tabs)/journal'
   },
   {
@@ -63,7 +63,7 @@ const quickActions: QuickAction[] = [
     title: 'Plan quotidien',
     subtitle: 'Organise ta journée',
     icon: Target,
-    colors: ['#8B5CF6', '#8B5CF6CC'],
+    colors: ['#8B5CF6', '#8B5CF6CC'] as const,
     route: '/daily-plan'
   },
   {
@@ -71,7 +71,7 @@ const quickActions: QuickAction[] = [
     title: 'Calendrier',
     subtitle: 'Vois ton progrès',
     icon: Calendar,
-    colors: ['#06B6D4', '#06B6D4CC'],
+    colors: ['#06B6D4', '#06B6D4CC'] as const,
     route: '/calendar'
   }
 ];
