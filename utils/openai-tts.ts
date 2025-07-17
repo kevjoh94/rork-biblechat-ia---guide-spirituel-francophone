@@ -23,7 +23,9 @@ export class OpenAITTSService {
     try {
       const apiKey = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
       if (!apiKey || apiKey === 'your_openai_api_key_here') {
-        throw new Error('OpenAI API key not configured. Please set EXPO_PUBLIC_OPENAI_API_KEY in your .env file.');
+        console.warn('OpenAI API key not configured. Using fallback TTS.');
+        // Return a fallback - we'll handle this in the speak method
+        throw new Error('API_KEY_NOT_CONFIGURED');
       }
 
       const response = await fetch('https://api.openai.com/v1/audio/speech', {
@@ -59,18 +61,26 @@ export class OpenAITTSService {
       // Stop any current playback
       this.stop();
 
-      const audioUrl = await this.generateSpeech({
-        text,
-        voice: options?.voice || 'nova',
-        model: options?.model || 'tts-1',
-        speed: options?.speed || 1.0,
-      });
+      try {
+        const audioUrl = await this.generateSpeech({
+          text,
+          voice: options?.voice || 'nova',
+          model: options?.model || 'tts-1',
+          speed: options?.speed || 1.0,
+        });
 
-      if (Platform.OS === 'web') {
-        return this.playWebAudio(audioUrl);
-      } else {
-        // For mobile, we'll use expo-av
-        return this.playMobileAudio(audioUrl);
+        if (Platform.OS === 'web') {
+          return this.playWebAudio(audioUrl);
+        } else {
+          // For mobile, we'll use expo-av
+          return this.playMobileAudio(audioUrl);
+        }
+      } catch (error: any) {
+        if (error.message === 'API_KEY_NOT_CONFIGURED') {
+          // Fallback to system TTS
+          return this.fallbackToSystemTTS(text);
+        }
+        throw error;
       }
     } catch (error) {
       console.error('Error in speak:', error);
@@ -151,6 +161,58 @@ export class OpenAITTSService {
       this.currentAudio = null;
     }
     this.isPlaying = false;
+  }
+
+  private async fallbackToSystemTTS(text: string): Promise<void> {
+    try {
+      if (Platform.OS === 'web') {
+        // Use Web Speech API as fallback
+        if ('speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          utterance.volume = 1.0;
+          
+          return new Promise((resolve, reject) => {
+            utterance.onend = () => {
+              this.isPlaying = false;
+              resolve();
+            };
+            utterance.onerror = (error) => {
+              this.isPlaying = false;
+              reject(error);
+            };
+            
+            window.speechSynthesis.speak(utterance);
+            this.isPlaying = true;
+          });
+        } else {
+          throw new Error('Speech synthesis not supported in this browser');
+        }
+      } else {
+        // Use expo-speech as fallback for mobile
+        const { Speech } = require('expo-speech');
+        
+        return new Promise((resolve, reject) => {
+          Speech.speak(text, {
+            onDone: () => {
+              this.isPlaying = false;
+              resolve();
+            },
+            onError: (error: any) => {
+              this.isPlaying = false;
+              reject(error);
+            },
+            rate: 1.0,
+            pitch: 1.0,
+          });
+          this.isPlaying = true;
+        });
+      }
+    } catch (error) {
+      console.error('Fallback TTS error:', error);
+      throw error;
+    }
   }
 
   getIsPlaying(): boolean {
