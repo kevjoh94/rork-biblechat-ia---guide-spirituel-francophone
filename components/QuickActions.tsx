@@ -1,1 +1,186 @@
-import React from 'react';\nimport { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';\nimport { LinearGradient } from 'expo-linear-gradient';\nimport { \n  MessageCircle, \n  BookOpen, \n  Heart, \n  Calendar, \n  Target, \n  Sparkles,\n  PenTool,\n  Headphones\n} from 'lucide-react-native';\nimport { useRouter } from 'expo-router';\nimport { colors } from '@/constants/colors';\nimport { spacing } from '@/constants/spacing';\nimport { typography } from '@/constants/typography';\n\ninterface QuickAction {\n  id: string;\n  title: string;\n  subtitle: string;\n  icon: any;\n  colors: string[];\n  route: string;\n}\n\nconst quickActions: QuickAction[] = [\n  {\n    id: 'chat',\n    title: 'Chat IA',\n    subtitle: 'Pose tes questions',\n    icon: MessageCircle,\n    colors: [colors.primary, colors.primary + 'CC'],\n    route: '/(tabs)/chat'\n  },\n  {\n    id: 'bible',\n    title: 'Lire la Bible',\n    subtitle: 'Explore les Écritures',\n    icon: BookOpen,\n    colors: [colors.secondary, colors.secondary + 'CC'],\n    route: '/(tabs)/bible'\n  },\n  {\n    id: 'meditation',\n    title: 'Méditation',\n    subtitle: 'Moment de paix',\n    icon: Headphones,\n    colors: [colors.gratitude, colors.gratitude + 'CC'],\n    route: '/(tabs)/meditation'\n  },\n  {\n    id: 'journal',\n    title: 'Journal',\n    subtitle: 'Écris tes pensées',\n    icon: PenTool,\n    colors: [colors.accent, colors.accent + 'CC'],\n    route: '/(tabs)/journal'\n  },\n  {\n    id: 'plan',\n    title: 'Plan quotidien',\n    subtitle: 'Organise ta journée',\n    icon: Target,\n    colors: ['#8B5CF6', '#8B5CF6CC'],\n    route: '/daily-plan'\n  },\n  {\n    id: 'calendar',\n    title: 'Calendrier',\n    subtitle: 'Vois ton progrès',\n    icon: Calendar,\n    colors: ['#06B6D4', '#06B6D4CC'],\n    route: '/calendar'\n  }\n];\n\nexport default function QuickActions() {\n  const router = useRouter();\n\n  const handleActionPress = (route: string) => {\n    router.push(route as any);\n  };\n\n  return (\n    <View style={styles.container}>\n      <View style={styles.header}>\n        <Sparkles size={20} color={colors.primary} />\n        <Text style={styles.title}>Actions rapides</Text>\n      </View>\n      \n      <ScrollView \n        horizontal \n        showsHorizontalScrollIndicator={false}\n        contentContainerStyle={styles.scrollContent}\n        style={styles.scrollView}\n      >\n        {quickActions.map((action) => (\n          <TouchableOpacity\n            key={action.id}\n            onPress={() => handleActionPress(action.route)}\n            style={styles.actionCard}\n          >\n            <LinearGradient\n              colors={action.colors}\n              start={{ x: 0, y: 0 }}\n              end={{ x: 1, y: 1 }}\n              style={styles.actionGradient}\n            >\n              <View style={styles.actionIcon}>\n                <action.icon size={24} color={colors.white} />\n              </View>\n              <Text style={styles.actionTitle}>{action.title}</Text>\n              <Text style={styles.actionSubtitle}>{action.subtitle}</Text>\n            </LinearGradient>\n          </TouchableOpacity>\n        ))}\n      </ScrollView>\n    </View>\n  );\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    marginVertical: spacing.lg,\n  },\n  header: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    marginBottom: spacing.md,\n    paddingHorizontal: spacing.md,\n  },\n  title: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '600',\n    color: colors.text,\n    marginLeft: spacing.sm,\n  },\n  scrollView: {\n    marginHorizontal: -spacing.md,\n  },\n  scrollContent: {\n    paddingHorizontal: spacing.md,\n    gap: spacing.md,\n  },\n  actionCard: {\n    width: 140,\n    height: 120,\n    borderRadius: 16,\n    shadowColor: colors.black,\n    shadowOffset: { width: 0, height: 4 },\n    shadowOpacity: 0.1,\n    shadowRadius: 8,\n    elevation: 4,\n  },\n  actionGradient: {\n    flex: 1,\n    borderRadius: 16,\n    padding: spacing.md,\n    justifyContent: 'center',\n    alignItems: 'center',\n  },\n  actionIcon: {\n    width: 48,\n    height: 48,\n    borderRadius: 24,\n    backgroundColor: colors.white + '20',\n    justifyContent: 'center',\n    alignItems: 'center',\n    marginBottom: spacing.sm,\n  },\n  actionTitle: {\n    fontSize: typography.fontSizes.md,\n    fontWeight: '600',\n    color: colors.white,\n    textAlign: 'center',\n    marginBottom: spacing.xs,\n  },\n  actionSubtitle: {\n    fontSize: typography.fontSizes.xs,\n    color: colors.white,\n    opacity: 0.9,\n    textAlign: 'center',\n    lineHeight: typography.lineHeights.sm,\n  },\n});"
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { 
+  MessageCircle, 
+  BookOpen, 
+  Heart, 
+  Calendar, 
+  Target, 
+  Sparkles,
+  PenTool,
+  Headphones
+} from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { colors } from '@/constants/colors';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+
+interface QuickAction {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: any;
+  colors: string[];
+  route: string;
+}
+
+const quickActions: QuickAction[] = [
+  {
+    id: 'chat',
+    title: 'Chat IA',
+    subtitle: 'Pose tes questions',
+    icon: MessageCircle,
+    colors: [colors.primary, colors.primary + 'CC'],
+    route: '/(tabs)/chat'
+  },
+  {
+    id: 'bible',
+    title: 'Lire la Bible',
+    subtitle: 'Explore les Écritures',
+    icon: BookOpen,
+    colors: [colors.secondary, colors.secondary + 'CC'],
+    route: '/(tabs)/bible'
+  },
+  {
+    id: 'meditation',
+    title: 'Méditation',
+    subtitle: 'Moment de paix',
+    icon: Headphones,
+    colors: [colors.gratitude, colors.gratitude + 'CC'],
+    route: '/(tabs)/meditation'
+  },
+  {
+    id: 'journal',
+    title: 'Journal',
+    subtitle: 'Écris tes pensées',
+    icon: PenTool,
+    colors: [colors.accent, colors.accent + 'CC'],
+    route: '/(tabs)/journal'
+  },
+  {
+    id: 'plan',
+    title: 'Plan quotidien',
+    subtitle: 'Organise ta journée',
+    icon: Target,
+    colors: ['#8B5CF6', '#8B5CF6CC'],
+    route: '/daily-plan'
+  },
+  {
+    id: 'calendar',
+    title: 'Calendrier',
+    subtitle: 'Vois ton progrès',
+    icon: Calendar,
+    colors: ['#06B6D4', '#06B6D4CC'],
+    route: '/calendar'
+  }
+];
+
+export default function QuickActions() {
+  const router = useRouter();
+
+  const handleActionPress = (route: string) => {
+    router.push(route as any);
+  };
+
+  const renderAction = (action: QuickAction) => {
+    const IconComponent = action.icon;
+    
+    return (
+      <TouchableOpacity
+        key={action.id}
+        style={styles.actionCard}
+        onPress={() => handleActionPress(action.route)}
+        activeOpacity={0.8}
+      >
+        <LinearGradient
+          colors={action.colors}
+          style={styles.actionGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={styles.actionContent}>
+            <View style={styles.iconContainer}>
+              <IconComponent size={24} color="white" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.actionTitle}>{action.title}</Text>
+              <Text style={styles.actionSubtitle}>{action.subtitle}</Text>
+            </View>
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionTitle}>Actions rapides</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        style={styles.scrollView}
+      >
+        {quickActions.map(renderAction)}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text,
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  scrollView: {
+    paddingLeft: spacing.lg,
+  },
+  scrollContent: {
+    paddingRight: spacing.lg,
+  },
+  actionCard: {
+    width: 160,
+    height: 100,
+    marginRight: spacing.md,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  actionGradient: {
+    flex: 1,
+    padding: spacing.md,
+  },
+  actionContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  iconContainer: {
+    alignSelf: 'flex-start',
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  actionTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
+    color: 'white',
+    marginBottom: 2,
+  },
+  actionSubtitle: {
+    fontSize: typography.fontSizes.sm,
+    color: 'rgba(255, 255, 255, 0.8)',
+    lineHeight: typography.lineHeights.sm,
+  },
+});

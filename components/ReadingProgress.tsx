@@ -1,1 +1,227 @@
-import React, { useState, useEffect } from 'react';\nimport { View, Text, StyleSheet, TouchableOpacity } from 'react-native';\nimport { LinearGradient } from 'expo-linear-gradient';\nimport { BookOpen, Target, Calendar, Award } from 'lucide-react-native';\nimport AsyncStorage from '@react-native-async-storage/async-storage';\nimport { colors } from '@/constants/colors';\nimport { spacing } from '@/constants/spacing';\nimport { typography } from '@/constants/typography';\n\ninterface ReadingProgressProps {\n  bookId?: string;\n  chapter?: number;\n  onProgressUpdate?: (progress: any) => void;\n}\n\nexport default function ReadingProgress({ \n  bookId, \n  chapter, \n  onProgressUpdate \n}: ReadingProgressProps) {\n  const [todayProgress, setTodayProgress] = useState({\n    chaptersRead: 0,\n    versesRead: 0,\n    timeSpent: 0, // in minutes\n    streak: 0\n  });\n  const [weeklyGoal, setWeeklyGoal] = useState(7); // chapters per week\n  const [weeklyProgress, setWeeklyProgress] = useState(0);\n\n  useEffect(() => {\n    loadProgress();\n  }, []);\n\n  useEffect(() => {\n    if (bookId && chapter) {\n      markChapterRead(bookId, chapter);\n    }\n  }, [bookId, chapter]);\n\n  const loadProgress = async () => {\n    try {\n      const today = new Date().toDateString();\n      const savedProgress = await AsyncStorage.getItem(`reading_progress_${today}`);\n      const weeklyData = await AsyncStorage.getItem('weekly_reading_progress');\n      const goalData = await AsyncStorage.getItem('weekly_reading_goal');\n      \n      if (savedProgress) {\n        setTodayProgress(JSON.parse(savedProgress));\n      }\n      \n      if (weeklyData) {\n        setWeeklyProgress(JSON.parse(weeklyData));\n      }\n      \n      if (goalData) {\n        setWeeklyGoal(JSON.parse(goalData));\n      }\n    } catch (error) {\n      console.warn('Error loading reading progress:', error);\n    }\n  };\n\n  const markChapterRead = async (bookId: string, chapter: number) => {\n    try {\n      const today = new Date().toDateString();\n      const chapterKey = `${bookId}_${chapter}`;\n      \n      // Check if already read today\n      const readToday = await AsyncStorage.getItem(`chapter_read_${today}`);\n      const chaptersReadToday = readToday ? JSON.parse(readToday) : [];\n      \n      if (!chaptersReadToday.includes(chapterKey)) {\n        chaptersReadToday.push(chapterKey);\n        await AsyncStorage.setItem(`chapter_read_${today}`, JSON.stringify(chaptersReadToday));\n        \n        // Update progress\n        const newProgress = {\n          ...todayProgress,\n          chaptersRead: todayProgress.chaptersRead + 1,\n          versesRead: todayProgress.versesRead + 25 // average verses per chapter\n        };\n        \n        setTodayProgress(newProgress);\n        await AsyncStorage.setItem(`reading_progress_${today}`, JSON.stringify(newProgress));\n        \n        // Update weekly progress\n        const newWeeklyProgress = weeklyProgress + 1;\n        setWeeklyProgress(newWeeklyProgress);\n        await AsyncStorage.setItem('weekly_reading_progress', JSON.stringify(newWeeklyProgress));\n        \n        if (onProgressUpdate) {\n          onProgressUpdate({ daily: newProgress, weekly: newWeeklyProgress });\n        }\n      }\n    } catch (error) {\n      console.warn('Error marking chapter as read:', error);\n    }\n  };\n\n  const getProgressPercentage = () => {\n    return Math.min((weeklyProgress / weeklyGoal) * 100, 100);\n  };\n\n  const getStreakColor = () => {\n    if (todayProgress.streak >= 7) return colors.success;\n    if (todayProgress.streak >= 3) return colors.accent;\n    return colors.primary;\n  };\n\n  return (\n    <View style={styles.container}>\n      <LinearGradient\n        colors={[colors.white, colors.cardSecondary + '40']}\n        style={styles.content}\n      >\n        <View style={styles.header}>\n          <View style={styles.headerIcon}>\n            <Target size={20} color={colors.primary} />\n          </View>\n          <Text style={styles.title}>Progrès de lecture</Text>\n        </View>\n        \n        {/* Today's Progress */}\n        <View style={styles.todaySection}>\n          <Text style={styles.sectionTitle}>Aujourd'hui</Text>\n          <View style={styles.statsRow}>\n            <View style={styles.statItem}>\n              <View style={[styles.statIcon, { backgroundColor: colors.primary + '15' }]}>\n                <BookOpen size={16} color={colors.primary} />\n              </View>\n              <Text style={styles.statNumber}>{todayProgress.chaptersRead}</Text>\n              <Text style={styles.statLabel}>Chapitres</Text>\n            </View>\n            \n            <View style={styles.statItem}>\n              <View style={[styles.statIcon, { backgroundColor: colors.accent + '15' }]}>\n                <Calendar size={16} color={colors.accent} />\n              </View>\n              <Text style={styles.statNumber}>{todayProgress.versesRead}</Text>\n              <Text style={styles.statLabel}>Versets</Text>\n            </View>\n            \n            <View style={styles.statItem}>\n              <View style={[styles.statIcon, { backgroundColor: getStreakColor() + '15' }]}>\n                <Award size={16} color={getStreakColor()} />\n              </View>\n              <Text style={styles.statNumber}>{todayProgress.streak}</Text>\n              <Text style={styles.statLabel}>Série</Text>\n            </View>\n          </View>\n        </View>\n        \n        {/* Weekly Goal */}\n        <View style={styles.weeklySection}>\n          <View style={styles.goalHeader}>\n            <Text style={styles.sectionTitle}>Objectif hebdomadaire</Text>\n            <Text style={styles.goalProgress}>\n              {weeklyProgress}/{weeklyGoal}\n            </Text>\n          </View>\n          \n          <View style={styles.progressBarContainer}>\n            <View style={styles.progressBarBackground}>\n              <LinearGradient\n                colors={[colors.primary, colors.secondary]}\n                start={{ x: 0, y: 0 }}\n                end={{ x: 1, y: 0 }}\n                style={[\n                  styles.progressBarFill,\n                  { width: `${getProgressPercentage()}%` }\n                ]}\n              />\n            </View>\n            <Text style={styles.progressPercentage}>\n              {Math.round(getProgressPercentage())}%\n            </Text>\n          </View>\n          \n          {weeklyProgress >= weeklyGoal && (\n            <View style={styles.achievementBadge}>\n              <Award size={16} color={colors.success} />\n              <Text style={styles.achievementText}>Objectif atteint ! 🎉</Text>\n            </View>\n          )}\n        </View>\n      </LinearGradient>\n    </View>\n  );\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    marginVertical: spacing.md,\n    borderRadius: 16,\n    shadowColor: colors.black,\n    shadowOffset: { width: 0, height: 4 },\n    shadowOpacity: 0.08,\n    shadowRadius: 12,\n    elevation: 4,\n  },\n  content: {\n    borderRadius: 16,\n    padding: spacing.lg,\n  },\n  header: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    marginBottom: spacing.lg,\n  },\n  headerIcon: {\n    width: 32,\n    height: 32,\n    borderRadius: 16,\n    backgroundColor: colors.primary + '15',\n    justifyContent: 'center',\n    alignItems: 'center',\n    marginRight: spacing.sm,\n  },\n  title: {\n    fontSize: typography.fontSizes.lg,\n    fontWeight: '600',\n    color: colors.text,\n  },\n  todaySection: {\n    marginBottom: spacing.lg,\n  },\n  sectionTitle: {\n    fontSize: typography.fontSizes.md,\n    fontWeight: '600',\n    color: colors.text,\n    marginBottom: spacing.md,\n  },\n  statsRow: {\n    flexDirection: 'row',\n    justifyContent: 'space-around',\n  },\n  statItem: {\n    alignItems: 'center',\n    flex: 1,\n  },\n  statIcon: {\n    width: 32,\n    height: 32,\n    borderRadius: 16,\n    justifyContent: 'center',\n    alignItems: 'center',\n    marginBottom: spacing.sm,\n  },\n  statNumber: {\n    fontSize: typography.fontSizes.xl,\n    fontWeight: '700',\n    color: colors.text,\n    marginBottom: spacing.xs,\n  },\n  statLabel: {\n    fontSize: typography.fontSizes.sm,\n    color: colors.textSecondary,\n    fontWeight: '500',\n  },\n  weeklySection: {\n    borderTopWidth: 1,\n    borderTopColor: colors.border + '30',\n    paddingTop: spacing.lg,\n  },\n  goalHeader: {\n    flexDirection: 'row',\n    justifyContent: 'space-between',\n    alignItems: 'center',\n    marginBottom: spacing.md,\n  },\n  goalProgress: {\n    fontSize: typography.fontSizes.md,\n    fontWeight: '600',\n    color: colors.primary,\n  },\n  progressBarContainer: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    gap: spacing.sm,\n  },\n  progressBarBackground: {\n    flex: 1,\n    height: 8,\n    backgroundColor: colors.border + '30',\n    borderRadius: 4,\n    overflow: 'hidden',\n  },\n  progressBarFill: {\n    height: '100%',\n    borderRadius: 4,\n  },\n  progressPercentage: {\n    fontSize: typography.fontSizes.sm,\n    fontWeight: '600',\n    color: colors.textSecondary,\n    minWidth: 40,\n    textAlign: 'right',\n  },\n  achievementBadge: {\n    flexDirection: 'row',\n    alignItems: 'center',\n    backgroundColor: colors.success + '15',\n    borderRadius: 12,\n    paddingHorizontal: spacing.md,\n    paddingVertical: spacing.sm,\n    marginTop: spacing.md,\n    gap: spacing.sm,\n  },\n  achievementText: {\n    fontSize: typography.fontSizes.sm,\n    fontWeight: '600',\n    color: colors.success,\n  },\n});"
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BookOpen, Target, Calendar, Award } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { colors } from '@/constants/colors';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+
+interface ReadingProgressProps {
+  bookId?: string;
+  chapter?: number;
+  onProgressUpdate?: (progress: any) => void;
+}
+
+export default function ReadingProgress({ 
+  bookId, 
+  chapter, 
+  onProgressUpdate 
+}: ReadingProgressProps) {
+  const [todayProgress, setTodayProgress] = useState({
+    chaptersRead: 0,
+    versesRead: 0,
+    timeSpent: 0, // in minutes
+    streak: 0
+  });
+  const [weeklyGoal, setWeeklyGoal] = useState(7); // chapters per week
+  const [weeklyProgress, setWeeklyProgress] = useState(0);
+
+  useEffect(() => {
+    loadProgress();
+  }, []);
+
+  useEffect(() => {
+    if (bookId && chapter) {
+      markChapterRead(bookId, chapter);
+    }
+  }, [bookId, chapter]);
+
+  const loadProgress = async () => {
+    try {
+      const today = new Date().toDateString();
+      const savedProgress = await AsyncStorage.getItem(`reading_progress_${today}`);
+      const weeklyData = await AsyncStorage.getItem('weekly_reading_progress');
+      const goalData = await AsyncStorage.getItem('weekly_reading_goal');
+      
+      if (savedProgress) {
+        setTodayProgress(JSON.parse(savedProgress));
+      }
+      
+      if (weeklyData) {
+        setWeeklyProgress(JSON.parse(weeklyData));
+      }
+      
+      if (goalData) {
+        setWeeklyGoal(JSON.parse(goalData));
+      }
+    } catch (error) {
+      console.warn('Error loading reading progress:', error);
+    }
+  };
+
+  const markChapterRead = async (bookId: string, chapter: number) => {
+    try {
+      const today = new Date().toDateString();
+      const newProgress = {
+        ...todayProgress,
+        chaptersRead: todayProgress.chaptersRead + 1,
+        versesRead: todayProgress.versesRead + 25, // Average verses per chapter
+        timeSpent: todayProgress.timeSpent + 5 // Average 5 minutes per chapter
+      };
+
+      setTodayProgress(newProgress);
+      await AsyncStorage.setItem(`reading_progress_${today}`, JSON.stringify(newProgress));
+
+      // Update weekly progress
+      const newWeeklyProgress = weeklyProgress + 1;
+      setWeeklyProgress(newWeeklyProgress);
+      await AsyncStorage.setItem('weekly_reading_progress', JSON.stringify(newWeeklyProgress));
+
+      // Notify parent component
+      if (onProgressUpdate) {
+        onProgressUpdate(newProgress);
+      }
+    } catch (error) {
+      console.warn('Error updating reading progress:', error);
+    }
+  };
+
+  const progressPercentage = Math.min((weeklyProgress / weeklyGoal) * 100, 100);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Progrès de lecture</Text>
+      
+      <View style={styles.statsContainer}>
+        <View style={styles.statItem}>
+          <BookOpen size={20} color={colors.primary} />
+          <Text style={styles.statNumber}>{todayProgress.chaptersRead}</Text>
+          <Text style={styles.statLabel}>Chapitres</Text>
+        </View>
+        
+        <View style={styles.statItem}>
+          <Target size={20} color={colors.secondary} />
+          <Text style={styles.statNumber}>{todayProgress.versesRead}</Text>
+          <Text style={styles.statLabel}>Versets</Text>
+        </View>
+        
+        <View style={styles.statItem}>
+          <Calendar size={20} color={colors.accent} />
+          <Text style={styles.statNumber}>{todayProgress.timeSpent}min</Text>
+          <Text style={styles.statLabel}>Temps</Text>
+        </View>
+        
+        <View style={styles.statItem}>
+          <Award size={20} color={colors.warning} />
+          <Text style={styles.statNumber}>{todayProgress.streak}</Text>
+          <Text style={styles.statLabel}>Série</Text>
+        </View>
+      </View>
+
+      <View style={styles.goalContainer}>
+        <View style={styles.goalHeader}>
+          <Text style={styles.goalTitle}>Objectif hebdomadaire</Text>
+          <Text style={styles.goalProgress}>{weeklyProgress}/{weeklyGoal}</Text>
+        </View>
+        
+        <View style={styles.progressBarContainer}>
+          <View style={styles.progressBarBackground}>
+            <LinearGradient
+              colors={[colors.primary, colors.secondary]}
+              style={[styles.progressBarFill, { width: `${progressPercentage}%` }]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
+          </View>
+          <Text style={styles.progressPercentage}>{Math.round(progressPercentage)}%</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  title: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: spacing.lg,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text,
+    marginTop: spacing.xs,
+  },
+  statLabel: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  goalContainer: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
+  },
+  goalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  goalTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.medium,
+    color: colors.text,
+  },
+  goalProgress: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.primary,
+  },
+  progressBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressBarBackground: {
+    flex: 1,
+    height: 8,
+    backgroundColor: colors.border,
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginRight: spacing.sm,
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressPercentage: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.medium,
+    color: colors.text,
+    minWidth: 35,
+    textAlign: 'right',
+  },
+});

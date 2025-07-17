@@ -1,1 +1,95 @@
-import React from 'react';\nimport { TouchableOpacity, StyleSheet, Text, View } from 'react-native';\nimport { LinearGradient } from 'expo-linear-gradient';\nimport { Moon, Sun } from 'lucide-react-native';\nimport { useTheme } from '@/components/ThemeProvider';\nimport { spacing } from '@/constants/spacing';\nimport { typography } from '@/constants/typography';\n\ninterface ThemeToggleProps {\n  showLabel?: boolean;\n  size?: 'small' | 'medium' | 'large';\n}\n\nexport default function ThemeToggle({ showLabel = true, size = 'medium' }: ThemeToggleProps) {\n  const { colors, isDarkMode, toggleTheme } = useTheme();\n  \n  const getSizes = () => {\n    switch (size) {\n      case 'small':\n        return { width: 32, height: 32, iconSize: 16 };\n      case 'large':\n        return { width: 56, height: 56, iconSize: 24 };\n      default:\n        return { width: 44, height: 44, iconSize: 20 };\n    }\n  };\n  \n  const sizes = getSizes();\n\n  return (\n    <TouchableOpacity onPress={toggleTheme} style={styles.container}>\n      <LinearGradient\n        colors={isDarkMode ? ['#4A5568', '#2D3748'] : ['#EDF2F7', '#E2E8F0']}\n        style={[\n          styles.toggleContainer,\n          {\n            width: sizes.width,\n            height: sizes.height,\n            borderRadius: sizes.height / 2,\n          }\n        ]}\n      >\n        <View\n          style={[\n            styles.toggleButton,\n            {\n              width: sizes.height - 4,\n              height: sizes.height - 4,\n              borderRadius: (sizes.height - 4) / 2,\n              transform: [{ translateX: isDarkMode ? sizes.width - sizes.height : 0 }],\n              backgroundColor: colors.white,\n            }\n          ]}\n        >\n          {isDarkMode ? (\n            <Moon size={sizes.iconSize} color={colors.primary} />\n          ) : (\n            <Sun size={sizes.iconSize} color={colors.accent} />\n          )}\n        </View>\n      </LinearGradient>\n      \n      {showLabel && (\n        <Text style={[styles.label, { color: colors.textSecondary }]}>\n          {isDarkMode ? 'Mode sombre' : 'Mode clair'}\n        </Text>\n      )}\n    </TouchableOpacity>\n  );\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    alignItems: 'center',\n    gap: spacing.sm,\n  },\n  toggleContainer: {\n    justifyContent: 'center',\n    paddingHorizontal: 2,\n    shadowColor: '#000',\n    shadowOffset: { width: 0, height: 2 },\n    shadowOpacity: 0.1,\n    shadowRadius: 4,\n    elevation: 3,\n  },\n  toggleButton: {\n    justifyContent: 'center',\n    alignItems: 'center',\n    shadowColor: '#000',\n    shadowOffset: { width: 0, height: 1 },\n    shadowOpacity: 0.2,\n    shadowRadius: 2,\n    elevation: 2,\n  },\n  label: {\n    fontSize: typography.fontSizes.sm,\n    fontWeight: '500',\n    textAlign: 'center',\n  },\n});"
+import React from 'react';
+import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Moon, Sun } from 'lucide-react-native';
+import { useTheme } from '@/components/ThemeProvider';
+import { spacing } from '@/constants/spacing';
+import { typography } from '@/constants/typography';
+
+interface ThemeToggleProps {
+  showLabel?: boolean;
+  size?: 'small' | 'medium' | 'large';
+}
+
+export default function ThemeToggle({ showLabel = true, size = 'medium' }: ThemeToggleProps) {
+  const { colors, isDarkMode, toggleTheme } = useTheme();
+  
+  const getSizes = () => {
+    switch (size) {
+      case 'small':
+        return { width: 32, height: 32, iconSize: 16 };
+      case 'large':
+        return { width: 56, height: 56, iconSize: 24 };
+      default:
+        return { width: 44, height: 44, iconSize: 20 };
+    }
+  };
+  
+  const sizes = getSizes();
+
+  return (
+    <TouchableOpacity onPress={toggleTheme} style={styles.container}>
+      <LinearGradient
+        colors={isDarkMode ? ['#4A5568', '#2D3748'] : ['#EDF2F7', '#E2E8F0']}
+        style={[
+          styles.toggleContainer,
+          {
+            width: sizes.width,
+            height: sizes.height,
+            borderRadius: sizes.height / 2,
+          }
+        ]}
+      >
+        <View
+          style={[
+            styles.toggleButton,
+            {
+              width: sizes.height - 4,
+              height: sizes.height - 4,
+              borderRadius: (sizes.height - 4) / 2,
+              transform: [{ translateX: isDarkMode ? sizes.width - sizes.height : 0 }],
+              backgroundColor: colors.white,
+            }
+          ]}
+        >
+          {isDarkMode ? (
+            <Moon size={sizes.iconSize} color={colors.primary} />
+          ) : (
+            <Sun size={sizes.iconSize} color={colors.accent} />
+          )}
+        </View>
+      </LinearGradient>
+      
+      {showLabel && (
+        <Text style={[styles.label, { color: colors.text }]}>
+          {isDarkMode ? 'Mode sombre' : 'Mode clair'}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+  },
+  toggleContainer: {
+    justifyContent: 'center',
+    padding: 2,
+  },
+  toggleButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  label: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.medium,
+    marginTop: spacing.xs,
+    textAlign: 'center',
+  },
+});

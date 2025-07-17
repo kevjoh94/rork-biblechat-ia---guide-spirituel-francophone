@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Heart, Share2, Volume2, Bookmark, Copy, Highlight } from 'lucide-react-native';
+import { Heart, Share2, Volume2, Bookmark, Copy, Highlighter } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
@@ -69,4 +69,223 @@ export default function EnhancedBibleReader({
 
   const speakVerse = async (verse: Verse) => {
     try {
-      const text = `Verset ${verse.number}. ${verse.text}`;\n      await simpleTTS.speak({\n        text,\n        language: 'fr-FR',\n        rate: 0.9,\n        pitch: 1.0,\n        volume: 1.0\n      });\n    } catch (error) {\n      console.warn('Error speaking verse:', error);\n    }\n  };\n\n  const shareVerse = async (verse: Verse) => {\n    try {\n      const message = `\"${verse.text}\"\\n\\n${bookName} ${chapter}:${verse.number}\\nBible Segond 21`;\n      \n      if (Platform.OS === 'web') {\n        if (navigator.share) {\n          await navigator.share({ title: `${bookName} ${chapter}:${verse.number}`, text: message });\n        } else {\n          await navigator.clipboard.writeText(message);\n        }\n      } else {\n        await Share.share({ message, title: `${bookName} ${chapter}:${verse.number}` });\n      }\n    } catch (error) {\n      console.warn('Error sharing verse:', error);\n    }\n  };\n\n  const copyVerse = async (verse: Verse) => {\n    try {\n      const text = `${verse.text} (${bookName} ${chapter}:${verse.number})`;\n      \n      if (Platform.OS === 'web') {\n        await navigator.clipboard.writeText(text);\n      } else {\n        // For mobile, we'll use Share with copy option\n        await Share.share({ message: text });\n      }\n    } catch (error) {\n      console.warn('Error copying verse:', error);\n    }\n  };\n\n  const renderVerse = (verse: Verse) => {\n    const isFavorite = favoriteVerses.includes(verse.number);\n    const isHighlighted = highlightedVerses.includes(verse.number);\n    const isSelected = selectedVerse === verse.number;\n\n    return (\n      <View key={verse.number} style={styles.verseContainer}>\n        <TouchableOpacity\n          onPress={() => setSelectedVerse(isSelected ? null : verse.number)}\n          style={[\n            styles.verseContent,\n            isHighlighted && styles.highlightedVerse,\n            isSelected && styles.selectedVerse\n          ]}\n        >\n          <View style={styles.verseHeader}>\n            <View style={[styles.verseNumber, { backgroundColor: bookColor + '20' }]}>\n              <Text style={[styles.verseNumberText, { color: bookColor }]}>\n                {verse.number}\n              </Text>\n            </View>\n          </View>\n          \n          <Text style={[styles.verseText, { fontSize }]}>\n            {verse.text}\n          </Text>\n          \n          {isSelected && (\n            <View style={styles.verseActions}>\n              <TouchableOpacity\n                onPress={() => toggleFavorite(verse.number)}\n                style={[styles.actionButton, isFavorite && styles.activeActionButton]}\n              >\n                <Heart\n                  size={16}\n                  color={isFavorite ? colors.white : colors.textLight}\n                  fill={isFavorite ? colors.white : 'none'}\n                />\n              </TouchableOpacity>\n              \n              <TouchableOpacity\n                onPress={() => toggleHighlight(verse.number)}\n                style={[styles.actionButton, isHighlighted && styles.highlightActionButton]}\n              >\n                <Highlight\n                  size={16}\n                  color={isHighlighted ? colors.white : colors.textLight}\n                />\n              </TouchableOpacity>\n              \n              <TouchableOpacity\n                onPress={() => speakVerse(verse)}\n                style={styles.actionButton}\n              >\n                <Volume2 size={16} color={colors.textLight} />\n              </TouchableOpacity>\n              \n              <TouchableOpacity\n                onPress={() => shareVerse(verse)}\n                style={styles.actionButton}\n              >\n                <Share2 size={16} color={colors.textLight} />\n              </TouchableOpacity>\n              \n              <TouchableOpacity\n                onPress={() => copyVerse(verse)}\n                style={styles.actionButton}\n              >\n                <Copy size={16} color={colors.textLight} />\n              </TouchableOpacity>\n            </View>\n          )}\n        </TouchableOpacity>\n      </View>\n    );\n  };\n\n  return (\n    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>\n      <View style={styles.versesContainer}>\n        {verses.map(renderVerse)}\n      </View>\n    </ScrollView>\n  );\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    flex: 1,\n  },\n  versesContainer: {\n    padding: spacing.lg,\n  },\n  verseContainer: {\n    marginBottom: spacing.lg,\n  },\n  verseContent: {\n    backgroundColor: colors.white,\n    borderRadius: 16,\n    padding: spacing.lg,\n    shadowColor: colors.black,\n    shadowOffset: { width: 0, height: 2 },\n    shadowOpacity: 0.06,\n    shadowRadius: 8,\n    elevation: 3,\n  },\n  highlightedVerse: {\n    backgroundColor: colors.accent + '15',\n    borderLeftWidth: 4,\n    borderLeftColor: colors.accent,\n  },\n  selectedVerse: {\n    borderWidth: 2,\n    borderColor: colors.primary,\n  },\n  verseHeader: {\n    marginBottom: spacing.md,\n  },\n  verseNumber: {\n    alignSelf: 'flex-start',\n    paddingHorizontal: spacing.sm,\n    paddingVertical: spacing.xs,\n    borderRadius: 12,\n    minWidth: 32,\n    alignItems: 'center',\n  },\n  verseNumberText: {\n    fontSize: typography.fontSizes.sm,\n    fontWeight: '700',\n  },\n  verseText: {\n    color: colors.text,\n    lineHeight: typography.lineHeights.lg,\n    fontWeight: '400',\n  },\n  verseActions: {\n    flexDirection: 'row',\n    justifyContent: 'flex-end',\n    marginTop: spacing.md,\n    gap: spacing.sm,\n  },\n  actionButton: {\n    width: 32,\n    height: 32,\n    borderRadius: 16,\n    backgroundColor: colors.cardSecondary,\n    justifyContent: 'center',\n    alignItems: 'center',\n  },\n  activeActionButton: {\n    backgroundColor: colors.primary,\n  },\n  highlightActionButton: {\n    backgroundColor: colors.accent,\n  },\n});"
+      const text = `Verset ${verse.number}. ${verse.text}`;
+      await simpleTTS.speak({
+        text,
+        language: 'fr-FR',
+        rate: 0.9,
+        pitch: 1.0,
+        volume: 1.0
+      });
+    } catch (error) {
+      console.warn('Error speaking verse:', error);
+    }
+  };
+
+  const shareVerse = async (verse: Verse) => {
+    try {
+      const message = `"${verse.text}"
+
+${bookName} ${chapter}:${verse.number}
+Bible Segond 21`;
+      
+      if (Platform.OS === 'web') {
+        if (navigator.share) {
+          await navigator.share({ title: `${bookName} ${chapter}:${verse.number}`, text: message });
+        } else {
+          await navigator.clipboard.writeText(message);
+        }
+      } else {
+        await Share.share({ message, title: `${bookName} ${chapter}:${verse.number}` });
+      }
+    } catch (error) {
+      console.warn('Error sharing verse:', error);
+    }
+  };
+
+  const copyVerse = async (verse: Verse) => {
+    try {
+      const text = `${verse.text} (${bookName} ${chapter}:${verse.number})`;
+      
+      if (Platform.OS === 'web') {
+        await navigator.clipboard.writeText(text);
+      } else {
+        await Share.share({ message: text });
+      }
+    } catch (error) {
+      console.warn('Error copying verse:', error);
+    }
+  };
+
+  const renderVerse = (verse: Verse) => {
+    const isFavorite = favoriteVerses.includes(verse.number);
+    const isHighlighted = highlightedVerses.includes(verse.number);
+    const isSelected = selectedVerse === verse.number;
+
+    return (
+      <View key={verse.number} style={styles.verseContainer}>
+        <TouchableOpacity
+          onPress={() => setSelectedVerse(isSelected ? null : verse.number)}
+          style={[
+            styles.verseContent,
+            isHighlighted && styles.highlightedVerse,
+            isSelected && styles.selectedVerse
+          ]}
+        >
+          <View style={styles.verseHeader}>
+            <Text style={[styles.verseNumber, { color: bookColor }]}>
+              {verse.number}
+            </Text>
+          </View>
+          <Text style={[styles.verseText, { fontSize }]}>
+            {verse.text}
+          </Text>
+        </TouchableOpacity>
+
+        {isSelected && (
+          <View style={styles.actionBar}>
+            <TouchableOpacity
+              style={[styles.actionButton, isFavorite && styles.activeAction]}
+              onPress={() => toggleFavorite(verse.number)}
+            >
+              <Heart 
+                size={20} 
+                color={isFavorite ? colors.error : colors.textSecondary}
+                fill={isFavorite ? colors.error : 'transparent'}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionButton, isHighlighted && styles.activeAction]}
+              onPress={() => toggleHighlight(verse.number)}
+            >
+              <Highlighter 
+                size={20} 
+                color={isHighlighted ? colors.warning : colors.textSecondary}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => speakVerse(verse)}
+            >
+              <Volume2 size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => shareVerse(verse)}
+            >
+              <Share2 size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => copyVerse(verse)}
+            >
+              <Copy size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  return (
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <LinearGradient
+        colors={[bookColor + '10', 'transparent']}
+        style={styles.header}
+      >
+        <Text style={[styles.chapterTitle, { color: bookColor }]}>
+          {bookName} {chapter}
+        </Text>
+      </LinearGradient>
+
+      <View style={styles.content}>
+        {verses.map(renderVerse)}
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          Bible Segond 21 • {verses.length} versets
+        </Text>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  chapterTitle: {
+    fontSize: typography.fontSizes.xxl,
+    fontWeight: typography.fontWeights.bold,
+    textAlign: 'center',
+  },
+  content: {
+    paddingHorizontal: spacing.lg,
+  },
+  verseContainer: {
+    marginBottom: spacing.md,
+  },
+  verseContent: {
+    padding: spacing.md,
+    borderRadius: 8,
+    backgroundColor: colors.card,
+  },
+  highlightedVerse: {
+    backgroundColor: colors.warning + '20',
+    borderLeftWidth: 3,
+    borderLeftColor: colors.warning,
+  },
+  selectedVerse: {
+    backgroundColor: colors.primary + '10',
+    borderWidth: 1,
+    borderColor: colors.primary + '30',
+  },
+  verseHeader: {
+    marginBottom: spacing.xs,
+  },
+  verseNumber: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
+  },
+  verseText: {
+    fontSize: typography.fontSizes.md,
+    lineHeight: typography.lineHeights.lg,
+    color: colors.text,
+  },
+  actionBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: colors.card,
+    marginTop: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionButton: {
+    padding: spacing.sm,
+    borderRadius: 6,
+    backgroundColor: colors.background,
+  },
+  activeAction: {
+    backgroundColor: colors.primary + '20',
+  },
+  footer: {
+    padding: spacing.lg,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+  },
+});
