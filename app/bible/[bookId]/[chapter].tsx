@@ -1,7 +1,8 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Book, Heart, Share2, Volume2, VolumeX } from "lucide-react-native";
+import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark } from "lucide-react-native";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert, Dimensions } from "react-native";
 import * as Speech from "expo-speech";
 
 import { colors } from "@/constants/colors";
@@ -143,176 +144,280 @@ export default function ChapterScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <View style={[styles.bookIcon, { backgroundColor: book.color }]}>
-            <Book size={18} color={colors.white} />
+      <LinearGradient
+        colors={[book.color + "08", colors.background]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={22} color={colors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <LinearGradient
+              colors={[book.color, book.color + "CC"]}
+              style={styles.bookIcon}
+            >
+              <BookOpen size={20} color={colors.white} />
+            </LinearGradient>
+            <View style={styles.headerText}>
+              <Text style={styles.title}>{book.name}</Text>
+              <Text style={styles.chapterTitle}>Chapitre {chapter}</Text>
+              <Text style={styles.subtitle}>{chapterData.verses.length} versets</Text>
+            </View>
           </View>
-          <View style={styles.headerText}>
-            <Text style={styles.title}>{book.name} {chapter}</Text>
-            <Text style={styles.subtitle}>{chapterData.verses.length} versets</Text>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={speakChapterWithExpoSpeech} style={[styles.actionButton, isSpeaking && styles.activeActionButton]}>
+              {isSpeaking ? (
+                <VolumeX size={18} color={isSpeaking ? colors.white : colors.textSecondary} />
+              ) : (
+                <Volume2 size={18} color={colors.textSecondary} />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton}>
+              <Bookmark size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity onPress={speakChapterWithExpoSpeech} style={styles.speakButton}>
-          {isSpeaking ? (
-            <VolumeX size={20} color={colors.primary} />
-          ) : (
-            <Volume2 size={20} color={colors.textSecondary} />
-          )}
-        </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContainer}>
         <View style={styles.versesContainer}>
-          {chapterData.verses.map((verse) => (
+          {chapterData.verses.map((verse, index) => (
             <View key={verse.number} style={styles.verseContainer}>
-              <View style={styles.verseHeader}>
-                <Text style={styles.verseNumber}>{verse.number}</Text>
-                <TouchableOpacity
-                  onPress={() => toggleFavoriteVerse(verse.number)}
-                  style={styles.favoriteButton}
-                >
-                  <Heart
-                    size={16}
-                    color={favoriteVerses.includes(verse.number) ? colors.primary : colors.textLight}
-                    fill={favoriteVerses.includes(verse.number) ? colors.primary : "none"}
-                  />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.verseText}>{verse.text}</Text>
+              <LinearGradient
+                colors={[colors.white, colors.cardSecondary + "40"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.verseGradient}
+              >
+                <View style={styles.verseHeader}>
+                  <LinearGradient
+                    colors={[book.color + "15", book.color + "25"]}
+                    style={styles.verseNumberContainer}
+                  >
+                    <Text style={[styles.verseNumber, { color: book.color }]}>{verse.number}</Text>
+                  </LinearGradient>
+                  <TouchableOpacity
+                    onPress={() => toggleFavoriteVerse(verse.number)}
+                    style={[styles.favoriteButton, favoriteVerses.includes(verse.number) && styles.activeFavoriteButton]}
+                  >
+                    <Heart
+                      size={16}
+                      color={favoriteVerses.includes(verse.number) ? colors.white : colors.textLight}
+                      fill={favoriteVerses.includes(verse.number) ? colors.white : "none"}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.verseText}>{verse.text}</Text>
+              </LinearGradient>
             </View>
           ))}
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            {book.name} - Chapitre {chapter}
-          </Text>
-          <Text style={styles.footerSubtext}>
-            Bible Segond 21
-          </Text>
-        </View>
+        <LinearGradient
+          colors={[book.color + "08", book.color + "15"]}
+          style={styles.footer}
+        >
+          <View style={styles.footerContent}>
+            <LinearGradient
+              colors={[book.color, book.color + "CC"]}
+              style={styles.footerIcon}
+            >
+              <BookOpen size={16} color={colors.white} />
+            </LinearGradient>
+            <View style={styles.footerText}>
+              <Text style={styles.footerTitle}>
+                {book.name} - Chapitre {chapter}
+              </Text>
+              <Text style={styles.footerSubtext}>
+                Bible Segond 21 • {chapterData.verses.length} versets
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
       </ScrollView>
     </View>
   );
 }
+
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
+  headerGradient: {
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+  },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing.md,
-    paddingTop: spacing.lg,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: spacing.lg,
   },
   backButton: {
-    marginRight: spacing.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.white + "90",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: spacing.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerContent: {
     flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
+    alignItems: "flex-start",
   },
   bookIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: spacing.sm,
+    marginRight: spacing.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   headerText: {
     flex: 1,
   },
   title: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: typography.fontSizes.xl,
+    fontWeight: "700",
     color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  chapterTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: "600",
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
   },
   subtitle: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
+    color: colors.textLight,
+    fontWeight: "500",
   },
-  speakButton: {
+  headerActions: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  actionButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.cardSecondary,
+    backgroundColor: colors.white + "80",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  activeActionButton: {
+    backgroundColor: colors.primary,
   },
   scrollContainer: {
     flex: 1,
   },
   versesContainer: {
-    padding: spacing.md,
+    padding: spacing.lg,
   },
   verseContainer: {
     marginBottom: spacing.lg,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: spacing.md,
+    borderRadius: 20,
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  verseGradient: {
+    borderRadius: 20,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border + "30",
   },
   verseHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  verseNumberContainer: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 12,
+    minWidth: 40,
+    alignItems: "center",
   },
   verseNumber: {
     fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.primary,
-    backgroundColor: colors.primary + "15",
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 8,
-    minWidth: 32,
+    fontWeight: "700",
     textAlign: "center",
   },
   favoriteButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.cardSecondary,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.cardSecondary + "60",
     justifyContent: "center",
     alignItems: "center",
+  },
+  activeFavoriteButton: {
+    backgroundColor: colors.primary,
   },
   verseText: {
     fontSize: typography.fontSizes.md,
     color: colors.text,
-    lineHeight: typography.lineHeights.md,
+    lineHeight: typography.lineHeights.lg,
+    fontWeight: "400",
   },
   footer: {
+    margin: spacing.lg,
+    borderRadius: 20,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  footerContent: {
+    flexDirection: "row",
     alignItems: "center",
     padding: spacing.lg,
-    backgroundColor: colors.cardSecondary,
-    margin: spacing.md,
-    borderRadius: 12,
+  },
+  footerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.md,
   },
   footerText: {
+    flex: 1,
+  },
+  footerTitle: {
     fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: "600",
     color: colors.text,
     marginBottom: spacing.xs,
   },
   footerSubtext: {
     fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
+    fontWeight: "500",
   },
   errorText: {
     fontSize: typography.fontSizes.lg,

@@ -1,8 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Book, Search, Star } from "lucide-react-native";
+import { Book, Search, Star, BookOpen, Filter } from "lucide-react-native";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from "react-native";
 
 import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
@@ -29,24 +29,34 @@ export default function BibleScreen() {
     <TouchableOpacity
       style={styles.bookCard}
       onPress={() => navigateToBook(book.id)}
-      activeOpacity={0.8}
+      activeOpacity={0.9}
     >
       <LinearGradient
-        colors={[colors.white, colors.cardSecondary]}
+        colors={[book.color + "08", book.color + "15"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.bookGradient}
       >
         <View style={styles.bookHeader}>
           <View style={[styles.bookIcon, { backgroundColor: book.color }]}>
-            <Book size={18} color={colors.white} />
+            <BookOpen size={20} color={colors.white} />
           </View>
-          <Text style={styles.bookName}>{book.name}</Text>
+          <View style={styles.bookTitleContainer}>
+            <Text style={styles.bookName} numberOfLines={2}>{book.name}</Text>
+            <Text style={styles.testament}>{book.testament === "ancien" ? "Ancien Testament" : "Nouveau Testament"}</Text>
+          </View>
         </View>
-        <Text style={styles.bookDescription}>{book.description}</Text>
+        <Text style={styles.bookDescription} numberOfLines={3}>{book.description}</Text>
         <View style={styles.bookFooter}>
-          <Text style={styles.chapterCount}>{book.chapters} chapitres</Text>
-          <Text style={styles.testament}>{book.testament === "ancien" ? "AT" : "NT"}</Text>
+          <View style={styles.chapterBadge}>
+            <Text style={styles.chapterCount}>{book.chapters}</Text>
+            <Text style={styles.chapterLabel}>chapitres</Text>
+          </View>
+          <View style={[styles.testamentBadge, { backgroundColor: book.color + "20" }]}>
+            <Text style={[styles.testamentText, { color: book.color }]}>
+              {book.testament === "ancien" ? "AT" : "NT"}
+            </Text>
+          </View>
         </View>
       </LinearGradient>
     </TouchableOpacity>
@@ -55,31 +65,43 @@ export default function BibleScreen() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient
-        colors={[colors.background, colors.cardSecondary]}
+        colors={[colors.primary + "05", colors.background]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={styles.headerGradient}
       >
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <View style={styles.headerIcon}>
-              <Book size={24} color={colors.primary} />
-            </View>
-            <View>
+            <LinearGradient
+              colors={[colors.primary, colors.secondary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.headerIcon}
+            >
+              <BookOpen size={28} color={colors.white} />
+            </LinearGradient>
+            <View style={styles.titleTextContainer}>
               <Text style={styles.title}>La Sainte Bible</Text>
-              <Text style={styles.subtitle}>Segond 21</Text>
+              <Text style={styles.subtitle}>Version Segond 21 • {bibleBooks.length} livres</Text>
             </View>
           </View>
           
           <View style={styles.searchContainer}>
-            <Search size={18} color={colors.textLight} />
+            <View style={styles.searchIconContainer}>
+              <Search size={20} color={colors.primary} />
+            </View>
             <TextInput
               style={styles.searchInput}
-              placeholder="Rechercher un livre..."
+              placeholder="Rechercher un livre biblique..."
               placeholderTextColor={colors.textLight}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery("")} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>×</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </LinearGradient>
@@ -88,9 +110,16 @@ export default function BibleScreen() {
         {oldTestament.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
-              <Star size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>Ancien Testament</Text>
-              <Text style={styles.sectionCount}>({oldTestament.length} livres)</Text>
+              <LinearGradient
+                colors={[colors.primary + "15", colors.primary + "25"]}
+                style={styles.sectionIconContainer}
+              >
+                <Star size={18} color={colors.primary} />
+              </LinearGradient>
+              <View style={styles.sectionTextContainer}>
+                <Text style={styles.sectionTitle}>Ancien Testament</Text>
+                <Text style={styles.sectionCount}>{oldTestament.length} livres • 39 au total</Text>
+              </View>
             </View>
             
             <View style={styles.booksGrid}>
@@ -104,9 +133,16 @@ export default function BibleScreen() {
         {newTestament.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
-              <Star size={20} color={colors.secondary} />
-              <Text style={styles.sectionTitle}>Nouveau Testament</Text>
-              <Text style={styles.sectionCount}>({newTestament.length} livres)</Text>
+              <LinearGradient
+                colors={[colors.secondary + "15", colors.secondary + "25"]}
+                style={styles.sectionIconContainer}
+              >
+                <Star size={18} color={colors.secondary} />
+              </LinearGradient>
+              <View style={styles.sectionTextContainer}>
+                <Text style={styles.sectionTitle}>Nouveau Testament</Text>
+                <Text style={styles.sectionCount}>{newTestament.length} livres • 27 au total</Text>
+              </View>
             </View>
             
             <View style={styles.booksGrid}>
@@ -132,143 +168,221 @@ export default function BibleScreen() {
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
   headerGradient: {
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.md,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   header: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
   headerIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.primary + "15",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: spacing.md,
+    marginRight: spacing.lg,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  titleTextContainer: {
+    flex: 1,
   },
   title: {
-    fontSize: typography.fontSizes.xxl,
-    fontWeight: "700",
+    fontSize: typography.fontSizes.xxl + 2,
+    fontWeight: "800",
     color: colors.text,
+    marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: typography.fontSizes.md,
+    fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
-    fontStyle: "italic",
+    fontWeight: "500",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.white,
-    borderRadius: 12,
+    borderRadius: 16,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.primary + "10",
+  },
+  searchIconContainer: {
+    marginRight: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    marginLeft: spacing.sm,
     fontSize: typography.fontSizes.md,
     color: colors.text,
+    fontWeight: "500",
+  },
+  clearButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.textLight + "20",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: spacing.sm,
+  },
+  clearButtonText: {
+    fontSize: 16,
+    color: colors.textLight,
+    fontWeight: "600",
   },
   content: {
-    padding: spacing.md,
+    padding: spacing.lg,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.md,
-    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
+    marginTop: spacing.xl,
+    paddingHorizontal: spacing.sm,
+  },
+  sectionIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.md,
+  },
+  sectionTextContainer: {
+    flex: 1,
   },
   sectionTitle: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.text,
-    marginLeft: spacing.sm,
+    marginBottom: spacing.xs,
   },
   sectionCount: {
     fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
-    marginLeft: spacing.xs,
+    fontWeight: "500",
   },
   booksGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
   bookCard: {
-    width: "48%",
-    marginBottom: spacing.md,
-    borderRadius: 16,
+    width: width > 400 ? "48%" : "100%",
+    marginBottom: spacing.lg,
+    borderRadius: 20,
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
   },
   bookGradient: {
-    borderRadius: 16,
-    padding: spacing.md,
-    height: 140,
+    borderRadius: 20,
+    padding: spacing.lg,
+    minHeight: 160,
+    borderWidth: 1,
+    borderColor: colors.white + "40",
   },
   bookHeader: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing.sm,
+    alignItems: "flex-start",
+    marginBottom: spacing.md,
   },
   bookIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: spacing.sm,
+    marginRight: spacing.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  bookTitleContainer: {
+    flex: 1,
   },
   bookName: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: "600",
+    fontSize: typography.fontSizes.lg,
+    fontWeight: "700",
     color: colors.text,
-    flex: 1,
+    marginBottom: spacing.xs,
+    lineHeight: typography.lineHeights.sm,
+  },
+  testament: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.textSecondary,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   bookDescription: {
     fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeights.sm,
+    lineHeight: typography.lineHeights.md,
     flex: 1,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
+    fontWeight: "400",
   },
   bookFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  chapterCount: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textLight,
-    fontWeight: "500",
-  },
-  testament: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.primary,
-    fontWeight: "600",
-    backgroundColor: colors.primary + "15",
+  chapterBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.white + "60",
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    borderRadius: 8,
+    borderRadius: 12,
+  },
+  chapterCount: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.text,
+    fontWeight: "700",
+    marginRight: spacing.xs,
+  },
+  chapterLabel: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.textSecondary,
+    fontWeight: "500",
+  },
+  testamentBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: 12,
+  },
+  testamentText: {
+    fontSize: typography.fontSizes.xs,
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
   emptyContainer: {
     alignItems: "center",

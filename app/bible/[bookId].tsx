@@ -1,7 +1,8 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Book, ChevronRight } from "lucide-react-native";
+import { ArrowLeft, BookOpen, ChevronRight, Play } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from "react-native";
 
 import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
@@ -30,40 +31,67 @@ export default function BookScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color={colors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <View style={[styles.bookIcon, { backgroundColor: book.color }]}>
-            <Book size={20} color={colors.white} />
-          </View>
-          <View style={styles.headerText}>
-            <Text style={styles.title}>{book.name}</Text>
-            <Text style={styles.subtitle}>{book.chapters} chapitres</Text>
+      <LinearGradient
+        colors={[book.color + "08", colors.background]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color={colors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <LinearGradient
+              colors={[book.color, book.color + "CC"]}
+              style={[styles.bookIcon]}
+            >
+              <BookOpen size={24} color={colors.white} />
+            </LinearGradient>
+            <View style={styles.headerText}>
+              <Text style={styles.title}>{book.name}</Text>
+              <Text style={styles.subtitle}>{book.chapters} chapitres • {book.testament === "ancien" ? "Ancien Testament" : "Nouveau Testament"}</Text>
+            </View>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContainer}>
         <View style={styles.descriptionContainer}>
-          <Text style={styles.description}>{book.description}</Text>
+          <LinearGradient
+            colors={[colors.white, colors.cardSecondary]}
+            style={styles.descriptionGradient}
+          >
+            <Text style={styles.description}>{book.description}</Text>
+          </LinearGradient>
         </View>
 
         <View style={styles.chaptersContainer}>
-          <Text style={styles.chaptersTitle}>Chapitres</Text>
+          <View style={styles.chaptersTitleContainer}>
+            <Text style={styles.chaptersTitle}>Chapitres</Text>
+            <View style={styles.chaptersCount}>
+              <Text style={styles.chaptersCountText}>{book.chapters}</Text>
+            </View>
+          </View>
           <View style={styles.chaptersGrid}>
             {chapters.map((chapterNumber) => (
               <TouchableOpacity
                 key={chapterNumber}
                 style={styles.chapterCard}
                 onPress={() => navigateToChapter(chapterNumber)}
-                activeOpacity={0.8}
+                activeOpacity={0.9}
               >
-                <View style={styles.chapterContent}>
-                  <Text style={styles.chapterNumber}>{chapterNumber}</Text>
-                  <ChevronRight size={16} color={colors.textSecondary} />
-                </View>
+                <LinearGradient
+                  colors={[colors.white, book.color + "05"]}
+                  style={styles.chapterGradient}
+                >
+                  <View style={styles.chapterContent}>
+                    <Text style={styles.chapterNumber}>{chapterNumber}</Text>
+                    <View style={[styles.playIcon, { backgroundColor: book.color + "15" }]}>
+                      <Play size={12} color={book.color} fill={book.color} />
+                    </View>
+                  </View>
+                </LinearGradient>
               </TouchableOpacity>
             ))}
           </View>
@@ -73,69 +101,114 @@ export default function BookScreen() {
   );
 }
 
+const { width } = Dimensions.get('window');
+const numColumns = width > 400 ? 5 : 4;
+const cardWidth = (width - (spacing.lg * 2) - (spacing.sm * (numColumns - 1))) / numColumns;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
+  headerGradient: {
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+  },
   header: {
-    padding: spacing.md,
-    paddingTop: spacing.lg,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: spacing.lg,
   },
   backButton: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.white + "90",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
   },
   bookIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: spacing.md,
+    marginRight: spacing.lg,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   headerText: {
     flex: 1,
   },
   title: {
-    fontSize: typography.fontSizes.xxl,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: typography.fontSizes.xxl + 2,
+    fontWeight: "800",
     color: colors.text,
     marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: typography.fontSizes.md,
+    fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
+    fontWeight: "500",
   },
   scrollContainer: {
     flex: 1,
   },
   descriptionContainer: {
-    padding: spacing.md,
-    backgroundColor: colors.cardSecondary,
-    margin: spacing.md,
-    borderRadius: 12,
+    margin: spacing.lg,
+    borderRadius: 20,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  descriptionGradient: {
+    padding: spacing.lg,
+    borderRadius: 20,
   },
   description: {
     fontSize: typography.fontSizes.md,
     color: colors.text,
-    lineHeight: typography.lineHeights.md,
+    lineHeight: typography.lineHeights.lg,
     textAlign: "center",
+    fontWeight: "400",
   },
   chaptersContainer: {
-    padding: spacing.md,
+    padding: spacing.lg,
+  },
+  chaptersTitleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.lg,
   },
   chaptersTitle: {
     fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: "700",
     color: colors.text,
-    marginBottom: spacing.md,
+  },
+  chaptersCount: {
+    backgroundColor: colors.primary + "15",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: 16,
+  },
+  chaptersCountText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: "700",
+    color: colors.primary,
   },
   chaptersGrid: {
     flexDirection: "row",
@@ -143,28 +216,39 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   chapterCard: {
-    width: "18%",
+    width: cardWidth,
     aspectRatio: 1,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    marginBottom: spacing.sm,
+    borderRadius: 16,
+    marginBottom: spacing.md,
     shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  chapterGradient: {
+    flex: 1,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border + "40",
   },
   chapterContent: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    flexDirection: "row",
   },
   chapterNumber: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: "700",
     color: colors.text,
-    marginRight: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  playIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
   },
   errorText: {
     fontSize: typography.fontSizes.lg,
