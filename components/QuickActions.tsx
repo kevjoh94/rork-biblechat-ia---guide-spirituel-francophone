@@ -21,7 +21,7 @@ interface QuickAction {
   title: string;
   subtitle: string;
   icon: any;
-  colors: readonly [string, string, ...string[]];
+  colors: string[];
   route: string;
 }
 
@@ -35,7 +35,7 @@ export default function QuickActions() {
       title: 'Chat IA',
       subtitle: 'Pose tes questions',
       icon: MessageCircle,
-      colors: [colors.primary, colors.primary + 'CC'] as const,
+      colors: [colors.primary, colors.primary + 'CC'],
       route: '/(tabs)/chat'
     },
     {
@@ -43,7 +43,7 @@ export default function QuickActions() {
       title: 'Lire la Bible',
       subtitle: 'Explore les Écritures',
       icon: BookOpen,
-      colors: [colors.secondary, colors.secondary + 'CC'] as const,
+      colors: [colors.secondary, colors.secondary + 'CC'],
       route: '/(tabs)/bible'
     },
     {
@@ -51,7 +51,7 @@ export default function QuickActions() {
       title: 'Méditation',
       subtitle: 'Moment de paix',
       icon: Headphones,
-      colors: [colors.gratitude, colors.gratitude + 'CC'] as const,
+      colors: [colors.gratitude, colors.gratitude + 'CC'],
       route: '/(tabs)/meditation'
     },
     {
@@ -59,7 +59,7 @@ export default function QuickActions() {
       title: 'Journal',
       subtitle: 'Écris tes pensées',
       icon: PenTool,
-      colors: [colors.accent, colors.accent + 'CC'] as const,
+      colors: [colors.accent, colors.accent + 'CC'],
       route: '/(tabs)/journal'
     },
     {
@@ -67,7 +67,7 @@ export default function QuickActions() {
       title: 'Plan quotidien',
       subtitle: 'Organise ta journée',
       icon: Target,
-      colors: [colors.strength, colors.strength + 'CC'] as const,
+      colors: [colors.strength, colors.strength + 'CC'],
       route: '/daily-plan'
     },
     {
@@ -75,7 +75,7 @@ export default function QuickActions() {
       title: 'Calendrier',
       subtitle: 'Vois ton progrès',
       icon: Calendar,
-      colors: [colors.info, colors.info + 'CC'] as const,
+      colors: [colors.info, colors.info + 'CC'],
       route: '/calendar'
     }
   ];
