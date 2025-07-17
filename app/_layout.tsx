@@ -27,7 +27,6 @@ function RootLayoutNav() {
             contentStyle: { backgroundColor: colors.background },
             gestureEnabled: true,
             gestureDirection: 'horizontal',
-            animationEnabled: true,
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

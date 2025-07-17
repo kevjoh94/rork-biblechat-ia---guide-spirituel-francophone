@@ -62,8 +62,6 @@ export default function TabLayout() {
           color: colors.text,
           fontSize: 18,
         },
-        swipeEnabled: true,
-        animationEnabled: true,
         gestureEnabled: true,
       }}
     >
