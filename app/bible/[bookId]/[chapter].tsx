@@ -1,9 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark } from "lucide-react-native";
-import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert, Dimensions } from "react-native";
+import React, { useState, useEffect } from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert, Dimensions, Share } from "react-native";
 import * as Speech from "expo-speech";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
@@ -17,10 +18,63 @@ export default function ChapterScreen() {
   const router = useRouter();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [favoriteVerses, setFavoriteVerses] = useState<number[]>([]);
+  const [bookmarkedChapter, setBookmarkedChapter] = useState(false);
 
   const book = bibleBooks.find((b) => b.id === bookId);
   const chapterKey = `${bookId}-${chapter}`;
   const chapterData = bibleChapters[chapterKey] || generateMissingChapter(bookId!, parseInt(chapter!));
+
+  // Load bookmarks on component mount
+  useEffect(() => {
+    loadBookmarks();
+  }, [bookId, chapter]);
+
+  // Cleanup speech when component unmounts
+  useEffect(() => {
+    return () => {
+      if (Platform.OS === 'web') {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      } else {
+        Speech.stop();
+      }
+    };
+  }, []);
+
+  const loadBookmarks = async () => {
+    try {
+      const verseBookmarks = await AsyncStorage.getItem(`bible_verses_${bookId}_${chapter}`);
+      const chapterBookmarks = await AsyncStorage.getItem(`bible_chapters`);
+      
+      if (verseBookmarks) {
+        setFavoriteVerses(JSON.parse(verseBookmarks));
+      }
+      
+      if (chapterBookmarks) {
+        const bookmarks = JSON.parse(chapterBookmarks);
+        setBookmarkedChapter(bookmarks.includes(chapterKey));
+      }
+    } catch (error) {
+      console.warn('Error loading bookmarks:', error);
+    }
+  };
+
+  const saveVerseBookmarks = async (verses: number[]) => {
+    try {
+      await AsyncStorage.setItem(`bible_verses_${bookId}_${chapter}`, JSON.stringify(verses));
+    } catch (error) {
+      console.warn('Error saving verse bookmarks:', error);
+    }
+  };
+
+  const saveChapterBookmarks = async (bookmarks: string[]) => {
+    try {
+      await AsyncStorage.setItem('bible_chapters', JSON.stringify(bookmarks));
+    } catch (error) {
+      console.warn('Error saving chapter bookmarks:', error);
+    }
+  };
 
   if (!book) {
     return (
@@ -30,12 +84,93 @@ export default function ChapterScreen() {
     );
   }
 
-  const toggleFavoriteVerse = (verseNumber: number) => {
-    setFavoriteVerses(prev => 
-      prev.includes(verseNumber) 
-        ? prev.filter(v => v !== verseNumber)
-        : [...prev, verseNumber]
-    );
+  const toggleFavoriteVerse = async (verseNumber: number) => {
+    const newFavorites = favoriteVerses.includes(verseNumber) 
+      ? favoriteVerses.filter(v => v !== verseNumber)
+      : [...favoriteVerses, verseNumber];
+    
+    setFavoriteVerses(newFavorites);
+    await saveVerseBookmarks(newFavorites);
+  };
+
+  const toggleChapterBookmark = async () => {
+    try {
+      const existingBookmarks = await AsyncStorage.getItem('bible_chapters');
+      let bookmarks: string[] = existingBookmarks ? JSON.parse(existingBookmarks) : [];
+      
+      if (bookmarkedChapter) {
+        bookmarks = bookmarks.filter(b => b !== chapterKey);
+      } else {
+        bookmarks.push(chapterKey);
+      }
+      
+      setBookmarkedChapter(!bookmarkedChapter);
+      await saveChapterBookmarks(bookmarks);
+    } catch (error) {
+      console.warn('Error toggling chapter bookmark:', error);
+    }
+  };
+
+  const speakVerse = async (verseText: string, verseNumber: number) => {
+    try {
+      if (Platform.OS === 'web') {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          
+          const text = `Verset ${verseNumber}. ${verseText}`;
+          const cleanText = cleanTextForSpeech(text);
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          
+          utterance.lang = 'fr-FR';
+          utterance.rate = 0.8;
+          utterance.pitch = 1.0;
+          
+          window.speechSynthesis.speak(utterance);
+        }
+        return;
+      }
+
+      await Speech.stop();
+      
+      const text = `Verset ${verseNumber}. ${verseText}`;
+      const cleanText = cleanTextForSpeech(text);
+      
+      const speechOptions: Speech.SpeechOptions = {
+        language: 'fr-FR',
+        pitch: 1.0,
+        rate: 0.8,
+      };
+
+      await Speech.speak(cleanText, speechOptions);
+    } catch (error) {
+      console.warn('Error speaking verse:', error);
+    }
+  };
+
+  const shareVerse = async (verseText: string, verseNumber: number) => {
+    try {
+      const message = `"${verseText}"\n\n${book?.name} ${chapter}:${verseNumber}\nBible Segond 21`;
+      
+      if (Platform.OS === 'web') {
+        if (navigator.share) {
+          await navigator.share({
+            title: `${book?.name} ${chapter}:${verseNumber}`,
+            text: message,
+          });
+        } else {
+          // Fallback for web browsers without native share
+          await navigator.clipboard.writeText(message);
+          Alert.alert('Copié', 'Le verset a été copié dans le presse-papiers.');
+        }
+      } else {
+        await Share.share({
+          message,
+          title: `${book?.name} ${chapter}:${verseNumber}`,
+        });
+      }
+    } catch (error) {
+      console.warn('Error sharing verse:', error);
+    }
   };
 
   const cleanTextForSpeech = (text: string): string => {
@@ -56,7 +191,36 @@ export default function ChapterScreen() {
     try {
       // Check if platform supports TTS
       if (Platform.OS === 'web') {
-        Alert.alert('Non supporté', "La synthèse vocale n'est pas disponible sur le web.");
+        // Use Web Speech API for web
+        if ('speechSynthesis' in window) {
+          if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            setIsSpeaking(false);
+            return;
+          }
+
+          setIsSpeaking(true);
+          
+          const fullText = `${book?.name}, chapitre ${chapter}. ` + 
+            chapterData.verses.map(verse => `Verset ${verse.number}. ${verse.text}`).join('. ');
+          
+          const cleanText = cleanTextForSpeech(fullText);
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          
+          utterance.lang = 'fr-FR';
+          utterance.rate = 0.8;
+          utterance.pitch = 1.0;
+          
+          utterance.onend = () => setIsSpeaking(false);
+          utterance.onerror = () => {
+            setIsSpeaking(false);
+            Alert.alert('Erreur', "Erreur lors de la lecture.");
+          };
+          
+          window.speechSynthesis.speak(utterance);
+        } else {
+          Alert.alert('Non supporté', "La synthèse vocale n'est pas disponible sur ce navigateur.");
+        }
         return;
       }
 
@@ -79,7 +243,7 @@ export default function ChapterScreen() {
 
       setIsSpeaking(true);
 
-      const fullText = `${book.name}, chapitre ${chapter}. ` + 
+      const fullText = `${book?.name}, chapitre ${chapter}. ` + 
         chapterData.verses.map(verse => `Verset ${verse.number}. ${verse.text}`).join('. ');
       
       const cleanText = cleanTextForSpeech(fullText);
@@ -91,7 +255,7 @@ export default function ChapterScreen() {
       }
 
       // Limit text length to prevent crashes
-      const maxLength = 8000; // Longer for bible chapters
+      const maxLength = 8000;
       const textToSpeak = cleanText.length > maxLength ? 
         cleanText.substring(0, maxLength) + "..." : cleanText;
 
@@ -107,13 +271,12 @@ export default function ChapterScreen() {
       let selectedVoice = undefined;
       
       if (voices.length > 0) {
-        if (Platform.OS === 'ios') {
-          const frenchVoices = voices.filter(voice => 
-            voice.language && voice.language.startsWith('fr')
-          );
-          
-          if (frenchVoices.length > 0) {
-            // Try to find enhanced voices first
+        const frenchVoices = voices.filter(voice => 
+          voice.language && voice.language.startsWith('fr')
+        );
+        
+        if (frenchVoices.length > 0) {
+          if (Platform.OS === 'ios') {
             const enhancedVoice = frenchVoices.find(voice => 
               voice.identifier && (
                 voice.identifier.includes('premium') || 
@@ -122,13 +285,7 @@ export default function ChapterScreen() {
               )
             );
             selectedVoice = enhancedVoice ? enhancedVoice.identifier : frenchVoices[0].identifier;
-          }
-        } else if (Platform.OS === 'android') {
-          const frenchVoices = voices.filter(voice => 
-            voice.language && voice.language.startsWith('fr')
-          );
-          
-          if (frenchVoices.length > 0) {
+          } else {
             selectedVoice = frenchVoices[0].identifier;
           }
         }
@@ -204,8 +361,8 @@ export default function ChapterScreen() {
                 <Volume2 size={18} color={colors.textSecondary} />
               )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Bookmark size={18} color={colors.textSecondary} />
+            <TouchableOpacity onPress={toggleChapterBookmark} style={[styles.actionButton, bookmarkedChapter && styles.activeActionButton]}>
+              <Bookmark size={18} color={bookmarkedChapter ? colors.white : colors.textSecondary} fill={bookmarkedChapter ? colors.white : "none"} />
             </TouchableOpacity>
           </View>
         </View>
@@ -228,16 +385,30 @@ export default function ChapterScreen() {
                   >
                     <Text style={[styles.verseNumber, { color: book.color }]}>{verse.number}</Text>
                   </LinearGradient>
-                  <TouchableOpacity
-                    onPress={() => toggleFavoriteVerse(verse.number)}
-                    style={[styles.favoriteButton, favoriteVerses.includes(verse.number) && styles.activeFavoriteButton]}
-                  >
-                    <Heart
-                      size={16}
-                      color={favoriteVerses.includes(verse.number) ? colors.white : colors.textLight}
-                      fill={favoriteVerses.includes(verse.number) ? colors.white : "none"}
-                    />
-                  </TouchableOpacity>
+                  <View style={styles.verseActions}>
+                    <TouchableOpacity
+                      onPress={() => speakVerse(verse.text, verse.number)}
+                      style={styles.verseActionButton}
+                    >
+                      <Volume2 size={14} color={colors.textLight} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => shareVerse(verse.text, verse.number)}
+                      style={styles.verseActionButton}
+                    >
+                      <Share2 size={14} color={colors.textLight} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => toggleFavoriteVerse(verse.number)}
+                      style={[styles.verseActionButton, favoriteVerses.includes(verse.number) && styles.activeVerseActionButton]}
+                    >
+                      <Heart
+                        size={14}
+                        color={favoriteVerses.includes(verse.number) ? colors.white : colors.textLight}
+                        fill={favoriteVerses.includes(verse.number) ? colors.white : "none"}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
                 <Text style={styles.verseText}>{verse.text}</Text>
               </LinearGradient>
@@ -394,6 +565,21 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     fontWeight: "700",
     textAlign: "center",
+  },
+  verseActions: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  verseActionButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.cardSecondary + "60",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  activeVerseActionButton: {
+    backgroundColor: colors.primary,
   },
   favoriteButton: {
     width: 36,
