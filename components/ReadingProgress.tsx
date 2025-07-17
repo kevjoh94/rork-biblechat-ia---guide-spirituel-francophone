@@ -90,6 +90,91 @@ export default function ReadingProgress({
 
   const progressPercentage = Math.min((weeklyProgress / weeklyGoal) * 100, 100);
 
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: spacing.lg,
+      marginHorizontal: spacing.lg,
+      marginBottom: spacing.lg,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    title: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      color: colors.text,
+      marginBottom: spacing.md,
+      textAlign: 'center',
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginBottom: spacing.lg,
+    },
+    statItem: {
+      alignItems: 'center',
+    },
+    statNumber: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.bold,
+      color: colors.text,
+      marginTop: spacing.xs,
+    },
+    statLabel: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    goalContainer: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: spacing.md,
+    },
+    goalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    goalTitle: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.medium,
+      color: colors.text,
+    },
+    goalProgress: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      color: colors.primary,
+    },
+    progressBarContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    progressBarBackground: {
+      flex: 1,
+      height: 8,
+      backgroundColor: colors.border,
+      borderRadius: 4,
+      overflow: 'hidden',
+      marginRight: spacing.sm,
+    },
+    progressBarFill: {
+      height: '100%',
+      borderRadius: 4,
+    },
+    progressPercentage: {
+      fontSize: typography.fontSizes.sm,
+      fontWeight: typography.fontWeights.medium,
+      color: colors.text,
+      minWidth: 35,
+      textAlign: 'right',
+    },
+  });
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Progrès de lecture</Text>
@@ -141,88 +226,3 @@ export default function ReadingProgress({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: spacing.lg,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  title: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
-    marginBottom: spacing.md,
-    textAlign: 'center',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: spacing.lg,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.text,
-    marginTop: spacing.xs,
-  },
-  statLabel: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  goalContainer: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: spacing.md,
-  },
-  goalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  goalTitle: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.medium,
-    color: colors.text,
-  },
-  goalProgress: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.primary,
-  },
-  progressBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  progressBarBackground: {
-    flex: 1,
-    height: 8,
-    backgroundColor: colors.border,
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginRight: spacing.sm,
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  progressPercentage: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
-    color: colors.text,
-    minWidth: 35,
-    textAlign: 'right',
-  },
-});
