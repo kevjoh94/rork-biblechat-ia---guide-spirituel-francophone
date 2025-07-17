@@ -131,8 +131,19 @@ export default function ChapterScreen() {
 
   const speakVerse = async (verseText: string, verseNumber: number) => {
     try {
+      // Check if TTS is available
+      if (!freeTTS.isAvailable()) {
+        Alert.alert('Non disponible', 'La synthèse vocale n\'est pas disponible sur cet appareil.');
+        return;
+      }
+
       const text = `Verset ${verseNumber}. ${verseText}`;
       const cleanText = cleanTextForSpeech(text);
+      
+      if (!cleanText || cleanText.trim().length === 0) {
+        Alert.alert('Erreur', 'Aucun texte à lire.');
+        return;
+      }
       
       await freeTTS.speak({
         text: cleanText,
@@ -143,7 +154,8 @@ export default function ChapterScreen() {
       });
     } catch (error) {
       console.warn('Error speaking verse:', error);
-      Alert.alert('Erreur', 'Impossible de lire le verset. Veuillez réessayer.');
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      Alert.alert('Erreur TTS', `Impossible de lire le verset: ${errorMessage}`);
     }
   };
 
@@ -174,16 +186,41 @@ export default function ChapterScreen() {
   };
 
   const cleanTextForSpeech = (text: string): string => {
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+    
     return text
+      // Remove markdown formatting
       .replace(/\*\*(.*?)\*\*/g, '$1')
       .replace(/\*(.*?)\*/g, '$1')
       .replace(/#{1,6}\s/g, '')
+      
+      // Normalize quotes and dashes
       .replace(/[""]/g, '"')
       .replace(/['']/g, "'")
       .replace(/—/g, " - ")
+      .replace(/–/g, " - ")
+      
+      // Handle line breaks
       .replace(/\n{2,}/g, '. ')
       .replace(/\n/g, ', ')
+      
+      // Clean up punctuation for speech
+      .replace(/\.\.\./g, ', ')
+      .replace(/[;:]/g, ', ')
+      .replace(/\s*,\s*,\s*/g, ', ')
+      .replace(/\s*\.\s*\.\s*/g, '. ')
+      
+      // Normalize whitespace
       .replace(/\s+/g, ' ')
+      .replace(/\s*,\s*/g, ', ')
+      .replace(/\s*\.\s*/g, '. ')
+      
+      // Remove empty sentences
+      .replace(/\.\s*\./g, '.')
+      .replace(/,\s*,/g, ',')
+      
       .trim();
   };
 
@@ -196,6 +233,12 @@ export default function ChapterScreen() {
         return;
       }
 
+      // Check if TTS is available
+      if (!freeTTS.isAvailable()) {
+        Alert.alert('Non disponible', 'La synthèse vocale n\'est pas disponible sur cet appareil.');
+        return;
+      }
+
       setIsSpeaking(true);
 
       const fullText = `${book?.name}, chapitre ${chapter}. ` + 
@@ -203,26 +246,60 @@ export default function ChapterScreen() {
       
       const cleanText = cleanTextForSpeech(fullText);
       
-      if (!cleanText || cleanText.length === 0) {
+      if (!cleanText || cleanText.trim().length === 0) {
         setIsSpeaking(false);
         Alert.alert('Erreur', "Aucun texte à lire.");
         return;
       }
 
-      await freeTTS.speak({
-        text: cleanText,
-        language: 'fr-FR',
-        rate: speechRate,
-        pitch: 1.0,
-        volume: 1.0
-      });
+      // Split long text into chunks for better reliability
+      const maxChunkLength = 500;
+      if (cleanText.length > maxChunkLength) {
+        const sentences = cleanText.split('. ');
+        let currentChunk = '';
+        
+        for (const sentence of sentences) {
+          if (currentChunk.length + sentence.length > maxChunkLength && currentChunk.length > 0) {
+            await freeTTS.speak({
+              text: currentChunk,
+              language: 'fr-FR',
+              rate: speechRate,
+              pitch: 1.0,
+              volume: 1.0
+            });
+            currentChunk = sentence + '. ';
+          } else {
+            currentChunk += sentence + '. ';
+          }
+        }
+        
+        // Speak the remaining chunk
+        if (currentChunk.trim().length > 0) {
+          await freeTTS.speak({
+            text: currentChunk,
+            language: 'fr-FR',
+            rate: speechRate,
+            pitch: 1.0,
+            volume: 1.0
+          });
+        }
+      } else {
+        await freeTTS.speak({
+          text: cleanText,
+          language: 'fr-FR',
+          rate: speechRate,
+          pitch: 1.0,
+          volume: 1.0
+        });
+      }
 
       setIsSpeaking(false);
     } catch (error) {
       console.error('Erreur TTS:', error);
       setIsSpeaking(false);
       
-      Alert.alert('Erreur', 'Impossible de lire le chapitre. Veuillez réessayer.');
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      Alert.alert('Erreur TTS', `Impossible de lire le chapitre: ${errorMessage}`);
     }
   };
 

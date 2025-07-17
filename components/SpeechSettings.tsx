@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
-import { X, Volume2 } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
+import { X, Volume2, Play } from 'lucide-react-native';
+import { freeTTS } from '@/utils/free-tts';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
@@ -18,6 +19,8 @@ export default function SpeechSettings({
   speechRate,
   onSpeechRateChange,
 }: SpeechSettingsProps) {
+  const [isTesting, setIsTesting] = useState(false);
+  
   const rateOptions = [
     { value: 0.5, label: 'Très lent' },
     { value: 0.7, label: 'Lent' },
@@ -25,6 +28,32 @@ export default function SpeechSettings({
     { value: 1.1, label: 'Rapide' },
     { value: 1.3, label: 'Très rapide' },
   ];
+
+  const testSpeech = async () => {
+    if (isTesting) return;
+    
+    setIsTesting(true);
+    try {
+      if (!freeTTS.isAvailable()) {
+        Alert.alert('Non disponible', 'La synthèse vocale n\'est pas disponible sur cet appareil.');
+        return;
+      }
+
+      await freeTTS.speak({
+        text: 'Ceci est un test de la synthèse vocale.',
+        language: 'fr-FR',
+        rate: speechRate,
+        pitch: 1.0,
+        volume: 1.0
+      });
+    } catch (error) {
+      console.warn('Test speech error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      Alert.alert('Erreur TTS', `Test échoué: ${errorMessage}`);
+    } finally {
+      setIsTesting(false);
+    }
+  };
 
   return (
     <Modal
@@ -68,6 +97,17 @@ export default function SpeechSettings({
                 </TouchableOpacity>
               ))}
             </View>
+
+            <TouchableOpacity
+              style={[styles.testButton, isTesting && styles.testButtonDisabled]}
+              onPress={testSpeech}
+              disabled={isTesting}
+            >
+              <Play size={16} color={isTesting ? colors.textLight : colors.white} />
+              <Text style={[styles.testButtonText, isTesting && styles.testButtonTextDisabled]}>
+                {isTesting ? 'Test en cours...' : 'Tester la voix'}
+              </Text>
+            </TouchableOpacity>
 
             <View style={styles.infoBox}>
               <Text style={styles.infoText}>
@@ -173,5 +213,27 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
     lineHeight: typography.lineHeights.md,
+  },
+  testButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  testButtonDisabled: {
+    backgroundColor: colors.cardSecondary,
+  },
+  testButtonText: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: '600',
+    color: colors.white,
+  },
+  testButtonTextDisabled: {
+    color: colors.textLight,
   },
 });
