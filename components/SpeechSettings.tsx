@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
 import { X, Volume2, Play } from 'lucide-react-native';
-import { freeTTS } from '@/utils/free-tts';
+import { simpleTTS } from '@/utils/simple-tts';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
@@ -34,12 +34,12 @@ export default function SpeechSettings({
     
     setIsTesting(true);
     try {
-      if (!freeTTS.isAvailable()) {
+      if (!simpleTTS.isAvailable()) {
         Alert.alert('Non disponible', 'La synthèse vocale n\'est pas disponible sur cet appareil.');
         return;
       }
 
-      await freeTTS.speak({
+      await simpleTTS.speak({
         text: 'Ceci est un test de la synthèse vocale.',
         language: 'fr-FR',
         rate: speechRate,

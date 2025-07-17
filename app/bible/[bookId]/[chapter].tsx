@@ -4,7 +4,7 @@ import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark, Setting
 import React, { useState, useEffect } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert, Dimensions, Share } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { freeTTS } from "@/utils/free-tts";
+import { simpleTTS } from "@/utils/simple-tts";
 import SpeechSettings from "@/components/SpeechSettings";
 
 import { colors } from "@/constants/colors";
@@ -36,7 +36,7 @@ export default function ChapterScreen() {
   // Cleanup speech when component unmounts
   useEffect(() => {
     return () => {
-      freeTTS.stop();
+      simpleTTS.stop();
     };
   }, []);
 
@@ -132,7 +132,7 @@ export default function ChapterScreen() {
   const speakVerse = async (verseText: string, verseNumber: number) => {
     try {
       // Check if TTS is available
-      if (!freeTTS.isAvailable()) {
+      if (!simpleTTS.isAvailable()) {
         Alert.alert('Non disponible', 'La synthèse vocale n\'est pas disponible sur cet appareil.');
         return;
       }
@@ -145,7 +145,7 @@ export default function ChapterScreen() {
         return;
       }
       
-      await freeTTS.speak({
+      await simpleTTS.speak({
         text: cleanText,
         language: 'fr-FR',
         rate: speechRate,
@@ -228,13 +228,13 @@ export default function ChapterScreen() {
     try {
       if (isSpeaking) {
         // Stop current speech
-        freeTTS.stop();
+        simpleTTS.stop();
         setIsSpeaking(false);
         return;
       }
 
       // Check if TTS is available
-      if (!freeTTS.isAvailable()) {
+      if (!simpleTTS.isAvailable()) {
         Alert.alert('Non disponible', 'La synthèse vocale n\'est pas disponible sur cet appareil.');
         return;
       }
@@ -260,7 +260,7 @@ export default function ChapterScreen() {
         
         for (const sentence of sentences) {
           if (currentChunk.length + sentence.length > maxChunkLength && currentChunk.length > 0) {
-            await freeTTS.speak({
+            await simpleTTS.speak({
               text: currentChunk,
               language: 'fr-FR',
               rate: speechRate,
@@ -275,7 +275,7 @@ export default function ChapterScreen() {
         
         // Speak the remaining chunk
         if (currentChunk.trim().length > 0) {
-          await freeTTS.speak({
+          await simpleTTS.speak({
             text: currentChunk,
             language: 'fr-FR',
             rate: speechRate,
@@ -284,7 +284,7 @@ export default function ChapterScreen() {
           });
         }
       } else {
-        await freeTTS.speak({
+        await simpleTTS.speak({
           text: cleanText,
           language: 'fr-FR',
           rate: speechRate,

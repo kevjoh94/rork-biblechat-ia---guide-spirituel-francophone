@@ -9,6 +9,7 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { bibleBooks } from "@/mocks/bible-books";
 import TabIndicator from "@/components/TabIndicator";
+import TTSTestButton from "@/components/TTSTestButton";
 
 export default function BibleScreen() {
   const router = useRouter();
