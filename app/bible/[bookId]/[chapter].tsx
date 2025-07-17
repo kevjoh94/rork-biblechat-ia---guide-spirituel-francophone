@@ -4,8 +4,8 @@ import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark, Setting
 import React, { useState, useEffect } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert, Dimensions, Share } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { openaiTTS } from "@/utils/openai-tts";
-import OpenAIVoiceSelector, { OpenAIVoice } from "@/components/OpenAIVoiceSelector";
+import { freeTTS } from "@/utils/free-tts";
+import SpeechSettings from "@/components/SpeechSettings";
 
 import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
@@ -20,23 +20,23 @@ export default function ChapterScreen() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [favoriteVerses, setFavoriteVerses] = useState<number[]>([]);
   const [bookmarkedChapter, setBookmarkedChapter] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState<OpenAIVoice>('nova');
-  const [showVoiceSelector, setShowVoiceSelector] = useState(false);
+  const [speechRate, setSpeechRate] = useState(0.9);
+  const [showSettings, setShowSettings] = useState(false);
 
   const book = bibleBooks.find((b) => b.id === bookId);
   const chapterKey = `${bookId}-${chapter}`;
   const chapterData = bibleChapters[chapterKey] || generateMissingChapter(bookId!, parseInt(chapter!));
 
-  // Load bookmarks and voice preference on component mount
+  // Load bookmarks and speech settings on component mount
   useEffect(() => {
     loadBookmarks();
-    loadVoicePreference();
+    loadSpeechSettings();
   }, [bookId, chapter]);
 
   // Cleanup speech when component unmounts
   useEffect(() => {
     return () => {
-      openaiTTS.stop();
+      freeTTS.stop();
     };
   }, []);
 
@@ -74,23 +74,23 @@ export default function ChapterScreen() {
     }
   };
 
-  const loadVoicePreference = async () => {
+  const loadSpeechSettings = async () => {
     try {
-      const savedVoice = await AsyncStorage.getItem('openai_voice_preference');
-      if (savedVoice) {
-        setSelectedVoice(savedVoice as OpenAIVoice);
+      const savedRate = await AsyncStorage.getItem('speech_rate');
+      if (savedRate) {
+        setSpeechRate(parseFloat(savedRate));
       }
     } catch (error) {
-      console.warn('Error loading voice preference:', error);
+      console.warn('Error loading speech settings:', error);
     }
   };
 
-  const saveVoicePreference = async (voice: OpenAIVoice) => {
+  const saveSpeechSettings = async (rate: number) => {
     try {
-      await AsyncStorage.setItem('openai_voice_preference', voice);
-      setSelectedVoice(voice);
+      await AsyncStorage.setItem('speech_rate', rate.toString());
+      setSpeechRate(rate);
     } catch (error) {
-      console.warn('Error saving voice preference:', error);
+      console.warn('Error saving speech settings:', error);
     }
   };
 
@@ -134,10 +134,12 @@ export default function ChapterScreen() {
       const text = `Verset ${verseNumber}. ${verseText}`;
       const cleanText = cleanTextForSpeech(text);
       
-      await openaiTTS.speak(cleanText, {
-        voice: selectedVoice,
-        model: 'tts-1',
-        speed: 0.9
+      await freeTTS.speak({
+        text: cleanText,
+        language: 'fr-FR',
+        rate: speechRate,
+        pitch: 1.0,
+        volume: 1.0
       });
     } catch (error) {
       console.warn('Error speaking verse:', error);
@@ -185,11 +187,11 @@ export default function ChapterScreen() {
       .trim();
   };
 
-  const speakChapterWithOpenAI = async () => {
+  const speakChapter = async () => {
     try {
       if (isSpeaking) {
         // Stop current speech
-        openaiTTS.stop();
+        freeTTS.stop();
         setIsSpeaking(false);
         return;
       }
@@ -207,15 +209,12 @@ export default function ChapterScreen() {
         return;
       }
 
-      // Limit text length for OpenAI TTS (max 4096 characters)
-      const maxLength = 4000;
-      const textToSpeak = cleanText.length > maxLength ? 
-        cleanText.substring(0, maxLength) + "..." : cleanText;
-
-      await openaiTTS.speak(textToSpeak, {
-        voice: selectedVoice,
-        model: 'tts-1',
-        speed: 0.9
+      await freeTTS.speak({
+        text: cleanText,
+        language: 'fr-FR',
+        rate: speechRate,
+        pitch: 1.0,
+        volume: 1.0
       });
 
       setIsSpeaking(false);
@@ -253,10 +252,10 @@ export default function ChapterScreen() {
             </View>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity onPress={() => setShowVoiceSelector(true)} style={styles.actionButton}>
+            <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.actionButton}>
               <Settings size={18} color={colors.textSecondary} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={speakChapterWithOpenAI} style={[styles.actionButton, isSpeaking && styles.activeActionButton]}>
+            <TouchableOpacity onPress={speakChapter} style={[styles.actionButton, isSpeaking && styles.activeActionButton]}>
               {isSpeaking ? (
                 <VolumeX size={18} color={isSpeaking ? colors.white : colors.textSecondary} />
               ) : (
@@ -340,6 +339,13 @@ export default function ChapterScreen() {
           </View>
         </LinearGradient>
       </ScrollView>
+
+      <SpeechSettings
+        visible={showSettings}
+        onClose={() => setShowSettings(false)}
+        speechRate={speechRate}
+        onSpeechRateChange={saveSpeechSettings}
+      />
     </View>
   );
 }
