@@ -1,9 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NotificationManager from "@/components/NotificationManager";
+import NotificationBanner from "@/components/NotificationBanner";
+import LoadingOverlay from "@/components/LoadingOverlay";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import SwipeNavigation from "@/components/SwipeNavigation";
@@ -16,6 +18,13 @@ const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   const { colors } = useTheme();
+  const [notification, setNotification] = useState<{
+    visible: boolean;
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+  }>({ visible: false, type: 'info', title: '', message: '' });
+  const [loading, setLoading] = useState(false);
   
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -42,6 +51,16 @@ function RootLayoutNav() {
         </Stack>
         <QuickNavigation />
       </SwipeNavigation>
+      
+      <NotificationBanner
+        visible={notification.visible}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification(prev => ({ ...prev, visible: false }))}
+      />
+      
+      <LoadingOverlay visible={loading} />
     </GestureHandlerRootView>
   );
 }

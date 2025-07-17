@@ -12,8 +12,10 @@ import {
   Settings,
   Bell,
   Download,
-  ChevronRight
+  ChevronRight,
+  Moon
 } from 'lucide-react-native';
+import ThemeToggle from '@/components/ThemeToggle';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { typography } from '@/constants/typography';
@@ -132,6 +134,23 @@ export default function MoreScreen() {
       color: colors.warning
     }
   ];
+  
+  const ThemeMenuItem = () => {
+    const { colors } = useTheme();
+    return (
+      <View style={[styles.menuItem, { borderBottomColor: colors.border }]}>
+        <View style={[styles.iconContainer, { backgroundColor: colors.primary + '15' }]}>
+          <Moon color={colors.primary} size={24} />
+        </View>
+        <View style={styles.menuContent}>
+          <Text style={[styles.menuTitle, { color: colors.text }]}>Thème</Text>
+          <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]}>Mode clair/sombre</Text>
+        </View>
+        <ThemeToggle showLabel={false} size="small" />
+      </View>
+    );
+  };
+  ];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -170,6 +189,7 @@ export default function MoreScreen() {
                 color={item.color}
               />
             ))}
+            <ThemeMenuItem />
           </View>
         </View>
 

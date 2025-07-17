@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Book, Search, Star, BookOpen, Filter } from "lucide-react-native";
+import { Book, Search, Star, BookOpen, Filter, Plus } from "lucide-react-native";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Dimensions } from "react-native";
 
@@ -9,11 +9,13 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { bibleBooks } from "@/mocks/bible-books";
 import TabIndicator from "@/components/TabIndicator";
-import TTSTestButton from "@/components/TTSTestButton";
+import BibleSearchModal from "@/components/BibleSearchModal";
+
 
 export default function BibleScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const filteredBooks = bibleBooks.filter(book =>
     book.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -97,6 +99,7 @@ export default function BibleScreen() {
               placeholderTextColor={colors.textLight}
               value={searchQuery}
               onChangeText={setSearchQuery}
+              onFocus={() => setShowSearchModal(true)}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery("")} style={styles.clearButton}>
@@ -164,7 +167,38 @@ export default function BibleScreen() {
           </View>
         )}
       </View>
+      
+      {/* Quick Stats */}
+      <View style={styles.quickStats}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{bibleBooks.length}</Text>
+          <Text style={styles.statLabel}>Livres</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>1189</Text>
+          <Text style={styles.statLabel}>Chapitres</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>31102</Text>
+          <Text style={styles.statLabel}>Versets</Text>
+        </View>
+      </View>
+      
       <TabIndicator />
+      
+      <BibleSearchModal
+        visible={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        onNavigate={(bookId, chapter) => {
+          if (chapter) {
+            router.push(`/bible/${bookId}/${chapter}`);
+          } else {
+            router.push(`/bible/${bookId}`);
+          }
+        }}
+      />
     </ScrollView>
   );
 }
@@ -402,5 +436,38 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     textAlign: "center",
     marginTop: spacing.xs,
+  },
+  quickStats: {
+    flexDirection: "row",
+    backgroundColor: colors.white,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    borderRadius: 16,
+    paddingVertical: spacing.lg,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statNumber: {
+    fontSize: typography.fontSizes.xl,
+    fontWeight: "700",
+    color: colors.primary,
+    marginBottom: spacing.xs,
+  },
+  statLabel: {
+    fontSize: typography.fontSizes.sm,
+    color: colors.textSecondary,
+    fontWeight: "500",
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: colors.border,
+    marginVertical: spacing.sm,
   },
 });

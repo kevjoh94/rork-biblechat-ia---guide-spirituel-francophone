@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MessageCircle, Sparkles, Star, Heart, Calendar, BookOpen, Target } from "lucide-react-native";
+import { MessageCircle, Sparkles, Star, Heart, Calendar, BookOpen, Target, TrendingUp, Award } from "lucide-react-native";
 import React, { useState, useEffect, useMemo } from "react";
 import { BiblicalContent } from "@/types/spiritual";
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
@@ -12,6 +12,9 @@ import { SpiritualCategoryCard } from "@/components/SpiritualCategoryCard";
 import { ProgressTracker } from "@/components/ProgressTracker";
 import { useTheme } from "@/components/ThemeProvider";
 import TabIndicator from "@/components/TabIndicator";
+import FloatingActionButton from "@/components/FloatingActionButton";
+import ReadingProgress from "@/components/ReadingProgress";
+import QuickActions from "@/components/QuickActions";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { spiritualCategories } from "@/mocks/spiritual-categories";
@@ -130,6 +133,9 @@ export default function HomeScreen() {
         />
         
         {/* Quick Actions */}
+        <QuickActions />
+        
+        {/* Quick Actions */}
         <View style={styles.quickActions}>
           <TouchableOpacity style={styles.quickAction} onPress={navigateToDailyPlan}>
             <LinearGradient
@@ -196,8 +202,48 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Progress Tracker */}
-        <ProgressTracker />
+        {/* Enhanced Progress Section */}
+        <View style={styles.progressSection}>
+          <View style={styles.sectionHeader}>
+            <TrendingUp size={20} color={colors.primary} />
+            <Text style={styles.sectionTitle}>Ton progrès spirituel</Text>
+          </View>
+          <ProgressTracker />
+          
+          {/* Weekly Goals */}
+          <View style={styles.weeklyGoals}>
+            <Text style={styles.weeklyGoalsTitle}>Objectifs de la semaine</Text>
+            <View style={styles.goalsList}>
+              <View style={styles.goalItem}>
+                <View style={styles.goalIcon}>
+                  <BookOpen size={16} color={colors.primary} />
+                </View>
+                <Text style={styles.goalText}>Lire 3 chapitres</Text>
+                <View style={styles.goalProgress}>
+                  <Text style={styles.goalProgressText}>2/3</Text>
+                </View>
+              </View>
+              <View style={styles.goalItem}>
+                <View style={styles.goalIcon}>
+                  <Heart size={16} color={colors.gratitude} />
+                </View>
+                <Text style={styles.goalText}>Méditer 5 fois</Text>
+                <View style={styles.goalProgress}>
+                  <Text style={styles.goalProgressText}>3/5</Text>
+                </View>
+              </View>
+              <View style={styles.goalItem}>
+                <View style={styles.goalIcon}>
+                  <Award size={16} color={colors.accent} />
+                </View>
+                <Text style={styles.goalText}>Écrire dans le journal</Text>
+                <View style={styles.goalProgress}>
+                  <Text style={styles.goalProgressText}>4/7</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
         
         <View style={styles.contentContainer}>
           {activeTab === "featured" ? (
@@ -234,6 +280,7 @@ export default function HomeScreen() {
         </View>
       </View>
       <TabIndicator />
+      <FloatingActionButton />
     </ScrollView>
   );
 }
@@ -356,6 +403,60 @@ const styles = StyleSheet.create({
   },
   quickActionText: {
     fontSize: typography.fontSizes.sm,
+    fontWeight: "600",
+  },
+  progressSection: {
+    marginVertical: spacing.lg,
+  },
+  weeklyGoals: {
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: spacing.lg,
+    marginTop: spacing.md,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  weeklyGoalsTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: "600",
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  goalsList: {
+    gap: spacing.sm,
+  },
+  goalItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+  },
+  goalIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.cardSecondary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.md,
+  },
+  goalText: {
+    flex: 1,
+    fontSize: typography.fontSizes.sm,
+    color: colors.text,
+    fontWeight: "500",
+  },
+  goalProgress: {
+    backgroundColor: colors.primary + "15",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: 12,
+  },
+  goalProgressText: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.primary,
     fontWeight: "600",
   },
 });

@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark, Settings } from "lucide-react-native";
+import { ArrowLeft, BookOpen, Heart, Share2, Volume2, VolumeX, Bookmark, Settings, ChevronLeft, ChevronRight } from "lucide-react-native";
 import React, { useState, useEffect } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform, Alert, Dimensions, Share } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -22,6 +22,7 @@ export default function ChapterScreen() {
   const [bookmarkedChapter, setBookmarkedChapter] = useState(false);
   const [speechRate, setSpeechRate] = useState(0.9);
   const [showSettings, setShowSettings] = useState(false);
+  const [fontSize, setFontSize] = useState(16);
 
   const book = bibleBooks.find((b) => b.id === bookId);
   const chapterKey = `${bookId}-${chapter}`;
@@ -31,6 +32,7 @@ export default function ChapterScreen() {
   useEffect(() => {
     loadBookmarks();
     loadSpeechSettings();
+    loadFontSize();
   }, [bookId, chapter]);
 
   // Cleanup speech when component unmounts
@@ -91,6 +93,26 @@ export default function ChapterScreen() {
       setSpeechRate(rate);
     } catch (error) {
       console.warn('Error saving speech settings:', error);
+    }
+  };
+
+  const loadFontSize = async () => {
+    try {
+      const savedSize = await AsyncStorage.getItem('bible_font_size');
+      if (savedSize) {
+        setFontSize(parseInt(savedSize));
+      }
+    } catch (error) {
+      console.warn('Error loading font size:', error);
+    }
+  };
+
+  const saveFontSize = async (size: number) => {
+    try {
+      await AsyncStorage.setItem('bible_font_size', size.toString());
+      setFontSize(size);
+    } catch (error) {
+      console.warn('Error saving font size:', error);
     }
   };
 
@@ -388,7 +410,7 @@ export default function ChapterScreen() {
                     </TouchableOpacity>
                   </View>
                 </View>
-                <Text style={styles.verseText}>{verse.text}</Text>
+                <Text style={[styles.verseText, { fontSize: fontSize }]}>{verse.text}</Text>
               </LinearGradient>
             </View>
           ))}
@@ -415,6 +437,53 @@ export default function ChapterScreen() {
             </View>
           </View>
         </LinearGradient>
+        
+        {/* Navigation Controls */}
+        <View style={styles.navigationControls}>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => {
+              const currentChapter = parseInt(chapter!);
+              if (currentChapter > 1) {
+                router.replace(`/bible/${bookId}/${currentChapter - 1}`);
+              }
+            }}
+            disabled={parseInt(chapter!) <= 1}
+          >
+            <ChevronLeft size={20} color={parseInt(chapter!) <= 1 ? colors.textLight : colors.primary} />
+            <Text style={[styles.navButtonText, { color: parseInt(chapter!) <= 1 ? colors.textLight : colors.primary }]}>Précédent</Text>
+          </TouchableOpacity>
+          
+          <View style={styles.fontControls}>
+            <TouchableOpacity 
+              style={styles.fontButton}
+              onPress={() => fontSize > 12 && saveFontSize(fontSize - 2)}
+            >
+              <Text style={styles.fontButtonText}>A-</Text>
+            </TouchableOpacity>
+            <Text style={styles.fontSizeText}>{fontSize}px</Text>
+            <TouchableOpacity 
+              style={styles.fontButton}
+              onPress={() => fontSize < 24 && saveFontSize(fontSize + 2)}
+            >
+              <Text style={styles.fontButtonText}>A+</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => {
+              const currentChapter = parseInt(chapter!);
+              if (currentChapter < book!.chapters) {
+                router.replace(`/bible/${bookId}/${currentChapter + 1}`);
+              }
+            }}
+            disabled={parseInt(chapter!) >= book!.chapters}
+          >
+            <Text style={[styles.navButtonText, { color: parseInt(chapter!) >= book!.chapters ? colors.textLight : colors.primary }]}>Suivant</Text>
+            <ChevronRight size={20} color={parseInt(chapter!) >= book!.chapters ? colors.textLight : colors.primary} />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <SpeechSettings
@@ -624,5 +693,53 @@ const styles = StyleSheet.create({
     color: colors.error,
     textAlign: "center",
     marginTop: spacing.xl,
+  },
+  navigationControls: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  navButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 8,
+    backgroundColor: colors.cardSecondary,
+    gap: spacing.xs,
+  },
+  navButtonText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: "600",
+  },
+  fontControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  fontButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary + "15",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fontButtonText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: "600",
+    color: colors.primary,
+  },
+  fontSizeText: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.textSecondary,
+    fontWeight: "500",
+    minWidth: 40,
+    textAlign: "center",
   },
 });
