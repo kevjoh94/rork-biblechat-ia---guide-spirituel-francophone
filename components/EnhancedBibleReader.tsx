@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Platform }
 import { LinearGradient } from 'expo-linear-gradient';
 import { Heart, Share2, Volume2, Bookmark, Copy, Highlighter } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { simpleTTS } from '@/utils/simple-tts';
@@ -26,6 +26,7 @@ export default function EnhancedBibleReader({
   chapter, 
   bookColor 
 }: EnhancedBibleReaderProps) {
+  const { colors } = useTheme();
   const [favoriteVerses, setFavoriteVerses] = useState<number[]>([]);
   const [highlightedVerses, setHighlightedVerses] = useState<number[]>([]);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);

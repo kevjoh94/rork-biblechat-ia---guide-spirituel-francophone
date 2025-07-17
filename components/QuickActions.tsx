@@ -12,7 +12,7 @@ import {
   Headphones
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 
@@ -25,58 +25,59 @@ interface QuickAction {
   route: string;
 }
 
-const quickActions: QuickAction[] = [
-  {
-    id: 'chat',
-    title: 'Chat IA',
-    subtitle: 'Pose tes questions',
-    icon: MessageCircle,
-    colors: [colors.primary, colors.primary + 'CC'] as const,
-    route: '/(tabs)/chat'
-  },
-  {
-    id: 'bible',
-    title: 'Lire la Bible',
-    subtitle: 'Explore les Écritures',
-    icon: BookOpen,
-    colors: [colors.secondary, colors.secondary + 'CC'] as const,
-    route: '/(tabs)/bible'
-  },
-  {
-    id: 'meditation',
-    title: 'Méditation',
-    subtitle: 'Moment de paix',
-    icon: Headphones,
-    colors: [colors.gratitude, colors.gratitude + 'CC'] as const,
-    route: '/(tabs)/meditation'
-  },
-  {
-    id: 'journal',
-    title: 'Journal',
-    subtitle: 'Écris tes pensées',
-    icon: PenTool,
-    colors: [colors.accent, colors.accent + 'CC'] as const,
-    route: '/(tabs)/journal'
-  },
-  {
-    id: 'plan',
-    title: 'Plan quotidien',
-    subtitle: 'Organise ta journée',
-    icon: Target,
-    colors: ['#8B5CF6', '#8B5CF6CC'] as const,
-    route: '/daily-plan'
-  },
-  {
-    id: 'calendar',
-    title: 'Calendrier',
-    subtitle: 'Vois ton progrès',
-    icon: Calendar,
-    colors: ['#06B6D4', '#06B6D4CC'] as const,
-    route: '/calendar'
-  }
-];
+  const quickActions: QuickAction[] = [
+    {
+      id: 'chat',
+      title: 'Chat IA',
+      subtitle: 'Pose tes questions',
+      icon: MessageCircle,
+      colors: [colors.primary, colors.primary + 'CC'] as const,
+      route: '/(tabs)/chat'
+    },
+    {
+      id: 'bible',
+      title: 'Lire la Bible',
+      subtitle: 'Explore les Écritures',
+      icon: BookOpen,
+      colors: [colors.secondary, colors.secondary + 'CC'] as const,
+      route: '/(tabs)/bible'
+    },
+    {
+      id: 'meditation',
+      title: 'Méditation',
+      subtitle: 'Moment de paix',
+      icon: Headphones,
+      colors: [colors.gratitude, colors.gratitude + 'CC'] as const,
+      route: '/(tabs)/meditation'
+    },
+    {
+      id: 'journal',
+      title: 'Journal',
+      subtitle: 'Écris tes pensées',
+      icon: PenTool,
+      colors: [colors.accent, colors.accent + 'CC'] as const,
+      route: '/(tabs)/journal'
+    },
+    {
+      id: 'plan',
+      title: 'Plan quotidien',
+      subtitle: 'Organise ta journée',
+      icon: Target,
+      colors: [colors.strength, colors.strength + 'CC'] as const,
+      route: '/daily-plan'
+    },
+    {
+      id: 'calendar',
+      title: 'Calendrier',
+      subtitle: 'Vois ton progrès',
+      icon: Calendar,
+      colors: [colors.info, colors.info + 'CC'] as const,
+      route: '/calendar'
+    }
+  ];
 
 export default function QuickActions() {
+  const { colors } = useTheme();
   const router = useRouter();
 
   const handleActionPress = (route: string) => {

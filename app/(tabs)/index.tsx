@@ -404,16 +404,17 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: typography.fontSizes.sm,
     fontWeight: "600",
+    color: colors.white,
   },
   progressSection: {
     marginVertical: spacing.lg,
   },
   weeklyGoals: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: spacing.lg,
     marginTop: spacing.md,
-    shadowColor: colors.black,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,

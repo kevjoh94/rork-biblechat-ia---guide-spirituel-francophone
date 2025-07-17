@@ -17,6 +17,7 @@ export const lightColors = {
   info: "#2196F3",
   white: "#FFFFFF",
   black: "#000000",
+  shadow: "#000000",
   overlay: "rgba(0, 0, 0, 0.5)",
   transparent: "transparent",
   
@@ -59,6 +60,7 @@ export const darkColors = {
   info: "#42A5F5",
   white: "#FFFFFF",
   black: "#000000",
+  shadow: "#000000",
   overlay: "rgba(0, 0, 0, 0.7)",
   transparent: "transparent",
   
