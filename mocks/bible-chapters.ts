@@ -946,5 +946,231 @@ export const bibleChapters: Record<string, BibleChapter> = {
         text: "Il essuiera toute larme de leurs yeux, la mort ne sera plus et il n'y aura plus ni deuil, ni cri, ni douleur, car ce qui existait avant a disparu.»"
       }
     ]
+  },
+
+  // GENÈSE - Chapitres supplémentaires
+  "genese-4": {
+    verses: [
+      {
+        number: 1,
+        text: "Adam eut des relations avec sa femme Ève. Elle tomba enceinte et mit au monde Caïn. Elle dit: «J'ai donné vie à un homme avec l'aide de l'Éternel.»"
+      },
+      {
+        number: 2,
+        text: "Elle mit encore au monde le frère de Caïn, Abel. Abel fut berger et Caïn fut cultivateur."
+      },
+      {
+        number: 3,
+        text: "Au bout de quelque temps, Caïn fit une offrande des produits de la terre à l'Éternel."
+      },
+      {
+        number: 4,
+        text: "De son côté, Abel en fit une des premiers-nés de son troupeau et de leur graisse. L'Éternel porta un regard favorable sur Abel et sur son offrande,"
+      },
+      {
+        number: 5,
+        text: "mais il ne porta pas un regard favorable sur Caïn et sur son offrande. Caïn fut très irrité et il arbora un air sombre."
+      },
+      {
+        number: 6,
+        text: "L'Éternel dit à Caïn: «Pourquoi es-tu irrité et pourquoi arbores-tu un air sombre?"
+      },
+      {
+        number: 7,
+        text: "Certainement, si tu agis bien, tu te relèveras. Si tu n'agis pas bien, le péché est couché à la porte et ses désirs se portent vers toi, mais c'est à toi de dominer sur lui.»"
+      },
+      {
+        number: 8,
+        text: "Cependant, Caïn dit à son frère Abel: «Allons dans les champs!» Lorsqu'ils furent dans les champs, Caïn se jeta sur son frère Abel et le tua."
+      },
+      {
+        number: 9,
+        text: "L'Éternel dit à Caïn: «Où est ton frère Abel?» Il répondit: «Je ne sais pas. Suis-je le gardien de mon frère?»"
+      },
+      {
+        number: 10,
+        text: "Dieu dit: «Qu'as-tu fait? La voix du sang de ton frère crie de la terre jusqu'à moi."
+      }
+    ]
+  },
+
+  "genese-6": {
+    verses: [
+      {
+        number: 1,
+        text: "Lorsque les hommes eurent commencé à se multiplier à la surface de la terre et que des filles leur furent nées,"
+      },
+      {
+        number: 2,
+        text: "les fils de Dieu virent que les filles des hommes étaient belles et ils en prirent pour femmes parmi toutes celles qu'ils choisirent."
+      },
+      {
+        number: 5,
+        text: "L'Éternel vit que la méchanceté de l'homme était grande sur la terre et que toutes les pensées de son cœur se portaient chaque jour uniquement vers le mal."
+      },
+      {
+        number: 6,
+        text: "L'Éternel regretta d'avoir fait l'homme sur la terre, et il fut affligé dans son cœur."
+      },
+      {
+        number: 7,
+        text: "L'Éternel dit: «J'exterminerai de la surface de la terre l'homme que j'ai créé, depuis l'homme jusqu'au bétail, aux reptiles et aux oiseaux du ciel, car je regrette de les avoir faits.»"
+      },
+      {
+        number: 8,
+        text: "Cependant, Noé trouva grâce aux yeux de l'Éternel."
+      },
+      {
+        number: 9,
+        text: "Voici l'histoire de Noé. C'était un homme juste et intègre dans sa génération, un homme qui marchait avec Dieu."
+      },
+      {
+        number: 13,
+        text: "Alors Dieu dit à Noé: «La fin de toute créature est décidée devant moi, car ils ont rempli la terre de violence. Je vais les détruire avec la terre."
+      },
+      {
+        number: 14,
+        text: "Fais-toi une arche en bois de cyprès. Tu disposeras cette arche en compartiments et tu l'enduiras de poix à l'intérieur et à l'extérieur."
+      },
+      {
+        number: 19,
+        text: "De tout ce qui vit, de toute créature, tu feras entrer dans l'arche deux de chaque espèce pour leur conserver la vie avec toi. Il y aura un mâle et une femelle."
+      }
+    ]
+  },
+
+  // PSAUMES - Chapitres supplémentaires populaires
+  "psaumes-27": {
+    verses: [
+      {
+        number: 1,
+        text: "L'Éternel est ma lumière et mon salut: de qui aurais-je peur? L'Éternel est le soutien de ma vie: qui pourrais-je redouter?"
+      },
+      {
+        number: 2,
+        text: "Quand les méchants s'avancent contre moi pour dévorer ma chair, ce sont mes persécuteurs et mes ennemis qui chancellent et tombent."
+      },
+      {
+        number: 3,
+        text: "Si une armée prenait position contre moi, mon cœur n'éprouverait aucune crainte; si une guerre s'élevait contre moi, je garderais confiance."
+      },
+      {
+        number: 4,
+        text: "Je demande une chose à l'Éternel, c'est ce que je recherche: habiter toute ma vie dans la maison de l'Éternel pour contempler sa beauté et pour visiter son temple."
+      },
+      {
+        number: 5,
+        text: "Oui, il me protégera dans son abri au jour du malheur, il me cachera sous l'abri de sa tente, il m'élèvera sur un rocher."
+      },
+      {
+        number: 14,
+        text: "Espère en l'Éternel! Fortifie-toi et que ton cœur s'affermisse! Espère en l'Éternel!"
+      }
+    ]
+  },
+
+  "psaumes-46": {
+    verses: [
+      {
+        number: 1,
+        text: "Dieu est pour nous un refuge et un appui, un secours qui ne manque jamais dans la détresse."
+      },
+      {
+        number: 2,
+        text: "C'est pourquoi nous sommes sans crainte quand la terre est bouleversée et que les montagnes s'effondrent au cœur des mers,"
+      },
+      {
+        number: 3,
+        text: "quand les eaux de la mer mugissent et bouillonnent, quand les montagnes s'ébranlent à cause de ses flots en furie."
+      },
+      {
+        number: 4,
+        text: "Il y a un fleuve dont les bras réjouissent la ville de Dieu, le sanctuaire des demeures du Très-Haut."
+      },
+      {
+        number: 5,
+        text: "Dieu est au milieu d'elle: elle ne chancellera pas. Dieu la secourra dès l'aube."
+      },
+      {
+        number: 10,
+        text: "Arrêtez et reconnaissez que je suis Dieu! Je domine sur les nations, je domine sur la terre."
+      },
+      {
+        number: 11,
+        text: "L'Éternel, le maître de l'univers, est avec nous, le Dieu de Jacob est notre refuge."
+      }
+    ]
+  },
+
+  // JEAN - Chapitres supplémentaires
+  "jean-15": {
+    verses: [
+      {
+        number: 1,
+        text: "Je suis le vrai cep, et mon Père est le vigneron."
+      },
+      {
+        number: 2,
+        text: "Tout sarment qui est en moi et qui ne porte pas de fruit, il le retranche; et tout sarment qui porte du fruit, il l'émonde afin qu'il porte encore plus de fruit."
+      },
+      {
+        number: 4,
+        text: "Demeurez en moi et moi en vous. De même que le sarment ne peut pas porter de fruit par lui-même, sans demeurer attaché au cep, vous non plus, si vous ne demeurez pas en moi."
+      },
+      {
+        number: 5,
+        text: "Je suis le cep, vous êtes les sarments. Celui qui demeure en moi et en qui je demeure porte beaucoup de fruit, car sans moi vous ne pouvez rien faire."
+      },
+      {
+        number: 9,
+        text: "Comme le Père m'a aimé, je vous ai aussi aimés. Demeurez dans mon amour."
+      },
+      {
+        number: 12,
+        text: "Voici mon commandement: aimez-vous les uns les autres comme je vous ai aimés."
+      },
+      {
+        number: 13,
+        text: "Il n'y a pas de plus grand amour que de donner sa vie pour ses amis."
+      },
+      {
+        number: 16,
+        text: "Ce n'est pas vous qui m'avez choisi, mais moi, je vous ai choisis et je vous ai établis afin que vous alliez, que vous portiez du fruit et que votre fruit demeure."
+      }
+    ]
+  },
+
+  // MATTHIEU - Chapitre supplémentaire
+  "matthieu-28": {
+    verses: [
+      {
+        number: 1,
+        text: "Après le sabbat, à l'aube du dimanche, Marie de Magdala et l'autre Marie allèrent voir le tombeau."
+      },
+      {
+        number: 2,
+        text: "Soudain, il y eut un grand tremblement de terre, car un ange du Seigneur descendit du ciel, vint rouler la pierre [de devant l'ouverture] et s'assit dessus."
+      },
+      {
+        number: 5,
+        text: "L'ange prit la parole et dit aux femmes: «N'ayez pas peur, vous! Je sais que vous cherchez Jésus, celui qui a été crucifié."
+      },
+      {
+        number: 6,
+        text: "Il n'est pas ici, car il est ressuscité comme il l'avait dit. Venez voir l'endroit où le Seigneur était couché"
+      },
+      {
+        number: 18,
+        text: "Jésus s'approcha et leur dit: «Tout pouvoir m'a été donné dans le ciel et sur la terre."
+      },
+      {
+        number: 19,
+        text: "Allez [donc], faites de toutes les nations des disciples, baptisez-les au nom du Père, du Fils et du Saint-Esprit"
+      },
+      {
+        number: 20,
+        text: "et enseignez-leur à mettre en pratique tout ce que je vous ai prescrit. Et moi, je suis avec vous tous les jours, jusqu'à la fin du monde.»"
+      }
+    ]
   }
 };
