@@ -129,8 +129,9 @@ Bible Segond 21`;
           onPress={() => setSelectedVerse(isSelected ? null : verse.number)}
           style={[
             styles.verseContent,
-            isHighlighted && styles.highlightedVerse,
-            isSelected && styles.selectedVerse
+            { backgroundColor: colors.card },
+            isHighlighted && [styles.highlightedVerse, { backgroundColor: colors.warning + '20', borderLeftColor: colors.warning }],
+            isSelected && [styles.selectedVerse, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' }]
           ]}
         >
           <View style={styles.verseHeader}>
@@ -138,15 +139,15 @@ Bible Segond 21`;
               {verse.number}
             </Text>
           </View>
-          <Text style={[styles.verseText, { fontSize }]}>
+          <Text style={[styles.verseText, { fontSize, color: colors.text }]}>
             {verse.text}
           </Text>
         </TouchableOpacity>
 
         {isSelected && (
-          <View style={styles.actionBar}>
+          <View style={[styles.actionBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
             <TouchableOpacity
-              style={[styles.actionButton, isFavorite && styles.activeAction]}
+              style={[styles.actionButton, { backgroundColor: colors.background }, isFavorite && { backgroundColor: colors.primary + '20' }]}
               onPress={() => toggleFavorite(verse.number)}
             >
               <Heart 
@@ -157,7 +158,7 @@ Bible Segond 21`;
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionButton, isHighlighted && styles.activeAction]}
+              style={[styles.actionButton, { backgroundColor: colors.background }, isHighlighted && { backgroundColor: colors.primary + '20' }]}
               onPress={() => toggleHighlight(verse.number)}
             >
               <Highlighter 
@@ -167,21 +168,21 @@ Bible Segond 21`;
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.actionButton, { backgroundColor: colors.background }]}
               onPress={() => speakVerse(verse)}
             >
               <Volume2 size={20} color={colors.textSecondary} />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.actionButton, { backgroundColor: colors.background }]}
               onPress={() => shareVerse(verse)}
             >
               <Share2 size={20} color={colors.textSecondary} />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.actionButton, { backgroundColor: colors.background }]}
               onPress={() => copyVerse(verse)}
             >
               <Copy size={20} color={colors.textSecondary} />
@@ -193,7 +194,7 @@ Bible Segond 21`;
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
       <LinearGradient
         colors={[bookColor + '10', 'transparent']}
         style={styles.header}
@@ -208,7 +209,7 @@ Bible Segond 21`;
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
+        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
           Bible Segond 21 • {verses.length} versets
         </Text>
       </View>
@@ -219,7 +220,6 @@ Bible Segond 21`;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     padding: spacing.lg,
@@ -239,17 +239,12 @@ const styles = StyleSheet.create({
   verseContent: {
     padding: spacing.md,
     borderRadius: 8,
-    backgroundColor: colors.card,
   },
   highlightedVerse: {
-    backgroundColor: colors.warning + '20',
     borderLeftWidth: 3,
-    borderLeftColor: colors.warning,
   },
   selectedVerse: {
-    backgroundColor: colors.primary + '10',
     borderWidth: 1,
-    borderColor: colors.primary + '30',
   },
   verseHeader: {
     marginBottom: spacing.xs,
@@ -261,25 +256,20 @@ const styles = StyleSheet.create({
   verseText: {
     fontSize: typography.fontSizes.md,
     lineHeight: typography.lineHeights.lg,
-    color: colors.text,
   },
   actionBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: colors.card,
     marginTop: spacing.xs,
     paddingVertical: spacing.sm,
     borderRadius: 8,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   actionButton: {
     padding: spacing.sm,
     borderRadius: 6,
-    backgroundColor: colors.background,
   },
   activeAction: {
-    backgroundColor: colors.primary + '20',
   },
   footer: {
     padding: spacing.lg,
@@ -287,6 +277,5 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
   },
 });

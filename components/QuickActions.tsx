@@ -25,6 +25,10 @@ interface QuickAction {
   route: string;
 }
 
+export default function QuickActions() {
+  const { colors } = useTheme();
+  const router = useRouter();
+
   const quickActions: QuickAction[] = [
     {
       id: 'chat',
@@ -76,10 +80,6 @@ interface QuickAction {
     }
   ];
 
-export default function QuickActions() {
-  const { colors } = useTheme();
-  const router = useRouter();
-
   const handleActionPress = (route: string) => {
     router.push(route as any);
   };
@@ -116,7 +116,7 @@ export default function QuickActions() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Actions rapides</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Actions rapides</Text>
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSizes.lg,
     fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
     marginBottom: spacing.md,
     paddingHorizontal: spacing.lg,
   },
