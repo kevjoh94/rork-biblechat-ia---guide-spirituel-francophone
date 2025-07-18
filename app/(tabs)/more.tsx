@@ -358,8 +358,6 @@ export default function MoreScreen() {
   );
 }
 
-}
-
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,

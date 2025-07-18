@@ -164,8 +164,6 @@ export default function BibleScreen() {
   );
 }
 
-}
-
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
