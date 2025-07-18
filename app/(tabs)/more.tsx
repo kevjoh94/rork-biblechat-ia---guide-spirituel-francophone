@@ -29,7 +29,7 @@ interface MenuItemProps {
 const MenuItem: React.FC<MenuItemProps> = ({ icon, title, subtitle, onPress, color }) => {
   return (
     <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]} onPress={onPress}>
-      <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
+      <View style={[styles.iconContainer, { backgroundColor: color ? color + '15' : colors.primary + '15' }]}>
         {React.cloneElement(icon as React.ReactElement, { color: color, size: 24 } as any)}
       </View>
       <View style={styles.menuContent}>
