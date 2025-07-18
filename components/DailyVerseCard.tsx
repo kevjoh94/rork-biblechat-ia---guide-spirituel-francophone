@@ -3,7 +3,7 @@ import { Calendar, Heart } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 
@@ -14,36 +14,40 @@ interface DailyVerseCardProps {
 }
 
 export const DailyVerseCard: React.FC<DailyVerseCardProps> = ({ verse, reference, message }) => {
+  const { colors } = useTheme();
+  
+  const dynamicStyles = createStyles(colors);
+  
   return (
-    <View style={styles.container}>
+    <View style={dynamicStyles.container}>
       <LinearGradient
         colors={colors.primaryGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.gradient}
+        style={dynamicStyles.gradient}
       >
-        <View style={styles.header}>
-          <View style={styles.iconContainer}>
+        <View style={dynamicStyles.header}>
+          <View style={dynamicStyles.iconContainer}>
             <Calendar size={18} color={colors.white} />
           </View>
-          <Text style={styles.headerText}>Verset du jour</Text>
-          <View style={styles.heartContainer}>
+          <Text style={dynamicStyles.headerText}>Verset du jour</Text>
+          <View style={dynamicStyles.heartContainer}>
             <Heart size={16} color={colors.white} fill={colors.white} />
           </View>
         </View>
         
-        <Text style={styles.verse}>"{verse}"</Text>
-        <Text style={styles.reference}>— {reference}</Text>
+        <Text style={dynamicStyles.verse}>"{verse}"</Text>
+        <Text style={dynamicStyles.reference}>— {reference}</Text>
         
-        <View style={styles.divider} />
+        <View style={dynamicStyles.divider} />
         
-        <Text style={styles.message}>{message}</Text>
+        <Text style={dynamicStyles.message}>{message}</Text>
       </LinearGradient>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     marginBottom: spacing.lg,
     borderRadius: 20,

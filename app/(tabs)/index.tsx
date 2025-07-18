@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Animated, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { MessageCircle, BookOpen, Heart, Calendar, Target, Sparkles, User, Crown } from "lucide-react-native";
+import { MessageCircle, BookOpen, Heart, Calendar, Target, Sparkles, User, Crown, TrendingUp, Award, Flame } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
@@ -9,9 +9,13 @@ import { useSpiritualStore } from "@/store/spiritual-store";
 import { useTheme } from "@/components/ThemeProvider";
 import { DailyVerseCard } from "@/components/DailyVerseCard";
 
+const { width } = Dimensions.get('window');
+
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [slideAnim] = useState(new Animated.Value(50));
   
   // Get data from store
   const dailyVerse = useSpiritualStore((state) => state.dailyVerse);
@@ -21,6 +25,20 @@ export default function HomeScreen() {
 
   useEffect(() => {
     initializeDailyVerse();
+    
+    // Animate entrance
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      })
+    ]).start();
   }, [initializeDailyVerse]);
 
   const currentVerse = dailyVerse || getDailyVerse();
@@ -154,24 +172,92 @@ export default function HomeScreen() {
     bottomPadding: {
       height: spacing.xl,
     },
+    animatedContainer: {
+      opacity: 1,
+    },
+    weeklyGoalsCard: {
+      backgroundColor: colors.card,
+      marginHorizontal: spacing.lg,
+      padding: spacing.lg,
+      borderRadius: 16,
+      marginBottom: spacing.lg,
+      elevation: 2,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    goalItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    goalProgress: {
+      flex: 1,
+      marginLeft: spacing.sm,
+    },
+    goalText: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.text,
+      marginBottom: 4,
+    },
+    progressBar: {
+      height: 6,
+      backgroundColor: colors.border,
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      borderRadius: 3,
+    },
+    achievementBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.success + '20',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: 12,
+      marginTop: spacing.sm,
+    },
+    achievementText: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.success,
+      marginLeft: spacing.xs,
+      fontWeight: typography.fontWeights.semibold,
+    },
   });
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Bonjour ! 🌅";
+    if (hour < 18) return "Bon après-midi ! ☀️";
+    return "Bonsoir ! 🌙";
+  };
+  
+  const weeklyGoals = [
+    { icon: BookOpen, text: "Lire 5 chapitres", progress: 0.6, color: colors.primary },
+    { icon: Heart, text: "Méditer 3 fois", progress: 0.33, color: colors.peace },
+    { icon: Sparkles, text: "Écrire dans le journal", progress: 0.8, color: colors.hope },
+  ];
+  
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <Animated.View style={[styles.animatedContainer, { opacity: fadeAnim }]}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <LinearGradient
         colors={[colors.primary + '10', colors.transparent] as readonly [string, string]}
         style={styles.header}
       >
         <View style={styles.headerContent}>
-          <Text style={styles.greeting}>Bonjour ! 🙏</Text>
+          <Text style={styles.greeting}>{getGreeting()}</Text>
           <Text style={styles.title}>BibleChat IA</Text>
           <Text style={styles.subtitle}>Ton guide spirituel personnel</Text>
         </View>
       </LinearGradient>
 
       {/* Daily Verse Card */}
-      <View style={styles.section}>
+      <Animated.View style={[styles.section, { transform: [{ translateY: slideAnim }] }]}>
         <View style={styles.dailyVerseContainer}>
           <DailyVerseCard
             verse={currentVerse?.verse || "Car je connais les projets que j'ai formés sur vous, dit l'Éternel, projets de paix et non de malheur, afin de vous donner un avenir et de l'espérance."}
@@ -179,23 +265,62 @@ export default function HomeScreen() {
             message={currentVerse?.message || "Dieu a un plan merveilleux pour ta vie. Fais-lui confiance aujourd'hui."}
           />
         </View>
-      </View>
+      </Animated.View>
 
-      {/* Quick Stats */}
+      {/* Enhanced Stats */}
       <View style={styles.section}>
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
+            <Flame size={20} color={colors.warning} />
             <Text style={styles.statValue}>{stats?.currentStreak || 0}</Text>
-            <Text style={styles.statLabel}>Série</Text>
+            <Text style={styles.statLabel}>Série de jours</Text>
           </View>
           <View style={styles.statItem}>
+            <BookOpen size={20} color={colors.primary} />
             <Text style={styles.statValue}>{stats?.totalReadings || 0}</Text>
             <Text style={styles.statLabel}>Lectures</Text>
           </View>
           <View style={styles.statItem}>
+            <Crown size={20} color={colors.accent} />
             <Text style={styles.statValue}>{stats?.level || 1}</Text>
             <Text style={styles.statLabel}>Niveau</Text>
           </View>
+        </View>
+        
+        {stats?.currentStreak && stats.currentStreak >= 7 && (
+          <View style={styles.achievementBadge}>
+            <Award size={16} color={colors.success} />
+            <Text style={styles.achievementText}>Félicitations ! 7 jours consécutifs !</Text>
+          </View>
+        )}
+      </View>
+      
+      {/* Weekly Goals */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Objectifs de la semaine</Text>
+        <View style={styles.weeklyGoalsCard}>
+          {weeklyGoals.map((goal, index) => {
+            const IconComponent = goal.icon;
+            return (
+              <View key={index} style={styles.goalItem}>
+                <IconComponent size={20} color={goal.color} />
+                <View style={styles.goalProgress}>
+                  <Text style={styles.goalText}>{goal.text}</Text>
+                  <View style={styles.progressBar}>
+                    <Animated.View 
+                      style={[
+                        styles.progressFill,
+                        { 
+                          backgroundColor: goal.color,
+                          width: `${goal.progress * 100}%`
+                        }
+                      ]} 
+                    />
+                  </View>
+                </View>
+              </View>
+            );
+          })}
         </View>
       </View>
 
@@ -266,6 +391,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.bottomPadding} />
-    </ScrollView>
+      </ScrollView>
+    </Animated.View>
   );
 }

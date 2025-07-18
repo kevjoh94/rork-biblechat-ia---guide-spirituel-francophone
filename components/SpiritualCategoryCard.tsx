@@ -3,7 +3,7 @@ import { Heart, Sun, HandHeart, Sunrise, Gift, Shield, Users } from "lucide-reac
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { SpiritualCategoryInfo } from "@/types/spiritual";
@@ -14,6 +14,8 @@ interface SpiritualCategoryCardProps {
 }
 
 export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ category, onPress }) => {
+  const { colors } = useTheme();
+  const dynamicStyles = createStyles(colors);
   const IconComponent = ({ name, color, size }: { name: string; color: string; size: number }) => {
     const icons: Record<string, React.ComponentType<any>> = {
       heart: Heart,
@@ -26,12 +28,12 @@ export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ ca
     };
     
     const LucideIcon = icons[name] || Heart;
-    return React.createElement(LucideIcon, { color, size });
+    return <LucideIcon color={color} size={size} />;
   };
 
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={dynamicStyles.container}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -39,24 +41,24 @@ export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ ca
         colors={[colors.white, colors.cardSecondary] as const}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.gradient}
+        style={dynamicStyles.gradient}
       >
-        <View style={[styles.iconContainer, { backgroundColor: category.color }]}>
+        <View style={[dynamicStyles.iconContainer, { backgroundColor: category.color }]}>
           <IconComponent name={category.icon} color={colors.white} size={22} />
         </View>
         
-        <Text style={styles.title}>{category.title}</Text>
-        <Text style={styles.description} numberOfLines={2}>
+        <Text style={dynamicStyles.title}>{category.title}</Text>
+        <Text style={dynamicStyles.description} numberOfLines={2}>
           {category.description}
         </Text>
         
-        <View style={[styles.accent, { backgroundColor: category.color }]} />
+        <View style={[dynamicStyles.accent, { backgroundColor: category.color }]} />
       </LinearGradient>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     width: "48%",
     marginBottom: spacing.md,
