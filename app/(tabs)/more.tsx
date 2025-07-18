@@ -12,12 +12,9 @@ import {
   Settings,
   Bell,
   Download,
-  ChevronRight,
-  Moon
+  ChevronRight
 } from 'lucide-react-native';
-import ThemeToggle from '@/components/ThemeToggle';
-
-import { useTheme } from '@/components/ThemeProvider';
+import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 
@@ -30,8 +27,6 @@ interface MenuItemProps {
 }
 
 const MenuItem: React.FC<MenuItemProps> = ({ icon, title, subtitle, onPress, color }) => {
-  const { colors } = useTheme();
-  
   return (
     <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]} onPress={onPress}>
       <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
@@ -47,8 +42,6 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, title, subtitle, onPress, col
 };
 
 export default function MoreScreen() {
-  const { colors } = useTheme();
-  
   const spiritualFeatures = [
     {
       icon: <User />,
@@ -134,22 +127,6 @@ export default function MoreScreen() {
       color: colors.warning
     }
   ];
-  
-  const ThemeMenuItem = () => {
-    const { colors } = useTheme();
-    return (
-      <View style={[styles.menuItem, { borderBottomColor: colors.border }]}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.primary + '15' }]}>
-          <Moon color={colors.primary} size={24} />
-        </View>
-        <View style={styles.menuContent}>
-          <Text style={[styles.menuTitle, { color: colors.text }]}>Thème</Text>
-          <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]}>Mode clair/sombre</Text>
-        </View>
-        <ThemeToggle showLabel={false} variant="switch" />
-      </View>
-    );
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -188,7 +165,6 @@ export default function MoreScreen() {
                 color={item.color}
               />
             ))}
-            <ThemeMenuItem />
           </View>
         </View>
 

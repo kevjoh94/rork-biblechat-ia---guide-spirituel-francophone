@@ -3,10 +3,9 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { EnhancedProfile } from "@/components/EnhancedProfile";
-import { useTheme } from "@/components/ThemeProvider";
+import { colors } from "@/constants/colors";
 
 export default function ProfileScreen() {
-  const { colors } = useTheme();
   const router = useRouter();
   
   return (

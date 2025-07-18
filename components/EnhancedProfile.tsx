@@ -28,14 +28,13 @@ import {
   Target,
   Zap
 } from 'lucide-react-native';
-import { useTheme } from '@/components/ThemeProvider';
+import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
 import { AchievementBadge } from '@/components/AchievementBadge';
 
 export const EnhancedProfile: React.FC = () => {
-  const { colors } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [userName, setUserName] = useState('Utilisateur Spirituel');
