@@ -21,7 +21,7 @@ interface QuickAction {
   title: string;
   subtitle: string;
   icon: any;
-  colors: [string, string];
+  colors: readonly [string, string];
   route: string;
 }
 
