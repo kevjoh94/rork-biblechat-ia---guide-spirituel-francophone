@@ -27,6 +27,8 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
 }) => {
   const { colors } = useTheme();
+  const styles = createStyles(colors);
+  
   return (
     <TouchableOpacity
       style={[
@@ -135,5 +137,3 @@ const createStyles = (colors: any) => StyleSheet.create({
     color: colors.textSecondary,
   },
 });
-
-const styles = createStyles(colors);

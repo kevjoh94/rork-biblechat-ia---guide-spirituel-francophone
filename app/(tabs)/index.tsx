@@ -5,11 +5,10 @@ import { MessageCircle, BookOpen, Heart, Calendar, Target, Sparkles } from "luci
 import { useRouter } from "expo-router";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useTheme } from "@/components/ThemeProvider";
+import { colors } from "@/constants/colors";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
 
   const styles = StyleSheet.create({
     container: {

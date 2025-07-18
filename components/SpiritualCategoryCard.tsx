@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Heart, Sun, HandHeart, Sunrise, Gift, Shield } from "lucide-react-native";
+import { Heart, Sun, HandHeart, Sunrise, Gift, Shield, Users } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -22,7 +22,7 @@ export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ ca
       sunrise: Sunrise,
       gift: Gift,
       shield: Shield,
-      "heart-handshake": Heart,
+      "heart-handshake": Users,
     };
     
     const LucideIcon = icons[name] || Heart;
