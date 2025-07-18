@@ -1,9 +1,10 @@
-import React from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useRef } from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, Animated } from "react-native";
 
 import { useTheme } from "@/components/ThemeProvider";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { animations } from "@/utils/animations";
 
 interface ButtonProps {
   title: string;
@@ -28,23 +29,46 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  
+  const handlePressIn = () => {
+    if (!disabled && !loading) {
+      animations.spring(scaleAnim, 0.95).start();
+    }
+  };
+
+  const handlePressOut = () => {
+    if (!disabled && !loading) {
+      animations.spring(scaleAnim, 1).start();
+    }
+  };
+
+  const handlePress = () => {
+    if (!disabled && !loading) {
+      animations.bounce(scaleAnim).start();
+      onPress();
+    }
+  };
   
   return (
-    <TouchableOpacity
-      style={[
-        styles.container,
-        variant === "primary" && styles.primaryContainer,
-        variant === "secondary" && styles.secondaryContainer,
-        variant === "outline" && styles.outlineContainer,
-        size === "small" && styles.smallContainer,
-        size === "large" && styles.largeContainer,
-        fullWidth && styles.fullWidth,
-        disabled && styles.disabledContainer,
-      ]}
-      onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.7}
-    >
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity
+        style={[
+          styles.container,
+          variant === "primary" && styles.primaryContainer,
+          variant === "secondary" && styles.secondaryContainer,
+          variant === "outline" && styles.outlineContainer,
+          size === "small" && styles.smallContainer,
+          size === "large" && styles.largeContainer,
+          fullWidth && styles.fullWidth,
+          disabled && styles.disabledContainer,
+        ]}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled || loading}
+        activeOpacity={1}
+      >
       {loading ? (
         <ActivityIndicator
           color={variant === "outline" ? colors.primary : colors.white}
@@ -68,7 +92,8 @@ export const Button: React.FC<ButtonProps> = ({
           </Text>
         </View>
       )}
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 

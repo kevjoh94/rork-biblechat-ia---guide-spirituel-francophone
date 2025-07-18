@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Animated, Dimensions } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Animated, Dimensions, Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MessageCircle, BookOpen, Heart, Calendar, Target, Sparkles, User, Crown, TrendingUp, Award, Flame } from "lucide-react-native";
 import { useRouter } from "expo-router";
@@ -8,6 +8,8 @@ import { typography } from "@/constants/typography";
 import { useSpiritualStore } from "@/store/spiritual-store";
 import { useTheme } from "@/components/ThemeProvider";
 import { DailyVerseCard } from "@/components/DailyVerseCard";
+import { SkeletonHome } from "@/components/SkeletonLoader";
+import { animations, interpolations } from "@/utils/animations";
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +18,7 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
+  const [isLoading, setIsLoading] = useState(true);
   
   // Get data from store
   const dailyVerse = useSpiritualStore((state) => state.dailyVerse);
@@ -24,22 +27,24 @@ export default function HomeScreen() {
   const getDailyVerse = useSpiritualStore((state) => state.getDailyVerse);
 
   useEffect(() => {
-    initializeDailyVerse();
+    const loadData = async () => {
+      setIsLoading(true);
+      
+      // Simulate loading time for better UX
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      initializeDailyVerse();
+      setIsLoading(false);
+      
+      // Animate entrance
+      Animated.parallel([
+        animations.fadeIn(fadeAnim, 800),
+        animations.slideInUp(slideAnim, 600)
+      ]).start();
+    };
     
-    // Animate entrance
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: true,
-      })
-    ]).start();
-  }, [initializeDailyVerse]);
+    loadData();
+  }, [initializeDailyVerse, fadeAnim, slideAnim]);
 
   const currentVerse = dailyVerse || getDailyVerse();
 

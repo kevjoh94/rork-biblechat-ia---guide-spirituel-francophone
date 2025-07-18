@@ -16,7 +16,7 @@ interface SpiritualCategoryCardProps {
 export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ category, onPress }) => {
   const { colors } = useTheme();
   const dynamicStyles = createStyles(colors);
-  const IconComponent = ({ name, color, size }: { name: string; color: string; size: number }) => {
+  const getIconComponent = (name: string) => {
     const icons: Record<string, React.ComponentType<any>> = {
       heart: Heart,
       sun: Sun,
@@ -27,8 +27,7 @@ export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ ca
       "heart-handshake": Users,
     };
     
-    const LucideIcon = icons[name] || Heart;
-    return <LucideIcon color={color} size={size} />;
+    return icons[name] || Heart;
   };
 
   return (
@@ -44,7 +43,7 @@ export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ ca
         style={dynamicStyles.gradient}
       >
         <View style={[dynamicStyles.iconContainer, { backgroundColor: category.color }]}>
-          <IconComponent name={category.icon} color={colors.white} size={22} />
+          {React.createElement(getIconComponent(category.icon), { color: colors.white, size: 22 })}
         </View>
         
         <Text style={dynamicStyles.title}>{category.title}</Text>
