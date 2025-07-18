@@ -11,6 +11,127 @@ export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingTop: spacing.xl,
+      paddingBottom: spacing.lg,
+    },
+    headerContent: {
+      paddingHorizontal: spacing.lg,
+      alignItems: 'center',
+    },
+    greeting: {
+      fontSize: typography.fontSizes.lg,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    title: {
+      fontSize: typography.fontSizes.xxxl,
+      fontWeight: typography.fontWeights.bold,
+      color: colors.text,
+      marginBottom: spacing.xs,
+      textAlign: 'center',
+    },
+    subtitle: {
+      fontSize: typography.fontSizes.md,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      fontStyle: 'italic',
+    },
+    section: {
+      marginBottom: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.md,
+      paddingHorizontal: spacing.lg,
+    },
+    card: {
+      marginHorizontal: spacing.lg,
+      padding: spacing.lg,
+      borderRadius: 16,
+      elevation: 2,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    cardTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing.md,
+    },
+    verseText: {
+      fontSize: typography.fontSizes.md,
+      lineHeight: typography.lineHeights.lg,
+      marginBottom: spacing.sm,
+      fontStyle: 'italic',
+    },
+    verseReference: {
+      fontSize: typography.fontSizes.sm,
+      fontWeight: typography.fontWeights.medium,
+      textAlign: 'right',
+    },
+    actionsGrid: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.lg,
+      gap: spacing.md,
+    },
+    actionCard: {
+      flex: 1,
+      padding: spacing.md,
+      borderRadius: 12,
+      alignItems: 'center',
+      minHeight: 100,
+      justifyContent: 'center',
+    },
+    actionTitle: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    actionSubtitle: {
+      fontSize: typography.fontSizes.sm,
+      marginTop: 2,
+      textAlign: 'center',
+    },
+    journeyGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: spacing.lg,
+      gap: spacing.md,
+    },
+    journeyCard: {
+      flex: 1,
+      minWidth: '45%',
+      padding: spacing.md,
+      borderRadius: 12,
+      alignItems: 'center',
+      minHeight: 100,
+      justifyContent: 'center',
+    },
+    journeyTitle: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    journeySubtitle: {
+      fontSize: typography.fontSizes.sm,
+      marginTop: 2,
+      textAlign: 'center',
+    },
+    bottomPadding: {
+      height: spacing.xl,
+    },
+  });
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -107,125 +228,3 @@ export default function HomeScreen() {
   );
 }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-  header: {
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
-  },
-  headerContent: {
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-  },
-  greeting: {
-    fontSize: typography.fontSizes.lg,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-  },
-  title: {
-    fontSize: typography.fontSizes.xxxl,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  section: {
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  card: {
-    marginHorizontal: spacing.lg,
-    padding: spacing.lg,
-    borderRadius: 16,
-    elevation: 2,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  cardTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: spacing.md,
-  },
-  verseText: {
-    fontSize: typography.fontSizes.md,
-    lineHeight: typography.lineHeights.lg,
-    marginBottom: spacing.sm,
-    fontStyle: 'italic',
-  },
-  verseReference: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
-    textAlign: 'right',
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    gap: spacing.md,
-  },
-  actionCard: {
-    flex: 1,
-    padding: spacing.md,
-    borderRadius: 12,
-    alignItems: 'center',
-    minHeight: 100,
-    justifyContent: 'center',
-  },
-  actionTitle: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  actionSubtitle: {
-    fontSize: typography.fontSizes.sm,
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  journeyGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: spacing.lg,
-    gap: spacing.md,
-  },
-  journeyCard: {
-    flex: 1,
-    minWidth: '45%',
-    padding: spacing.md,
-    borderRadius: 12,
-    alignItems: 'center',
-    minHeight: 100,
-    justifyContent: 'center',
-  },
-  journeyTitle: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  journeySubtitle: {
-    fontSize: typography.fontSizes.sm,
-    marginTop: 2,
-    textAlign: 'center',
-  },
-    bottomPadding: {
-      height: spacing.xl,
-    },
-  });
-
-  return (
