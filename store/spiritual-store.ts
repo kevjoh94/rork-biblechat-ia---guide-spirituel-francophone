@@ -43,6 +43,9 @@ interface SpiritualState {
   achievements: string[];
   dailyProgress: Record<string, DailyProgress>;
   
+  // Theme state
+  isDarkMode: boolean;
+  
   // Existing actions
   toggleFavorite: (id: string) => void;
   addChatMessage: (message: ChatMessage) => void;
@@ -67,6 +70,9 @@ interface SpiritualState {
   addExperience: (points: number) => void;
   updateDailyProgress: (date: string, progress: Partial<DailyProgress>) => void;
   markTaskCompleted: (taskType: 'journal' | 'verse' | 'devotional' | 'prayer') => void;
+  
+  // Theme actions
+  toggleDarkMode: () => void;
 }
 
 export const useSpiritualStore = create<SpiritualState>()(
@@ -105,6 +111,9 @@ export const useSpiritualStore = create<SpiritualState>()(
       },
       achievements: [],
       dailyProgress: {},
+      
+      // Theme state initialization
+      isDarkMode: false,
       toggleFavorite: (id: string) => {
         set((state) => {
           const updatedContent = state.content.map((item) => {
@@ -406,6 +415,13 @@ export const useSpiritualStore = create<SpiritualState>()(
             },
           };
         });
+      },
+      
+      // Theme actions implementation
+      toggleDarkMode: () => {
+        set((state) => ({
+          isDarkMode: !state.isDarkMode,
+        }));
       },
     }),
     {
