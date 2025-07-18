@@ -20,8 +20,6 @@ import {
   Trophy, 
   Star, 
   Calendar,
-  Moon,
-  Sun,
   Bell,
   Edit3,
   Crown,
@@ -44,13 +42,11 @@ export const EnhancedProfile: React.FC = () => {
   const stats = useSpiritualStore((state) => state.stats);
   const chatHistory = useSpiritualStore((state) => state.chatHistory);
   const achievements = useSpiritualStore((state) => state.achievements);
-  const isDarkMode = useSpiritualStore((state) => state.isDarkMode);
   const notifications = useSpiritualStore((state) => state.notifications);
   const favorites = useSpiritualStore((state) => state.favorites);
   const journalEntries = useSpiritualStore((state) => state.journalEntries);
   const meditationSessions = useSpiritualStore((state) => state.meditationSessions);
   const readingPlans = useSpiritualStore((state) => state.readingPlans);
-  const toggleDarkMode = useSpiritualStore((state) => state.toggleDarkMode);
   const updateNotificationSettings = useSpiritualStore((state) => state.updateNotificationSettings);
   const clearChatHistory = useSpiritualStore((state) => state.clearChatHistory);
   
@@ -517,17 +513,7 @@ export const EnhancedProfile: React.FC = () => {
           </View>
           
           <ScrollView style={styles.modalContent}>
-            <View style={styles.settingItem}>
-              <View style={styles.settingInfo}>
-                {isDarkMode ? <Moon size={20} color={colors.text} /> : <Sun size={20} color={colors.text} />}
-                <Text style={styles.settingLabel}>Mode sombre</Text>
-              </View>
-              <Switch
-                value={isDarkMode}
-                onValueChange={toggleDarkMode}
-                trackColor={{ false: colors.border, true: colors.primary }}
-              />
-            </View>
+
             
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
