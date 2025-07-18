@@ -155,27 +155,27 @@ const MenuItem: React.FC<MenuItemProps> = ({
   badge 
 }) => {
   const { colors } = useTheme();
-  const styles = createStyles(colors);
+  const menuStyles = createStyles(colors);
   
   return (
     <TouchableOpacity 
-      style={[styles.menuItem, { borderBottomColor: colors.border }]} 
+      style={[menuStyles.menuItem, { borderBottomColor: colors.border }]} 
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, { backgroundColor: color ? color + '20' : colors.primary + '20' }]}>
+      <View style={[menuStyles.iconContainer, { backgroundColor: color ? color + '20' : colors.primary + '20' }]}>
         {React.cloneElement(icon as React.ReactElement, { color: color || colors.primary, size: 22 } as any)}
       </View>
-      <View style={styles.menuContent}>
-        <View style={styles.titleRow}>
-          <Text style={[styles.menuTitle, { color: colors.text }]}>{title}</Text>
+      <View style={menuStyles.menuContent}>
+        <View style={menuStyles.titleRow}>
+          <Text style={[menuStyles.menuTitle, { color: colors.text }]}>{title}</Text>
           {badge && (
-            <View style={[styles.badge, { backgroundColor: colors.warning }]}>
-              <Text style={styles.badgeText}>{badge}</Text>
+            <View style={[menuStyles.badge, { backgroundColor: colors.warning }]}>
+              <Text style={menuStyles.badgeText}>{badge}</Text>
             </View>
           )}
         </View>
-        <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
+        <Text style={[menuStyles.menuSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       </View>
       {showSwitch ? (
         <Switch
