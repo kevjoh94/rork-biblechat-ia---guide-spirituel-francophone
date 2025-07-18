@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from 'react';
-import { ScrollView, Platform, Animated } from 'react-native';
+import { ScrollView, Platform, Animated, RefreshControlProps } from 'react-native';
 
 interface SmoothScrollViewProps {
   children: React.ReactNode;
   style?: any;
   contentContainerStyle?: any;
   showsVerticalScrollIndicator?: boolean;
-  refreshControl?: React.ReactElement;
+  refreshControl?: React.ReactElement<RefreshControlProps>;
   onScroll?: (event: any) => void;
   scrollEventThrottle?: number;
 }
