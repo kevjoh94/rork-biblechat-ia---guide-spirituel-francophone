@@ -33,19 +33,115 @@ interface MenuItemProps {
   subtitle: string;
   onPress: () => void;
   color?: string;
-}
-
-interface MenuItemProps {
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  onPress: () => void;
-  color?: string;
   showSwitch?: boolean;
   switchValue?: boolean;
   onSwitchChange?: (value: boolean) => void;
   badge?: string;
 }
+
+const createStyles = (colors: any) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    padding: spacing.xl,
+    paddingBottom: spacing.lg,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: typography.fontSizes.xxxl,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
+    fontSize: typography.fontSizes.md,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: spacing.xl,
+  },
+  sectionTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text,
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  menuContainer: {
+    marginHorizontal: spacing.lg,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.lg,
+    borderBottomWidth: 1,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  badge: {
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: spacing.xs,
+  },
+  badgeText: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.white,
+    fontWeight: typography.fontWeights.bold,
+  },
+  menuContent: {
+    flex: 1,
+  },
+  menuTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.semibold,
+    marginBottom: 2,
+  },
+  menuSubtitle: {
+    fontSize: typography.fontSizes.sm,
+    lineHeight: typography.lineHeights.sm,
+  },
+  footer: {
+    padding: spacing.xl,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: typography.fontSizes.md,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: typography.lineHeights.md,
+    marginBottom: spacing.sm,
+  },
+  versionText: {
+    fontSize: typography.fontSizes.sm,
+    textAlign: 'center',
+  },
+});
 
 const MenuItem: React.FC<MenuItemProps> = ({ 
   icon, 
@@ -59,6 +155,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
   badge 
 }) => {
   const { colors } = useTheme();
+  const styles = createStyles(colors);
   
   return (
     <TouchableOpacity 
@@ -357,107 +454,3 @@ export default function MoreScreen() {
     </View>
   );
 }
-
-const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  header: {
-    padding: spacing.xl,
-    paddingBottom: spacing.lg,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: typography.fontSizes.xxxl,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  section: {
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
-    marginBottom: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  menuContainer: {
-    marginHorizontal: spacing.lg,
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 2,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.lg,
-    borderBottomWidth: 1,
-  },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  badge: {
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginLeft: spacing.xs,
-  },
-  badgeText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.white,
-    fontWeight: typography.fontWeights.bold,
-  },
-  menuContent: {
-    flex: 1,
-  },
-  menuTitle: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
-    marginBottom: 2,
-  },
-  menuSubtitle: {
-    fontSize: typography.fontSizes.sm,
-    lineHeight: typography.lineHeights.sm,
-  },
-  footer: {
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: typography.fontSizes.md,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: typography.lineHeights.md,
-    marginBottom: spacing.sm,
-  },
-  versionText: {
-    fontSize: typography.fontSizes.sm,
-    textAlign: 'center',
-  },
-});
