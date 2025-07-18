@@ -16,7 +16,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({ title, value, color = colo
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[colors.white, colors.cardSecondary]}
+        colors={[colors.white, colors.cardSecondary] as const}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
