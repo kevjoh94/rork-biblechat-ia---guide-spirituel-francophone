@@ -111,5 +111,3 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeights.md,
   },
 });
-
-const styles = createStyles(colors);
