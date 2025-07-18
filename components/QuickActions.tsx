@@ -21,7 +21,7 @@ interface QuickAction {
   title: string;
   subtitle: string;
   icon: any;
-  colors: readonly [string, string];
+  colors: [string, string];
   route: string;
 }
 
@@ -34,7 +34,7 @@ export default function QuickActions() {
       title: 'Chat IA',
       subtitle: 'Pose tes questions',
       icon: MessageCircle,
-      colors: [colors.primary, colors.primaryLight] as [string, string],
+      colors: [colors.primary, colors.primaryLight],
       route: '/(tabs)/chat'
     },
     {
@@ -42,7 +42,7 @@ export default function QuickActions() {
       title: 'Lire la Bible',
       subtitle: 'Explore les Écritures',
       icon: BookOpen,
-      colors: [colors.secondary, colors.secondary] as [string, string],
+      colors: [colors.secondary, colors.secondary],
       route: '/(tabs)/bible'
     },
     {
@@ -50,7 +50,7 @@ export default function QuickActions() {
       title: 'Méditation',
       subtitle: 'Moment de paix',
       icon: Headphones,
-      colors: [colors.gratitude, colors.gratitude] as [string, string],
+      colors: [colors.gratitude, colors.gratitude],
       route: '/(tabs)/meditation'
     },
     {
@@ -58,7 +58,7 @@ export default function QuickActions() {
       title: 'Journal',
       subtitle: 'Écris tes pensées',
       icon: PenTool,
-      colors: [colors.accent, colors.accent] as [string, string],
+      colors: [colors.accent, colors.accent],
       route: '/(tabs)/journal'
     },
     {
@@ -66,7 +66,7 @@ export default function QuickActions() {
       title: 'Plan quotidien',
       subtitle: 'Organise ta journée',
       icon: Target,
-      colors: [colors.strength, colors.strength] as [string, string],
+      colors: [colors.strength, colors.strength],
       route: '/daily-plan'
     },
     {
@@ -74,7 +74,7 @@ export default function QuickActions() {
       title: 'Calendrier',
       subtitle: 'Vois ton progrès',
       icon: Calendar,
-      colors: [colors.info, colors.info] as [string, string],
+      colors: [colors.info, colors.info],
       route: '/calendar'
     }
   ];
