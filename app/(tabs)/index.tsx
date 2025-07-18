@@ -14,7 +14,7 @@ export default function HomeScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <LinearGradient
-        colors={[colors.primary + '10', colors.transparent]}
+        colors={[colors.primary + '10', colors.transparent] as readonly [string, string]}
         style={styles.header}
       >
         <View style={styles.headerContent}>

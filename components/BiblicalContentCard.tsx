@@ -24,7 +24,7 @@ export const BiblicalContentCard: React.FC<BiblicalContentCardProps> = ({ conten
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
       <LinearGradient
-        colors={colors.cardGradient}
+        colors={colors.cardGradient as readonly [string, string]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}

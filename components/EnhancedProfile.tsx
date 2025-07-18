@@ -407,7 +407,7 @@ export const EnhancedProfile: React.FC = () => {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Profile Header */}
       <LinearGradient
-        colors={colors.primaryGradient}
+        colors={colors.primaryGradient as readonly [string, string]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.headerCard}

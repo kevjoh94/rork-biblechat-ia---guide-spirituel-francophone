@@ -72,7 +72,7 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
   return (
     <View style={[styles.container, { width: config.container, height: config.container }]}>
       <LinearGradient
-        colors={isUnlocked ? [achievement.color, achievement.color + 'CC'] : [colors.border, colors.borderLight]}
+        colors={isUnlocked ? [achievement.color, achievement.color + 'CC'] as readonly [string, string] : [colors.border, colors.borderLight] as readonly [string, string]}
         style={[styles.gradient, { borderRadius: config.container / 2 }]}
       >
         <Icon 
