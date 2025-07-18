@@ -69,6 +69,7 @@ export default function TabLayout() {
         options={{
           title: "Accueil",
           tabBarIcon: ({ color }) => <Home color={color} size={22} />,
+          headerShown: false, // Hide header for home to show custom header
         }}
       />
       <Tabs.Screen

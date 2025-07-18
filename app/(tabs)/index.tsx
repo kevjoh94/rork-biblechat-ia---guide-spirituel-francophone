@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Animated, Dimensions, Platform, ImageBackground } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Animated, Dimensions, Platform, ImageBackground, RefreshControl } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { MessageCircle, BookOpen, Heart, Calendar, Target, Sparkles, User, Crown, TrendingUp, Award, Flame, Sun, Moon, Star } from "lucide-react-native";
+import { MessageCircle, BookOpen, Heart, Calendar, Target, Sparkles, User, Crown, TrendingUp, Award, Flame, Sun, Moon, Star, RefreshCw } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
@@ -9,6 +9,10 @@ import { useSpiritualStore } from "@/store/spiritual-store";
 import { useTheme } from "@/components/ThemeProvider";
 import { DailyVerseCard } from "@/components/DailyVerseCard";
 import { SkeletonHome } from "@/components/SkeletonLoader";
+import { HomeHeader } from "@/components/HomeHeader";
+import { SmoothScrollView } from "@/components/SmoothScrollView";
+import { InteractiveCard } from "@/components/InteractiveCard";
+import { ParallaxBackground } from "@/components/ParallaxBackground";
 import { animations, interpolations } from "@/utils/animations";
 
 const { width } = Dimensions.get('window');
@@ -16,9 +20,11 @@ const { width } = Dimensions.get('window');
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [slideAnim] = useState(new Animated.Value(50));
-  const [isLoading, setIsLoading] = useState(true);
+  const [fadeAnim] = useState(new Animated.Value(1)); // Start visible
+  const [slideAnim] = useState(new Animated.Value(0)); // Start in position
+  const [isLoading, setIsLoading] = useState(false); // Start ready
+  const [refreshing, setRefreshing] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
   
   // Get data from store
   const dailyVerse = useSpiritualStore((state) => state.dailyVerse);
@@ -28,23 +34,26 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const loadData = async () => {
-      setIsLoading(true);
-      
-      // Simulate loading time for better UX
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       initializeDailyVerse();
-      setIsLoading(false);
       
-      // Animate entrance
-      Animated.parallel([
-        animations.fadeIn(fadeAnim, 800),
-        animations.slideInUp(slideAnim, 600)
-      ]).start();
+      // Simple entrance animation without blocking
+      if (Platform.OS !== 'web') {
+        Animated.parallel([
+          animations.fadeIn(fadeAnim, 400),
+          animations.slideInUp(slideAnim, 300)
+        ]).start();
+      }
     };
     
     loadData();
-  }, [initializeDailyVerse, fadeAnim, slideAnim]);
+  }, [initializeDailyVerse]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    initializeDailyVerse();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setRefreshing(false);
+  };
 
   const currentVerse = dailyVerse || getDailyVerse();
 
@@ -53,77 +62,20 @@ export default function HomeScreen() {
       flex: 1,
       backgroundColor: colors.background,
     },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      flexGrow: 1,
+    },
     backgroundImage: {
       position: 'absolute',
       top: 0,
       left: 0,
       right: 0,
-      height: 400,
-      opacity: 0.1,
+      height: 500,
     },
-    header: {
-      paddingTop: spacing.huge,
-      paddingBottom: spacing.section,
-      position: 'relative',
-      overflow: 'hidden',
-    },
-    headerBackground: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-    },
-    headerContent: {
-      paddingHorizontal: spacing.screen,
-      alignItems: 'center',
-      position: 'relative',
-      zIndex: 1,
-    },
-    decorativeElements: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      flexDirection: 'row',
-      paddingHorizontal: spacing.screen,
-    },
-    decorativeIcon: {
-      opacity: 0.1,
-    },
-    greeting: {
-      ...typography.bodyLarge,
-      color: colors.textSecondary,
-      marginBottom: spacing.xs,
-      letterSpacing: 0.2,
-      textShadowColor: colors.shadow,
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 2,
-    },
-    title: {
-      ...typography.display,
-      color: colors.text,
-      marginBottom: spacing.sm,
-      textAlign: 'center',
-      fontSize: 32,
-      fontWeight: '700',
-      textShadowColor: colors.shadow,
-      textShadowOffset: { width: 0, height: 2 },
-      textShadowRadius: 4,
-    },
-    subtitle: {
-      ...typography.body,
-      color: colors.textLight,
-      textAlign: 'center',
-      fontStyle: 'italic',
-      letterSpacing: 0.3,
-      textShadowColor: colors.shadow,
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 2,
-    },
+
     section: {
       marginBottom: spacing.section,
     },
@@ -156,6 +108,7 @@ export default function HomeScreen() {
       borderWidth: 1,
       borderColor: colors.borderLight,
       overflow: 'hidden',
+      transform: [{ scale: 1 }],
     },
     actionCardGradient: {
       position: 'absolute',
@@ -278,7 +231,7 @@ export default function HomeScreen() {
       textAlign: 'center',
     },
     bottomPadding: {
-      height: spacing.huge,
+      height: spacing.huge + 20,
     },
     animatedContainer: {
       opacity: 1,
@@ -362,11 +315,11 @@ export default function HomeScreen() {
   const getBackgroundImage = () => {
     const hour = new Date().getHours();
     if (hour < 12) {
-      return "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=top"; // Sunrise
+      return "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&h=600&fit=crop&crop=top"; // Beautiful sunrise
     } else if (hour < 18) {
-      return "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&h=600&fit=crop&crop=center"; // Sky
+      return "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center"; // Peaceful sky
     } else {
-      return "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop&crop=center"; // Night sky
+      return "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop&crop=center"; // Starry night
     }
   };
 
@@ -387,39 +340,39 @@ export default function HomeScreen() {
     { icon: Sparkles, text: "Écrire dans le journal", progress: 0.8, color: colors.hope },
   ];
   
+  if (isLoading) {
+    return <SkeletonHome />;
+  }
+
   return (
-    <Animated.View style={[styles.animatedContainer, { opacity: fadeAnim }]}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <SmoothScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
+      >
       {/* Background Image */}
-      <ImageBackground
+      <ParallaxBackground
         source={{ uri: getBackgroundImage() }}
         style={styles.backgroundImage}
-        resizeMode="cover"
       />
       
       {/* Header */}
-      <View style={styles.header}>
-        <LinearGradient
-          colors={getHeaderGradient()}
-          style={styles.headerBackground}
-        />
-        
-        {/* Decorative Elements */}
-        <View style={styles.decorativeElements}>
-          <Star size={20} color={colors.accent} style={[styles.decorativeIcon, { transform: [{ rotate: '15deg' }] }]} />
-          <Sun size={24} color={colors.hope} style={[styles.decorativeIcon, { transform: [{ rotate: '-10deg' }] }]} />
-          <Moon size={18} color={colors.peace} style={[styles.decorativeIcon, { transform: [{ rotate: '20deg' }] }]} />
-        </View>
-        
-        <View style={styles.headerContent}>
-          <Text style={styles.greeting}>{getGreeting()}</Text>
-          <Text style={styles.title}>BibleChat IA</Text>
-          <Text style={styles.subtitle}>Ton guide spirituel personnel</Text>
-        </View>
-      </View>
+      <HomeHeader 
+        backgroundImage={getBackgroundImage()}
+        gradient={getHeaderGradient()}
+        greeting={getGreeting()}
+      />
 
       {/* Daily Verse Card */}
-      <Animated.View style={[styles.section, { transform: [{ translateY: slideAnim }] }]}>
+      <View style={styles.section}>
         <View style={styles.dailyVerseContainer}>
           <DailyVerseCard
             verse={currentVerse?.verse || "Car je connais les projets que j'ai formés sur vous, dit l'Éternel, projets de paix et non de malheur, afin de vous donner un avenir et de l'espérance."}
@@ -427,7 +380,7 @@ export default function HomeScreen() {
             message={currentVerse?.message || "Dieu a un plan merveilleux pour ta vie. Fais-lui confiance aujourd'hui."}
           />
         </View>
-      </Animated.View>
+      </View>
 
       {/* Enhanced Stats */}
       <View style={styles.section}>
@@ -502,7 +455,7 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Actions rapides</Text>
         <View style={styles.actionsGrid}>
-          <TouchableOpacity 
+          <InteractiveCard 
             style={styles.actionCard}
             onPress={() => router.push('/(tabs)/chat')}
           >
@@ -515,9 +468,9 @@ export default function HomeScreen() {
               <Text style={styles.actionTitle}>Chat IA</Text>
               <Text style={styles.actionSubtitle}>Pose tes questions</Text>
             </View>
-          </TouchableOpacity>
+          </InteractiveCard>
           
-          <TouchableOpacity 
+          <InteractiveCard 
             style={styles.actionCard}
             onPress={() => router.push('/(tabs)/bible')}
           >
@@ -530,7 +483,7 @@ export default function HomeScreen() {
               <Text style={styles.actionTitle}>Bible</Text>
               <Text style={styles.actionSubtitle}>Explore les Écritures</Text>
             </View>
-          </TouchableOpacity>
+          </InteractiveCard>
         </View>
       </View>
 
@@ -538,7 +491,7 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ton parcours spirituel</Text>
         <View style={styles.journeyGrid}>
-          <TouchableOpacity 
+          <InteractiveCard 
             style={styles.journeyCard}
             onPress={() => router.push('/(tabs)/meditation')}
           >
@@ -551,9 +504,9 @@ export default function HomeScreen() {
               <Text style={styles.journeyTitle}>Méditation</Text>
               <Text style={styles.journeySubtitle}>Trouve la paix</Text>
             </View>
-          </TouchableOpacity>
+          </InteractiveCard>
           
-          <TouchableOpacity 
+          <InteractiveCard 
             style={styles.journeyCard}
             onPress={() => router.push('/(tabs)/journal')}
           >
@@ -566,9 +519,9 @@ export default function HomeScreen() {
               <Text style={styles.journeyTitle}>Journal</Text>
               <Text style={styles.journeySubtitle}>Écris tes pensées</Text>
             </View>
-          </TouchableOpacity>
+          </InteractiveCard>
           
-          <TouchableOpacity 
+          <InteractiveCard 
             style={styles.journeyCard}
             onPress={() => router.push('/(tabs)/reading-plan')}
           >
@@ -581,9 +534,9 @@ export default function HomeScreen() {
               <Text style={styles.journeyTitle}>Plan de lecture</Text>
               <Text style={styles.journeySubtitle}>Progresse chaque jour</Text>
             </View>
-          </TouchableOpacity>
+          </InteractiveCard>
           
-          <TouchableOpacity 
+          <InteractiveCard 
             style={styles.journeyCard}
             onPress={() => router.push('/calendar')}
           >
@@ -596,12 +549,12 @@ export default function HomeScreen() {
               <Text style={styles.journeyTitle}>Calendrier</Text>
               <Text style={styles.journeySubtitle}>Vois ton progrès</Text>
             </View>
-          </TouchableOpacity>
+          </InteractiveCard>
         </View>
       </View>
 
       <View style={styles.bottomPadding} />
-      </ScrollView>
-    </Animated.View>
+      </SmoothScrollView>
+    </View>
   );
 }
