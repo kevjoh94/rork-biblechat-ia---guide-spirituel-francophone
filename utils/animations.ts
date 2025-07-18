@@ -64,13 +64,13 @@ export const animations = {
         Animated.timing(animatedValue, {
           toValue: 1.05,
           duration: 1000,
-          easing: Easing.inOut(Easing.sine),
+          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(animatedValue, {
           toValue: 1,
           duration: 1000,
-          easing: Easing.inOut(Easing.sine),
+          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
       ])
