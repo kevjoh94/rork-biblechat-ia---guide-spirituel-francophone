@@ -9,6 +9,7 @@ import LoadingOverlay from "@/components/LoadingOverlay";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import SwipeNavigation from "@/components/SwipeNavigation";
 import QuickNavigation from "@/components/QuickNavigation";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { colors } from "@/constants/colors";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.

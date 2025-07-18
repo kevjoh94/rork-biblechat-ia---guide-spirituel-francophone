@@ -34,7 +34,7 @@ export default function QuickActions() {
       title: 'Chat IA',
       subtitle: 'Pose tes questions',
       icon: MessageCircle,
-      colors: [colors.primary, colors.primary + 'CC'],
+      colors: [colors.primary, colors.primary + 'CC'] as [string, string],
       route: '/(tabs)/chat'
     },
     {
@@ -42,7 +42,7 @@ export default function QuickActions() {
       title: 'Lire la Bible',
       subtitle: 'Explore les Écritures',
       icon: BookOpen,
-      colors: [colors.secondary, colors.secondary + 'CC'],
+      colors: [colors.secondary, colors.secondary + 'CC'] as [string, string],
       route: '/(tabs)/bible'
     },
     {
@@ -50,7 +50,7 @@ export default function QuickActions() {
       title: 'Méditation',
       subtitle: 'Moment de paix',
       icon: Headphones,
-      colors: [colors.gratitude, colors.gratitude + 'CC'],
+      colors: [colors.gratitude, colors.gratitude + 'CC'] as [string, string],
       route: '/(tabs)/meditation'
     },
     {
@@ -58,7 +58,7 @@ export default function QuickActions() {
       title: 'Journal',
       subtitle: 'Écris tes pensées',
       icon: PenTool,
-      colors: [colors.accent, colors.accent + 'CC'],
+      colors: [colors.accent, colors.accent + 'CC'] as [string, string],
       route: '/(tabs)/journal'
     },
     {
@@ -66,7 +66,7 @@ export default function QuickActions() {
       title: 'Plan quotidien',
       subtitle: 'Organise ta journée',
       icon: Target,
-      colors: [colors.strength, colors.strength + 'CC'],
+      colors: [colors.strength, colors.strength + 'CC'] as [string, string],
       route: '/daily-plan'
     },
     {
@@ -74,7 +74,7 @@ export default function QuickActions() {
       title: 'Calendrier',
       subtitle: 'Vois ton progrès',
       icon: Calendar,
-      colors: [colors.info, colors.info + 'CC'],
+      colors: [colors.info, colors.info + 'CC'] as [string, string],
       route: '/calendar'
     }
   ];

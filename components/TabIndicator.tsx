@@ -1,12 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { usePathname } from 'expo-router';
-import { useTheme } from '@/components/ThemeProvider';
+import { colors } from '@/constants/colors';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function TabIndicator() {
-  const { colors } = useTheme();
   const pathname = usePathname();
 
   const getCurrentTabIndex = () => {
