@@ -1,42 +1,58 @@
 export const colors = {
-  primary: "#6B4E71", // Violet spirituel principal
-  primaryLight: "#E8E0EA", // Version claire du primary
-  secondary: "#8B7355", // Brun doré spirituel
-  accent: "#D4AF37", // Or doux
-  background: "#FEFEFE",
+  // Couleurs principales raffinées
+  primary: "#4A5D7A", // Bleu ardoise spirituel
+  primaryLight: "#E8EBF0", // Version claire du primary
+  secondary: "#8B7D6B", // Brun terre naturel
+  accent: "#C9A96E", // Or champagne doux
+  
+  // Arrière-plans épurés
+  background: "#FAFBFC", // Blanc cassé très doux
   card: "#FFFFFF",
-  cardSecondary: "#F8F6F3",
-  text: "#2C2C2C",
-  textSecondary: "#6B6B6B",
-  textLight: "#9B9B9B",
-  border: "#E8E6E3",
-  borderLight: "#F2F0ED",
-  success: "#4CAF50",
-  error: "#F44336",
-  warning: "#FF9800",
-  info: "#2196F3",
+  cardSecondary: "#F7F8FA",
+  surface: "#F2F4F7",
+  
+  // Textes harmonieux
+  text: "#1A1D23", // Noir doux
+  textSecondary: "#5A6670", // Gris moyen
+  textLight: "#8B95A1", // Gris clair
+  textMuted: "#B8C2CC", // Gris très clair
+  
+  // Bordures subtiles
+  border: "#E5E8EC",
+  borderLight: "#F0F2F5",
+  borderSubtle: "#F7F8FA",
+  
+  // États
+  success: "#52C41A", // Vert nature
+  error: "#FF4D4F", // Rouge doux
+  warning: "#FAAD14", // Orange miel
+  info: "#1890FF", // Bleu ciel
+  
+  // Couleurs de base
   white: "#FFFFFF",
   black: "#000000",
-  shadow: "#000000",
-  overlay: "rgba(0, 0, 0, 0.5)",
+  shadow: "#1A1D23",
+  overlay: "rgba(26, 29, 35, 0.6)",
   transparent: "transparent",
   
-  // Couleurs spirituelles
-  spiritual: "#6B4E71",
-  peace: "#7B9EBF",
-  hope: "#F2C4B3",
-  love: "#F2889B",
-  strength: "#8E7DBE",
-  gratitude: "#6BBAA7",
-  comfort: "#F9C846",
-  prayer: "#9B7EAF",
-  wisdom: "#8B7355",
-  surface: "#F8F6F3",
+  // Couleurs spirituelles raffinées
+  spiritual: "#4A5D7A",
+  peace: "#6B9BD2", // Bleu sérénité
+  hope: "#E8B4A0", // Pêche douce
+  love: "#D4A5A5", // Rose poudré
+  strength: "#8A7CA8", // Violet sage
+  gratitude: "#7FB069", // Vert gratitude
+  comfort: "#F4D03F", // Jaune réconfort
+  prayer: "#A084CA", // Lavande
+  wisdom: "#8B7D6B", // Brun sagesse
+  faith: "#9BB5D6", // Bleu foi
   
-  // Gradients - properly typed as readonly tuples
-  primaryGradient: ["#6B4E71", "#8B7355"] as readonly [string, string],
-  secondaryGradient: ["#8B7355", "#D4AF37"] as readonly [string, string],
-  peacefulGradient: ["#7B9EBF", "#A8C8E1"] as readonly [string, string],
-  hopeGradient: ["#F2C4B3", "#F5D5C8"] as readonly [string, string],
-  cardGradient: ["#FFFFFF", "#F8F6F3"] as readonly [string, string],
+  // Gradients élégants
+  primaryGradient: ["#4A5D7A", "#6B9BD2"] as readonly [string, string],
+  secondaryGradient: ["#8B7D6B", "#C9A96E"] as readonly [string, string],
+  peacefulGradient: ["#6B9BD2", "#9BB5D6"] as readonly [string, string],
+  hopeGradient: ["#E8B4A0", "#F2C4B3"] as readonly [string, string],
+  cardGradient: ["#FFFFFF", "#F7F8FA"] as readonly [string, string],
+  sunriseGradient: ["#FFE5B4", "#FFCC8F"] as readonly [string, string],
+  twilightGradient: ["#4A5D7A", "#8A7CA8"] as readonly [string, string],
 };
