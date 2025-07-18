@@ -15,7 +15,7 @@ interface SpiritualCategoryCardProps {
 
 export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ category, onPress }) => {
   const IconComponent = ({ name, color, size }: { name: string; color: string; size: number }) => {
-    const icons: Record<string, React.ElementType> = {
+    const icons: Record<string, React.ComponentType<any>> = {
       heart: Heart,
       sun: Sun,
       "hand-heart": HandHeart,
@@ -26,7 +26,7 @@ export const SpiritualCategoryCard: React.FC<SpiritualCategoryCardProps> = ({ ca
     };
     
     const LucideIcon = icons[name] || Heart;
-    return <LucideIcon color={color} size={size} />;
+    return React.createElement(LucideIcon, { color, size });
   };
 
   return (

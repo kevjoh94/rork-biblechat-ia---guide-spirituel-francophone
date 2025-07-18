@@ -2,12 +2,13 @@ import { Tabs, useRouter } from "expo-router";
 import { Home, MessageCircle, User, Book, MoreHorizontal, ArrowLeft } from "lucide-react-native";
 import React from "react";
 import { Platform, TouchableOpacity, View } from "react-native";
-import { colors } from "@/constants/colors";
+import { useTheme } from "@/components/ThemeProvider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   
   const BackButton = () => (
     <TouchableOpacity

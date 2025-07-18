@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { MessageCircle, Send } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/components/ThemeProvider';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 
@@ -13,6 +13,7 @@ interface Message {
 }
 
 export default function ChatScreen() {
+  const { colors } = useTheme();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -48,7 +49,6 @@ export default function ChatScreen() {
     }
   };
 
-  return (
     <KeyboardAvoidingView 
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -99,11 +99,11 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -158,12 +158,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     maxHeight: 100,
   },
-  sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: spacing.sm,
-  },
-});
+    sendButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: spacing.sm,
+    },
+  });
+
+  return (
