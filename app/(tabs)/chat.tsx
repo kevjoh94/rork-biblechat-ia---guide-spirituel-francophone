@@ -49,6 +49,76 @@ export default function ChatScreen() {
     }
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      color: colors.text,
+      marginLeft: spacing.sm,
+    },
+    messagesContainer: {
+      flex: 1,
+      padding: spacing.lg,
+    },
+    messageContainer: {
+      marginBottom: spacing.md,
+      padding: spacing.md,
+      borderRadius: 16,
+      maxWidth: '80%',
+    },
+    userMessage: {
+      backgroundColor: colors.primary,
+      alignSelf: 'flex-end',
+    },
+    aiMessage: {
+      backgroundColor: colors.card,
+      alignSelf: 'flex-start',
+    },
+    messageText: {
+      fontSize: typography.fontSizes.md,
+      lineHeight: typography.lineHeights.md,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      padding: spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      alignItems: 'flex-end',
+    },
+    textInput: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 20,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: typography.fontSizes.md,
+      color: colors.text,
+      backgroundColor: colors.card,
+      maxHeight: 100,
+    },
+    sendButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: spacing.sm,
+    },
+  });
+
+  return (
     <KeyboardAvoidingView 
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -99,73 +169,3 @@ export default function ChatScreen() {
   );
 }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  title: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.text,
-    marginLeft: spacing.sm,
-  },
-  messagesContainer: {
-    flex: 1,
-    padding: spacing.lg,
-  },
-  messageContainer: {
-    marginBottom: spacing.md,
-    padding: spacing.md,
-    borderRadius: 16,
-    maxWidth: '80%',
-  },
-  userMessage: {
-    backgroundColor: colors.primary,
-    alignSelf: 'flex-end',
-  },
-  aiMessage: {
-    backgroundColor: colors.card,
-    alignSelf: 'flex-start',
-  },
-  messageText: {
-    fontSize: typography.fontSizes.md,
-    lineHeight: typography.lineHeights.md,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    alignItems: 'flex-end',
-  },
-  textInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 20,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: typography.fontSizes.md,
-    color: colors.text,
-    backgroundColor: colors.card,
-    maxHeight: 100,
-  },
-    sendButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginLeft: spacing.sm,
-    },
-  });
-
-  return (
