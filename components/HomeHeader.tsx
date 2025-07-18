@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, ColorValue } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Settings, Bell, User, Star, Sun, Moon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -10,7 +10,7 @@ import { typography } from '@/constants/typography';
 
 interface HomeHeaderProps {
   backgroundImage: string;
-  gradient: string[];
+  gradient: readonly [string, string];
   greeting: string;
 }
 

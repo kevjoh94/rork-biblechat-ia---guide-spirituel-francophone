@@ -323,14 +323,14 @@ export default function HomeScreen() {
     }
   };
 
-  const getHeaderGradient = (): string[] => {
+  const getHeaderGradient = (): readonly [string, string] => {
     const hour = new Date().getHours();
     if (hour < 12) {
-      return [...colors.sunriseGradient];
+      return colors.sunriseGradient;
     } else if (hour < 18) {
-      return [...colors.primaryGradient];
+      return colors.primaryGradient;
     } else {
-      return [...colors.twilightGradient];
+      return colors.twilightGradient;
     }
   };
   
