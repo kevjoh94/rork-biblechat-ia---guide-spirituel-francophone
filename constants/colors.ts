@@ -47,12 +47,12 @@ export const colors = {
   wisdom: "#8B7D6B", // Brun sagesse
   faith: "#9BB5D6", // Bleu foi
   
-  // Gradients élégants
-  primaryGradient: ["#4A5D7A", "#6B9BD2"] as readonly [string, string],
-  secondaryGradient: ["#8B7D6B", "#C9A96E"] as readonly [string, string],
-  peacefulGradient: ["#6B9BD2", "#9BB5D6"] as readonly [string, string],
-  hopeGradient: ["#E8B4A0", "#F2C4B3"] as readonly [string, string],
-  cardGradient: ["#FFFFFF", "#F7F8FA"] as readonly [string, string],
-  sunriseGradient: ["#FFE5B4", "#FFCC8F"] as readonly [string, string],
-  twilightGradient: ["#4A5D7A", "#8A7CA8"] as readonly [string, string],
+  // Gradients magnifiques et spirituels
+  primaryGradient: ["#667EEA", "#764BA2"] as readonly [string, string],
+  secondaryGradient: ["#FF9A56", "#FFAD56"] as readonly [string, string],
+  peacefulGradient: ["#74B9FF", "#0984E3"] as readonly [string, string],
+  hopeGradient: ["#FD79A8", "#E84393"] as readonly [string, string],
+  cardGradient: ["#FFFFFF", "#F8F9FA"] as readonly [string, string],
+  sunriseGradient: ["#FFB347", "#FF8C69"] as readonly [string, string],
+  twilightGradient: ["#667EEA", "#764BA2"] as readonly [string, string],
 };

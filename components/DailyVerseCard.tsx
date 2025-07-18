@@ -28,11 +28,11 @@ export const DailyVerseCard: React.FC<DailyVerseCardProps> = ({ verse, reference
       >
         <View style={dynamicStyles.header}>
           <View style={dynamicStyles.iconContainer}>
-            <Calendar size={18} color={colors.white} />
+            <Calendar size={20} color={colors.white} />
           </View>
-          <Text style={dynamicStyles.headerText}>Verset du jour</Text>
+          <Text style={dynamicStyles.headerText}>✨ Verset du jour</Text>
           <View style={dynamicStyles.heartContainer}>
-            <Heart size={16} color={colors.white} fill={colors.white} />
+            <Heart size={18} color={colors.white} fill={colors.white} />
           </View>
         </View>
         
