@@ -3,12 +3,13 @@ import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-nati
 import { LinearGradient } from "expo-linear-gradient";
 import { MessageCircle, BookOpen, Heart, Calendar, Target, Sparkles } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { colors } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { useTheme } from "@/components/ThemeProvider";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -106,11 +107,11 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
   header: {
     paddingTop: spacing.xl,
     paddingBottom: spacing.lg,
@@ -222,7 +223,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: 'center',
   },
-  bottomPadding: {
-    height: spacing.xl,
-  },
-});
+    bottomPadding: {
+      height: spacing.xl,
+    },
+  });
+
+  return (

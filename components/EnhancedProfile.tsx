@@ -26,17 +26,20 @@ import {
   Target,
   Zap
 } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useSpiritualStore } from '@/store/spiritual-store';
 import { AchievementBadge } from '@/components/AchievementBadge';
+import { useTheme } from '@/components/ThemeProvider';
 
 export const EnhancedProfile: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [userName, setUserName] = useState('Utilisateur Spirituel');
   const [userBio, setUserBio] = useState('Chercheur de vérité');
+  
+  // Use theme context
+  const { colors, isDarkMode, toggleDarkMode } = useTheme();
   
   // Use individual selectors to prevent unnecessary re-renders
   const stats = useSpiritualStore((state) => state.stats);
@@ -513,7 +516,17 @@ export const EnhancedProfile: React.FC = () => {
           </View>
           
           <ScrollView style={styles.modalContent}>
-
+            <View style={styles.settingItem}>
+              <View style={styles.settingInfo}>
+                <Settings size={20} color={colors.text} />
+                <Text style={styles.settingLabel}>Mode sombre</Text>
+              </View>
+              <Switch
+                value={isDarkMode}
+                onValueChange={toggleDarkMode}
+                trackColor={{ false: colors.border, true: colors.primary }}
+              />
+            </View>
             
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
