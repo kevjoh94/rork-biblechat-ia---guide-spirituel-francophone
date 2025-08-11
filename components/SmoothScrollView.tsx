@@ -6,7 +6,7 @@ interface SmoothScrollViewProps {
   style?: any;
   contentContainerStyle?: any;
   showsVerticalScrollIndicator?: boolean;
-  refreshControl?: React.ReactElement<RefreshControlProps>;
+  refreshControl?: React.ReactElement<RefreshControlProps> | undefined;
   onScroll?: (event: any) => void;
   scrollEventThrottle?: number;
 }

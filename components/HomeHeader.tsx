@@ -10,7 +10,7 @@ import { typography } from '@/constants/typography';
 
 interface HomeHeaderProps {
   backgroundImage: string;
-  gradient: readonly [ColorValue, ColorValue, ...ColorValue[]];
+  gradient: string[];
   greeting: string;
 }
 

@@ -323,7 +323,7 @@ export default function HomeScreen() {
     }
   };
 
-  const getHeaderGradient = (): readonly [string, string] => {
+  const getHeaderGradient = () => {
     const hour = new Date().getHours();
     if (hour < 12) {
       return colors.sunriseGradient;
